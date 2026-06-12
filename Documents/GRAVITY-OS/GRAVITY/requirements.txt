@@ -1,0 +1,59 @@
+# AI providers
+anthropic
+httpx
+
+# API / backend
+fastapi
+uvicorn[standard]
+websockets
+
+# Database
+sqlalchemy
+psycopg2-binary
+alembic
+
+# Cache
+redis
+
+# Data validation
+pydantic
+pydantic-settings
+
+# Environment variables
+python-dotenv
+
+# Scheduling (nudge worker)
+apscheduler
+
+# Terminal UI (onboarding terminal)
+rich
+
+# Testing
+pytest
+pytest-asyncio
+
+# Calendar integration (Google + Apple via CalDAV)
+google-auth
+google-auth-oauthlib
+google-api-python-client
+caldav
+
+# Health data (Google Fit REST API)
+# Apple Health comes via HealthKit in the React Native app
+# and POSTs to the backend — no Python package needed for that
+
+# Open Banking (opt-in, Phase 3)
+# plaid-python
+
+# Webhooks (iOS Screen Time workaround via Apple Shortcuts)
+# handled by a FastAPI endpoint — no extra package needed
+
+# Push notifications (to companion app)
+# Apple APNs
+httpx[http2]
+PyJWT
+
+# Utilities
+python-dateutil
+pytz
+groq
