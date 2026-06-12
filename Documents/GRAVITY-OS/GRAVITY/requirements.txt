@@ -57,3 +57,4 @@ PyJWT
 python-dateutil
 pytz
 groq
+pillow
