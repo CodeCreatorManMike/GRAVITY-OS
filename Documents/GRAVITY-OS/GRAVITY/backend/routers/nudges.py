@@ -5,18 +5,23 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select
 import redis.asyncio as aioredis
 
 from backend.database import get_db
-from backend.models.user import Goal, Habit, HabitLog, Nudge, NudgeSettings, User
+from backend.models.user import Nudge, NudgeSettings, User
 from backend.routers.auth import get_current_user
 from backend.config import get_settings
+from backend.services.context_service import (
+    build_user_context,
+    build_nudge_state,
+    invalidate_user_context,
+)
 
 router = APIRouter(prefix="/nudges", tags=["nudges"])
 settings = get_settings()
 
-# ── Lazy singletons ──────────────────────────────────────────────────────────
+# ── Lazy singleton ────────────────────────────────────────────────────────────
 
 _redis_client = None
 
@@ -36,12 +41,14 @@ class NudgeFiredData(BaseModel):
     intensity: str
     tone: str
     message: str
+    sub_message: Optional[str] = None
+    action_label: str
     sent_at: str
 
 
 class NudgeEvaluateResponse(BaseModel):
     nudge: bool
-    reason: Optional[str] = None   # set when nudge=False
+    reason: Optional[str] = None     # set when nudge=False
     data: Optional[NudgeFiredData] = None  # set when nudge=True
 
 
@@ -95,9 +102,9 @@ def _in_quiet_hours(now_hhmm: str, start: str, end: str) -> bool:
     now = to_min(now_hhmm)
     s = to_min(start)
     e = to_min(end)
-    if s > e:  # overnight span: start in evening, end in morning
+    if s > e:  # overnight span
         return now >= s or now < e
-    return s <= now < e  # same-day span (unusual, e.g. 02:00–06:00)
+    return s <= now < e
 
 
 def _to_nudge_response(n: Nudge) -> NudgeResponse:
@@ -141,7 +148,7 @@ async def _get_or_create_settings(user_id: int, db: AsyncSession) -> NudgeSettin
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
-# NOTE: literal paths (/evaluate, /settings) are registered before /{nudge_id}
+# NOTE: literal paths (/evaluate, /settings) registered before /{nudge_id}
 # so FastAPI never mistakes them for integer path parameters.
 
 @router.post("/evaluate", response_model=NudgeEvaluateResponse)
@@ -150,30 +157,33 @@ async def evaluate(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Manually trigger nudge evaluation for the current user.
+    Trigger nudge evaluation for the current user.
 
     Gate order (all must pass before AI is called):
-      1. cooldown   — Redis key exists (TTL = max(90, cooldown_after) minutes)
+      1. cooldown   — Redis key nudge_cooldown:{id} exists
       2. daily_cap  — 3 nudges already sent today
-      3. quiet_hours — current time in user's quiet window
-      4. rest_day   — today is in user's rest days
+      3. quiet_hours — current time in user's quiet window (from context)
+      4. rest_day   — today in user's rest_days (from context)
 
-    Pending habits = active habits not completed today.
-    days_since_goal_progress = 0 (placeholder; goal progress events not yet tracked).
+    Context is served from Redis cache (1h TTL) or rebuilt from DB.
+    Gate reads settings from context so quiet hours are always real
+    values, never hardcoded defaults.
     """
-    # ── 1. Load or create nudge settings ─────────────────────────────────────
-    ns = await _get_or_create_settings(current_user.id, db)
+    redis = get_redis()
+
+    # ── 1. Load full context (cache or DB) ────────────────────────────────────
+    ctx = await build_user_context(current_user.id, db, redis)
+    ns = ctx["nudge_settings"]
 
     # ── 2. Gate checks ────────────────────────────────────────────────────────
     now = datetime.now()
     # TODO: per-user timezone — currently server local time (London, single user)
     now_hhmm = now.strftime("%H:%M")
     today_str = str(date.today())
-    weekday_name = now.strftime("%A")  # e.g. "Monday"
+    weekday_name = now.strftime("%A")
 
-    redis = get_redis()
     cooldown_key = f"nudge_cooldown:{current_user.id}"
-    daily_key = f"nudge_daily:{current_user.id}:{today_str}"
+    daily_key    = f"nudge_daily:{current_user.id}:{today_str}"
 
     if await redis.exists(cooldown_key):
         return NudgeEvaluateResponse(nudge=False, reason="cooldown_active")
@@ -182,113 +192,22 @@ async def evaluate(
     if daily_count and int(daily_count) >= 3:
         return NudgeEvaluateResponse(nudge=False, reason="daily_cap")
 
-    if _in_quiet_hours(now_hhmm, ns.quiet_hours_start or "22:00", ns.quiet_hours_end or "08:00"):
+    if _in_quiet_hours(now_hhmm, ns["quiet_hours_start"], ns["quiet_hours_end"]):
         return NudgeEvaluateResponse(nudge=False, reason="quiet_hours")
 
-    if weekday_name in (ns.rest_days or []):
+    if weekday_name in (ns["rest_days"] or []):
         return NudgeEvaluateResponse(nudge=False, reason="rest_day")
 
-    # ── 3. Build context from DB ──────────────────────────────────────────────
-    goal_result = await db.execute(
-        select(Goal)
-        .where(Goal.user_id == current_user.id, Goal.is_active == True)
-        .order_by(Goal.created_at.desc())
-        .limit(1)
-    )
-    active_goal = goal_result.scalar_one_or_none()
+    # ── 3. Build decide_nudge-compatible state from context ───────────────────
+    state = build_nudge_state(ctx, now_hhmm, weekday_name)
 
-    habits_result = await db.execute(
-        select(Habit).where(
-            Habit.user_id == current_user.id, Habit.is_active == True
-        )
-    )
-    habits = habits_result.scalars().all()
-
-    completed_today_ids: set[int] = set()
-    if habits:
-        logs_result = await db.execute(
-            select(HabitLog.habit_id).where(
-                and_(
-                    HabitLog.user_id == current_user.id,
-                    HabitLog.date == today_str,
-                    HabitLog.completed == True,
-                    HabitLog.habit_id.in_([h.id for h in habits]),
-                )
-            )
-        )
-        completed_today_ids = {row[0] for row in logs_result.all()}
-
-    habits_completed = [h.name for h in habits if h.id in completed_today_ids]
-    habits_pending   = [h.name for h in habits if h.id not in completed_today_ids]
-    nn_completed     = [h.name for h in habits if h.is_non_negotiable and h.id in completed_today_ids]
-    nn_pending       = [h.name for h in habits if h.is_non_negotiable and h.id not in completed_today_ids]
-
-    last_nudge_result = await db.execute(
-        select(Nudge)
-        .where(Nudge.user_id == current_user.id)
-        .order_by(Nudge.sent_at.desc())
-        .limit(1)
-    )
-    last_nudge = last_nudge_result.scalar_one_or_none()
-
-    # ── 4. Build UserProfile for the engine ───────────────────────────────────
-    from core.profile import UserProfile, Schedule
-    from core.profile import Goal as ProfileGoal
-
-    profile = UserProfile(
-        name=current_user.name,
-        personality_summary=current_user.personality_summary or "",
-        motivation_style=current_user.motivation_style or "",
-        energy_pattern=current_user.energy_pattern or "",
-        self_awareness_level=current_user.self_awareness_level or "",
-        failure_response=current_user.failure_response or "",
-        feedback_preference=current_user.feedback_preference or "direct",
-        schedule=Schedule(
-            wake_time=current_user.wake_time or "07:00",
-            sleep_time=current_user.sleep_time or "23:00",
-            peak_focus_windows=current_user.peak_focus_windows or [],
-            known_dead_zones=current_user.known_dead_zones or [],
-            realistic_daily_hours=float(current_user.realistic_daily_hours or 1.0),
-            avoidance_behaviours=current_user.avoidance_behaviours or [],
-        ),
-        goal=ProfileGoal(
-            statement=active_goal.statement if active_goal else "",
-            real_why=active_goal.real_why if active_goal else "",
-            likelihood_score=float(active_goal.likelihood_score or 0.0) if active_goal else 0.0,
-            milestone_structure=active_goal.milestone_structure if active_goal else [],
-            risk_factors=active_goal.risk_factors if active_goal else [],
-        ),
-        non_negotiables=[h.name for h in habits if h.is_non_negotiable],
-        cycle_start=active_goal.cycle_start if active_goal else None,
-        cycle_end=active_goal.cycle_end if active_goal else None,
-        onboarding_complete=current_user.onboarding_complete,
-        onboarding_phase=current_user.onboarding_phase,
-    )
-
-    # ── 5. Run two-call AI pipeline in thread ─────────────────────────────────
-    # evaluate_nudge() does not forward quiet_hours to build_user_state, so we
-    # call the three engine functions directly to pass the user's real quiet hours.
-    # Without this, build_user_state defaults to ["22:00-08:00"] and the AI
-    # declines during evenings even after the Python gate has already passed.
-    from core.nudge_engine import build_user_state, decide_nudge, generate_nudge_content
-
-    user_quiet_hours = [f"{ns.quiet_hours_start or '22:00'}-{ns.quiet_hours_end or '08:00'}"]
+    # ── 4. Run two-call AI pipeline in thread ─────────────────────────────────
+    from core.nudge_engine import decide_nudge, generate_nudge_content
 
     def _run_pipeline() -> dict:
-        state = build_user_state(
-            profile=profile,
-            habits_completed_today=habits_completed,
-            habits_pending_today=habits_pending,
-            non_negotiables_completed=nn_completed,
-            non_negotiables_pending=nn_pending,
-            last_nudge_category=last_nudge.category if last_nudge else None,
-            cooldown_active=False,      # gate already enforced above
-            days_since_goal_progress=0, # placeholder; goal progress events not yet tracked
-            quiet_hours=user_quiet_hours,
-        )
         decision = decide_nudge(state)
         if not decision.get("should_nudge"):
-            return {"nudge": False, "reason": decision.get("reason", ""), "state_snapshot": state}
+            return {"nudge": False, "reason": decision.get("reason", "")}
         content = generate_nudge_content(state, decision)
         return {
             "nudge": True,
@@ -319,20 +238,16 @@ async def evaluate(
             detail=f"AI call failed: {exc}",
         )
 
-    # ── 6. AI declined ────────────────────────────────────────────────────────
+    # ── 5. AI declined ────────────────────────────────────────────────────────
     if not result["nudge"]:
         return NudgeEvaluateResponse(nudge=False, reason="ai_declined")
 
-    # ── 7. Store nudge row ────────────────────────────────────────────────────
-    # intensity: the decision prompt returns ambient/prompt/direct/conversation directly —
-    # no urgency→intensity mapping needed; the prompt already uses our intensity vocabulary.
-    # tone: content prompt applies user.feedback_preference but doesn't return it explicitly;
-    # we snapshot it at send time so the app's coaching view can see what tone was used.
+    # ── 6. Store nudge row ────────────────────────────────────────────────────
     nudge_row = Nudge(
         user_id=current_user.id,
         category=result.get("category") or "",
         intensity=result.get("intensity") or "ambient",
-        tone=current_user.feedback_preference or "direct",
+        tone=ctx["profile"]["feedback_preference"] or "direct",
         message=result.get("message") or "",
         sub_message=result.get("sub_message") or "",
         action_label=result.get("action_label") or "Dismiss",
@@ -343,15 +258,16 @@ async def evaluate(
     await db.flush()
     await db.refresh(nudge_row)  # load server_default sent_at from DB
 
-    # ── 8. Set Redis cooldown + increment daily counter ───────────────────────
-    # cooldown_after: engine can return this for category-aware cooldown;
-    # floor at 90 minutes per product rules.
+    # ── 7. Set Redis cooldown + increment daily counter ───────────────────────
     cooldown_minutes = max(90, result.get("cooldown_after", 90))
     await redis.setex(cooldown_key, cooldown_minutes * 60, "1")
 
     count = await redis.incr(daily_key)
-    if count == 1:  # new key — set 24h expiry
+    if count == 1:
         await redis.expire(daily_key, 86400)
+
+    # ── 8. Invalidate context cache (nudge_history is now stale) ─────────────
+    await invalidate_user_context(current_user.id, redis)
 
     return NudgeEvaluateResponse(
         nudge=True,
@@ -361,6 +277,8 @@ async def evaluate(
             intensity=nudge_row.intensity,
             tone=nudge_row.tone,
             message=nudge_row.message,
+            sub_message=nudge_row.sub_message or None,
+            action_label=nudge_row.action_label,
             sent_at=nudge_row.sent_at.isoformat(),
         ),
     )
@@ -397,6 +315,7 @@ async def update_nudge_settings(
     db: AsyncSession = Depends(get_db),
 ):
     """Partially update nudge settings. Sensitivity values clamped to 0.0–1.0."""
+    redis = get_redis()
     ns = await _get_or_create_settings(current_user.id, db)
     if req.quiet_hours_start is not None:
         ns.quiet_hours_start = req.quiet_hours_start
@@ -414,6 +333,8 @@ async def update_nudge_settings(
         ns.sensitivity_sleep = max(0.0, min(1.0, req.sensitivity_sleep))
     if req.sensitivity_spending is not None:
         ns.sensitivity_spending = max(0.0, min(1.0, req.sensitivity_spending))
+    # Settings changed — invalidate so next evaluate reads fresh values
+    await invalidate_user_context(current_user.id, redis)
     return _to_settings_response(ns)
 
 

@@ -8,6 +8,19 @@ from sqlalchemy import select, and_
 from backend.database import get_db
 from backend.models.user import Habit, HabitLog, User
 from backend.routers.auth import get_current_user
+from backend.config import get_settings
+import redis.asyncio as aioredis
+from backend.services.context_service import invalidate_user_context
+
+_settings = get_settings()
+_redis_client = None
+
+
+def _get_redis() -> aioredis.Redis:
+    global _redis_client
+    if _redis_client is None:
+        _redis_client = aioredis.from_url(_settings.redis_url, decode_responses=True)
+    return _redis_client
 
 router = APIRouter(prefix="/habits", tags=["habits"])
 
@@ -208,6 +221,8 @@ async def complete_habit(
         )
         db.add(log)
         await db.flush()
+        # Invalidate context cache — today.habits_completed is now stale
+        await invalidate_user_context(current_user.id, _get_redis())
 
     return HabitLogResponse(habit_id=habit_id, date=today_str, completed=log.completed)
 
