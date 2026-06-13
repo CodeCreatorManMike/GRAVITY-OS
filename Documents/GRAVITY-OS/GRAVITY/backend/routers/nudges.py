@@ -266,21 +266,46 @@ async def evaluate(
     )
 
     # ── 5. Run two-call AI pipeline in thread ─────────────────────────────────
-    from core.nudge_engine import evaluate_nudge
+    # evaluate_nudge() does not forward quiet_hours to build_user_state, so we
+    # call the three engine functions directly to pass the user's real quiet hours.
+    # Without this, build_user_state defaults to ["22:00-08:00"] and the AI
+    # declines during evenings even after the Python gate has already passed.
+    from core.nudge_engine import build_user_state, decide_nudge, generate_nudge_content
+
+    user_quiet_hours = [f"{ns.quiet_hours_start or '22:00'}-{ns.quiet_hours_end or '08:00'}"]
+
+    def _run_pipeline() -> dict:
+        state = build_user_state(
+            profile=profile,
+            habits_completed_today=habits_completed,
+            habits_pending_today=habits_pending,
+            non_negotiables_completed=nn_completed,
+            non_negotiables_pending=nn_pending,
+            last_nudge_category=last_nudge.category if last_nudge else None,
+            cooldown_active=False,      # gate already enforced above
+            days_since_goal_progress=0, # placeholder; goal progress events not yet tracked
+            quiet_hours=user_quiet_hours,
+        )
+        decision = decide_nudge(state)
+        if not decision.get("should_nudge"):
+            return {"nudge": False, "reason": decision.get("reason", ""), "state_snapshot": state}
+        content = generate_nudge_content(state, decision)
+        return {
+            "nudge": True,
+            "category": decision.get("category"),
+            "intensity": decision.get("intensity"),
+            "reason": decision.get("reason", ""),
+            "data_points": decision.get("data_points", []),
+            "message": content.get("message", ""),
+            "sub_message": content.get("sub_message"),
+            "action_label": content.get("action_label", "Dismiss"),
+            "display_duration_seconds": content.get("display_duration_seconds", 30),
+            "cooldown_after": decision.get("cooldown_after", 90),
+        }
 
     try:
         result = await asyncio.wait_for(
-            asyncio.to_thread(
-                evaluate_nudge,
-                profile=profile,
-                habits_completed_today=habits_completed,
-                habits_pending_today=habits_pending,
-                non_negotiables_completed=nn_completed,
-                non_negotiables_pending=nn_pending,
-                last_nudge_category=last_nudge.category if last_nudge else None,
-                cooldown_active=False,  # gate already enforced above
-                days_since_goal_progress=0,  # placeholder; goal progress events not yet tracked
-            ),
+            asyncio.to_thread(_run_pipeline),
             timeout=30.0,
         )
     except asyncio.TimeoutError:
