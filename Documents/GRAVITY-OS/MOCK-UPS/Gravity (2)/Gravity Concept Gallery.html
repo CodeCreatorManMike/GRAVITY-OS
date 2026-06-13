@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gravity — Circular E-Ink Interface Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Sora:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --page:#0b0b0d;
+    --page2:#101013;
+    --line:#26262b;
+    --line2:#1a1a1e;
+    --txt:#e7e6df;
+    --txt-dim:#8d8d92;
+    --txt-faint:#5a5a60;
+    --accent:#cfcec6;
+    /* e-ink panel */
+    --paper:#f4f2ea;
+    --ink:#14130d;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page);
+    color:var(--txt);
+    font-family:"Space Grotesk",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 120px;
+  }
+
+  /* ---------- Page header ---------- */
+  header.masthead{
+    max-width:1880px;margin:0 auto;padding:56px 56px 0;
+  }
+  .brandrow{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;
+    border-bottom:1px solid var(--line);padding-bottom:26px;}
+  .brand{display:flex;align-items:center;gap:18px;}
+  .logo{width:34px;height:46px;flex:none;}
+  .brand h1{font-family:"Space Grotesk";font-weight:600;font-size:30px;letter-spacing:.32em;
+    margin:0;text-transform:uppercase;}
+  .brand .tag{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.34em;color:var(--txt-faint);
+    text-transform:uppercase;margin-top:6px;}
+  .meta{font-family:"JetBrains Mono";font-size:11px;line-height:1.9;color:var(--txt-dim);
+    letter-spacing:.08em;text-align:right;}
+  .meta b{color:var(--txt);font-weight:500;}
+  .lede{max-width:760px;margin:30px 0 0;font-size:15.5px;line-height:1.7;color:var(--txt-dim);font-weight:300;}
+  .lede b{color:var(--txt);font-weight:500;}
+  .specstrip{display:flex;flex-wrap:wrap;gap:0;margin-top:34px;border:1px solid var(--line);
+    border-radius:2px;overflow:hidden;}
+  .specstrip div{flex:1;min-width:150px;padding:14px 18px;border-right:1px solid var(--line);}
+  .specstrip div:last-child{border-right:none;}
+  .specstrip .k{font-family:"JetBrains Mono";font-size:9.5px;letter-spacing:.26em;color:var(--txt-faint);
+    text-transform:uppercase;}
+  .specstrip .v{font-size:13.5px;color:var(--txt);margin-top:6px;font-weight:400;}
+
+  /* ---------- Direction sections ---------- */
+  section.dir{max-width:1880px;margin:0 auto;padding:64px 56px 0;}
+  .dirhead{display:flex;align-items:baseline;gap:22px;margin-bottom:6px;}
+  .dirhead .badge{font-family:"JetBrains Mono";font-size:12px;font-weight:600;letter-spacing:.1em;
+    color:var(--page);background:var(--txt);width:30px;height:30px;display:flex;align-items:center;
+    justify-content:center;border-radius:50%;flex:none;}
+  .dirhead h2{margin:0;font-size:23px;font-weight:600;letter-spacing:.02em;}
+  .dirhead .font{font-family:"JetBrains Mono";font-size:10.5px;letter-spacing:.2em;color:var(--txt-faint);
+    text-transform:uppercase;margin-left:auto;}
+  .dirphil{font-size:14px;line-height:1.65;color:var(--txt-dim);max-width:880px;font-weight:300;
+    margin:0 0 30px;padding-left:52px;}
+  .dirphil b{color:var(--accent);font-weight:500;}
+
+  .row{display:grid;grid-template-columns:repeat(7,1fr);gap:20px;}
+  @media(max-width:1700px){.row{grid-template-columns:repeat(4,1fr);}}
+  @media(max-width:1180px){.row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:820px){.row{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.row{grid-template-columns:1fr;}}
+
+  figure.card{margin:0;display:flex;flex-direction:column;}
+  .statelabel{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
+  .statelabel .num{font-family:"JetBrains Mono";font-size:10px;color:var(--txt-faint);letter-spacing:.1em;}
+  .statelabel .nm{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--txt);font-weight:500;}
+
+  .disc-wrap{position:relative;border-radius:50%;
+    background:radial-gradient(circle at 38% 30%, #18181c, #0d0d10 72%);
+    padding:13px;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -22px #000;}
+  .disc-wrap::after{content:"";position:absolute;inset:13px;border-radius:50%;
+    box-shadow:0 0 0 1px #303036 inset, 0 0 0 8px #0f0f12 inset, 0 0 0 9px #2a2a30 inset;
+    pointer-events:none;}
+  .disc-wrap svg{display:block;width:100%;height:auto;border-radius:50%;}
+
+  figcaption{margin-top:15px;}
+  figcaption p{margin:0;font-size:12.5px;line-height:1.6;color:var(--txt-dim);font-weight:300;}
+  figcaption p b{color:var(--txt);font-weight:500;}
+  .reads{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:11px;}
+  .reads span{font-family:"JetBrains Mono";font-size:10px;letter-spacing:.04em;color:var(--txt-faint);
+    display:flex;align-items:center;gap:6px;}
+  .reads span i{font-style:normal;width:15px;height:15px;border:1px solid var(--line);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:8.5px;color:var(--txt);flex:none;}
+  .reads span b{color:var(--txt-dim);font-weight:400;}
+
+  footer{max-width:1880px;margin:80px auto 0;padding:0 56px;}
+  footer .rule{border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;
+    font-family:"JetBrains Mono";font-size:10.5px;letter-spacing:.14em;color:var(--txt-faint);text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brandrow">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 34 46" fill="none" stroke="var(--txt)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 3 L17 16" />
+        <path d="M9 9 L17 17 L25 9" />
+        <path d="M17 17 C5 26 4 43 17 43 C30 43 29 26 17 17 Z" />
+        <circle cx="17" cy="33" r="3.4" fill="var(--txt)" stroke="none"/>
+      </svg>
+      <div>
+        <h1>Gravity</h1>
+        <div class="tag">Circular E-Ink Interface · Concept Gallery</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div><b>71 MOCKUPS</b> · 6 SECTIONS</div>
+      <div>1-BIT BLACK / WHITE · NO GREYSCALE</div>
+      <div>REV 0.6 · 12 JUN 2026</div>
+    </div>
+  </div>
+
+  <p class="lede">A glanceable desk &amp; bedside object — a single <b>circular e-ink display</b>, ~100mm, read in under two seconds without a touch. This is the wide inspiration set: the three original house styles, then a deep run of <b>to-do lists, a components sheet, and more first-glance screens</b>. Every disc obeys the same rule — line, arc, dot and glyph only; ink on paper; perimeter for status, mid-ring for context, centre for the one thing that matters.</p>
+
+  <div class="specstrip">
+    <div><div class="k">Directions</div><div class="v">Terminal · Orbital · Minimal</div></div>
+    <div><div class="k">Sections</div><div class="v">A–C · Library · Tasks · Components</div></div>
+    <div><div class="k">Palette</div><div class="v">1-bit · ink on paper</div></div>
+    <div><div class="k">Form</div><div class="v">No fills — line, arc, dot</div></div>
+    <div><div class="k">Read time</div><div class="v">&lt; 2 seconds, glance</div></div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <div class="rule"><span>Gravity OS · Interface Concept Gallery · Rev 0.6</span><span>Centre reads first · Perimeter is ambient</span></div>
+</footer>
+
+<script src="gravity-build.js"></script>
+<script src="gravity-library.js"></script>
+<script src="gravity-gallery.js"></script>
+</body>
+</html>
