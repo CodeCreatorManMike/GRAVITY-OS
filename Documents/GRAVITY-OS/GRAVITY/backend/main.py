@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from backend.database import init_db
 from backend.config import get_settings
-from backend.routers import auth, onboarding, goals, habits
+from backend.routers import auth, onboarding, goals, habits, nudges
 
 settings = get_settings()
 
@@ -34,6 +34,7 @@ app.include_router(auth.router)
 app.include_router(onboarding.router)
 app.include_router(goals.router)
 app.include_router(habits.router)
+app.include_router(nudges.router)
 
 @app.get("/")
 async def root():
