@@ -1,288 +1,347 @@
-# HARDWARE — GRAVITY
+# HARDWARE — GRAVITY V1
+
+> Detailed, research-backed hardware specification. Every major component has a selected part, exact
+> measurements, a primary + backup supplier with links, current pricing, a datasheet link, and design
+> notes. Prices are single-unit / low-qty as of mid-2026 and move — treat them as planning figures, not
+> quotes. **Always confirm the FPC connector pitch and touch-controller variant against the physical
+> panel before committing the PCB.**
 
 ---
 
-## Physical Form Factor
+## 0. Decision Summary
 
-### Reference Object
-The closest existing product to Gravity's physical size and presence is the Apple HomePod Mini.
+| Decision | Choice | Why |
+|---|---|---|
+| Display | **2.8" round IPS LCD, ST7701S** (e-ink = future path) | Round e-ink supply is thin (≈1 source). LCD renders the same 1-bit paper-on-ink aesthetic with stable supply, lower volume cost, and instant refresh. |
+| Compute | **ESP32-S3-WROOM-1-N16R8** (module) | Pre-certified antenna (no RF cert/tuning), 16 MB flash / 8 MB PSRAM, WiFi+BLE, AI acceleration for on-device wake-word. |
+| Charger | **TI BQ24074** (charger + power-path) | Runs from USB while charging without micro-cycling the cell — right for a desk device. |
+| Regulator | **TI TPS62840** (60 nA Iq buck) | Lowest practical sleep-floor; the single biggest lever on standby battery life. |
+| Fuel gauge | **MAX17048** | Real state-of-charge for the battery glyph, ~3 µA. |
+| Architecture | Device = cloud display terminal; 2-board split (device + base) | All AI runs server-side; USB-C lives in base, charger lives with the battery. |
 
-| Apple HomePod Mini | Gravity Target |
+**Critical correction to prior spec:** at 0.146 mm dot pitch on a Ø70.13 mm active area with 480×480 px,
+the real pixel density is **≈174 PPI**, not 241 PPI. Use 174 PPI in all rendering/DPI calculations.
+
+---
+
+## 1. Physical Form Factor
+
+Reference object: Apple HomePod Mini (97 mm dia × 84 mm tall). Gravity is a similar footprint, with a
+defined front (display) and back (grip), seated in an angled base.
+
+| Dimension | Value | Notes |
+|---|---|---|
+| Total diameter | 90–100 mm | Driven by the 73 mm panel + 9–13 mm bezel |
+| Total depth (front→back) | 40–50 mm | |
+| Display cutout diameter | 72–74 mm | Panel outline Ø ≈73 mm + 0.2–0.3 mm clearance |
+| Bezel width | 9–13 mm | Display edge → enclosure edge |
+| Base footprint | ~100 mm dia | Weighted for stability |
+| Base height | ~18 mm | |
+| Total height in base | ~95–110 mm | At 15–25° tilt |
+| Weight (device only) | < 180 g | |
+| Weight (with base) | < 250 g | |
+
+It is not a sphere — convex soft-touch back, circular display face, fixed 15–25° backward tilt so the
+screen meets the user's eyeline at a desk or bedside.
+
+---
+
+## 2. Display — 2.8" Round IPS LCD (ST7701S)
+
+This is the most supplier-sensitive component, so it's specified in the most depth. There are **two
+distinct things** you can buy, and conflating them is the classic mistake:
+
+### 2A. The bare production panel (what goes in the product)
+
+A raw 2.8" round IPS TFT glass with an **ST7701S** driver-on-glass and an FPC tail. This is what you
+design the enclosure and PCB around.
+
+| Property | Value |
 |---|---|
-| 97mm diameter | ~90–100mm diameter |
-| 84mm tall | ~80–95mm tall |
-| Spherical / fabric wrapped | Circular front face, plastic body |
-| Sits flat, no directionality | Directional — angled front face toward user |
-| ~45mm display cutout | 71mm display viewing area (2.8" round LCD) |
+| Driver IC | **ST7701S** (on-glass) |
+| Shape / type | Circular IPS TFT, colour, LED backlit |
+| Resolution | 480 × 480 px |
+| Dot pitch | 0.146 × 0.146 mm → **≈174 PPI** |
+| Active area | **Ø 70.13 mm** |
+| Visual area | Ø 70.73 mm |
+| Outline (panel) | **≈73.0 (W) × 76.5 (H) × 2.28 (T) mm** |
+| Interface | 3-wire SPI + RGB (SPI for config, RGB for pixel data on ESP32) |
+| Brightness | 250–300 cd/m² typ (4× backlight LEDs, ~80 mA @ 3 V) |
+| Viewing angle | IPS, ~80° all directions |
+| Operating voltage | 2.8–3.3 V logic; backlight ~3 V via PWM |
+| Operating temp | −20 to +70 °C |
 
-Gravity is approximately the same footprint as a HomePod Mini — slightly larger to accommodate the display cutout and bezel. It is not a perfect sphere — it has a defined front (display face) and back (grip surface). The display is slightly larger than the HomePod Mini's top face, which is intentional — it is the product's identity.
+**Suppliers (bare panel):**
+- **TSD / TSLCD — TST028WVBS-33** (2.8" round, 480×480, ST7701S, SPI+RGB, 73.03×76.48×2.28 mm, active Ø70.13). Manufacturer-direct, customisable touch, MOQ-friendly for small runs. [tslcd.com](https://www.tslcd.com/tsd-ips-2-8-inch-round-480x480-resolution-300-nits-spi-rgb-interface-tft-lcd-display-module_p763.html)
+- **GL Electronics** — 2.8" round ST7701S, RGB interface, ODM touch/FPC customisation, 3–5 yr supply commitment. [lcdscreenmfg.com](https://lcdscreenmfg.com/product/2-8inch-round-ips-tft-lcd-display-480480-rgb-interface-st7701s-2-76-lcd-screen/)
+- **EastRising/BuyDisplay** bare-panel SKUs (ST7701S, MIPI/RGB). Single-unit ~US$17.86. [buydisplay.com](https://www.buydisplay.com/2-8-inch-480x480-mipi-round-circle-screen-ips-tft-lcd-display-st7701s)
 
----
+> Production cost guide: ~£5–8 each at 100 units, ~£3–5 at 1,000 (manufacturer-direct, MOQ 50–100).
 
-## Display — Confirmed Spec
+### 2B. The prototyping module (what you breadboard with first)
 
-**Selected display: 2.8" Round IPS LCD — ST7701S driver**
+BuyDisplay's **ER-TFT028-2-6318** Arduino-shield module is the easiest bring-up path, but **note it is not
+a bare ST7701S board** — it carries an **LT7683 controller + SSD2828 bridge** and a **GT911** capacitive
+touch controller, and its outline is much bigger (64.6 × 117.43 mm) because it's a shield.
 
-This is the confirmed display for both prototype and v1 production. E-ink remains the long-term product vision but round e-ink supply is fragile and limited to one primary source (Waveshare). The ST7701S round LCD delivers the same aesthetic through software rendering — paper-coloured background, ink-black elements, 1-bit visual language — with better supply chain stability, lower BOM cost at volume, and instant partial refresh.
-
-| Property | Spec |
+| Property | Value |
 |---|---|
-| Display type | Round IPS TFT LCD — colour, backlit |
-| Driver IC | ST7701S |
-| Shape | Circular |
-| Viewing area diameter | 71mm (2.8 inches) |
-| Resolution | 480 × 480 pixels |
-| Pixel density | ~241 PPI |
-| Colour depth | 16-bit (65K colours) — rendered in 1-bit palette by software |
-| Interface | SPI + RGB (SPI used for prototype, RGB for production) |
-| Touch | Capacitive touch layer integrated — GT911 or CST816 controller |
-| Viewing angle | 178° all directions (IPS) |
-| Brightness | 300–500 nits depending on supplier variant |
-| Refresh | Instant — no e-ink flash delay |
-| Operating voltage | 3.3V |
-| Backlight | LED, dimmable via PWM |
+| Part | **ER-TFT028-2-6318** (EastRising) |
+| Controller | LT7683 (+ SSD2828 bridge) |
+| Touch | **GT911** capacitive (multi-touch, I²C) |
+| Active / visual | Ø70.13 / Ø70.73 mm |
+| Interface | I²C, 3-/4-wire SPI |
+| Supply current (LCM max) | 220 mA @ 3.3/5 V |
+| Price | US$30.29 (1) → US$27.17 (100) |
+| Bundle | Arduino shield + ESP32 example code + datasheets |
+| Link | [buydisplay.com/round-2-8…](https://www.buydisplay.com/round-2-8-inch-480x480-tft-module-spi-i2c-opt-capacitive-touch-arduino-shield) · datasheet updated Jan-2026 |
 
-### Display Aesthetic Strategy
-The LCD renders the same visual language as the e-ink designs:
-- Background: `#F4F2EA` (warm paper white) — not pure white
-- Foreground: `#14130D` (near-black ink) — not pure black
-- No colour used in v1 UI — strict 1-bit palette enforced in software
-- Backlight dimmed to ~30–40% in ambient/idle mode — reduces glare, mimics e-ink flatness
-- Night mode: backlight to ~5–10%, warm tint filter applied
-- The paper-on-black rendering in a dark room matches e-ink presence closely
+**Implication:** firmware written against the eval module's LT7683/GT911 will **not** port 1:1 to a bare
+ST7701S + CST816S production panel. Validate the *rendering and touch-zone logic* on the eval module, but
+budget driver-layer rework for the production panel. This is exactly why the display HAL (abstraction
+layer) must be clean from day one.
 
-### Future Display Path
-When a reliable 2.8"–3.0" round e-ink source becomes available at production volumes the driver layer swaps. The entire rendering stack above it is unchanged. This is why the display abstraction layer (HAL) must be built correctly from day one.
+### 2C. Aesthetic rendering strategy
+Render the e-ink look in software: background `#F4F2EA` (warm paper), foreground `#14130D` (near-black
+ink), strict 1-bit palette in V1, backlight PWM'd to ~30–40 % in idle and ~5–10 % at night. Swap
+transitions are state swaps, never slides — preserves the calm e-ink feel.
 
-### Supplier Notes (To Be Finalised)
-- **Prototype source:** BuyDisplay.com (ER-TFT028 series), Makerfabs, or AliExpress single units ~£15–20
-- **Production source (TBD):** Shenzhen Chance Technology / Lianxun Optronics — MOQ 50–100 units, ~£5–8 each at 100 units, ~£3–5 at 1,000 units
-- Confirm exact FPC connector pitch (0.5mm standard) before PCB design
-- Confirm touch controller variant before writing firmware touch driver
+### 2D. Future e-ink path
+When a reliable 2.8–3.0" round e-ink source exists at volume, swap **only** the driver layer beneath the
+HAL. Everything above is unchanged.
 
 ---
 
-## Enclosure — Updated for 2.8" Display
+## 3. Compute — ESP32-S3-WROOM-1-N16R8
 
-### Revised Dimensions
-The enclosure has been revised down from the original e-ink spec to match the 2.8" LCD form factor.
-
-| Dimension | Value |
+| Property | Value |
 |---|---|
-| Total diameter | 90–100mm |
-| Total depth (front to back) | 40–50mm |
-| Display cutout diameter | 72–74mm (matches 71mm viewing area + 1–2mm bezel ring) |
-| Bezel width (display edge to enclosure edge) | 9–13mm all around |
-| Base footprint | ~100mm diameter |
-| Base height | ~18mm |
-| Total height (device in base) | ~95–110mm |
-| Weight (device only) | <180g |
-| Weight (with base) | <250g |
+| Part | **ESP32-S3-WROOM-1-N16R8** (PCB antenna) / **-1U-N16R8** (U.FL ext. antenna) |
+| Core | Xtensa dual-core LX7 @ 240 MHz, vector/AI acceleration (wake-word, person-detect) |
+| Memory | 16 MB Quad SPI flash + **8 MB octal PSRAM** |
+| Radio | WiFi 802.11 b/g/n + Bluetooth 5 (LE) |
+| GPIO | 36, deep sleep ~10 µA |
+| Price (1 off) | **US$6.76** (DigiKey/Mouser); ~£2.50–3.50 at volume |
+| Datasheet/links | [DigiKey -1-N16R8](https://www.digikey.com/en/products/detail/espressif-systems/ESP32-S3-WROOM-1-N8R8/15295891) · [Mouser -1U-N16R8](https://www.mouser.com/ProductDetail/Espressif-Systems/ESP32-S3-WROOM-1U-N16R8?qs=Li%2BoUPsLEns6V0Pr5KRJtw%3D%3D) · [Espressif](https://www.espressif.com/en/module/esp32-s3-wroom-1u-en) |
 
-### Material
-- Primary: ABS or PETG plastic (3D printed for prototype, injection moulded for v1)
-- Finish: Matte soft-touch coating — not glossy
-- Colour: Single colour for v1 — **matte black** (space/terminal aesthetic)
-- Future: Consider light grey or off-white variant
+**Hard pin caveat:** on the **-N16R8** (octal PSRAM) the PSRAM + flash consume **GPIO26–37 — never route
+to those pins.** Keep strapping pins (GPIO0/3/45/46) at default loading. Default to the **-1** (PCB
+antenna); only move to **-1U** if in-enclosure range testing disappoints (same price, adds a U.FL cable +
+antenna). Secondary-source the module before production (intermittent S3 supply).
 
-### Construction
-- Two-piece shell: front face (display side) + back shell
-- Front face has circular cutout for display — bezel is part of the front face piece
-- Back shell is convex — smooth, ergonomic
-- The two pieces clip or screw together — designed for repairability
-- Base is a separate third piece — houses USB-C port and angled stand
-- Display glass sits flush with or slightly recessed from the front face bezel — no proud edges
-
-### Stand / Base
-- The device sits in a small circular base
-- The base angles the device at approximately **15–25 degrees** from vertical
-- Tilted back so the display faces upward toward the user's eyeline at desk or bedside
-- The angle is fixed — not adjustable in v1
-- Base contains USB-C port and power management circuitry
-- Device seats into base magnetically or friction-fit — lifts out cleanly for holding
+Prototype bring-up devkit: **ESP32-S3-DevKitC-1-N8R8** (~US$15, [DigiKey](https://www.digikey.com/en/products/detail/espressif-systems/ESP32-S3-DEVKITC-1-N8/15199021)).
 
 ---
 
-## Directionality & Orientation
+## 4. Power Chain
 
-Gravity is not an omnidirectional object. It has a front and a back. It faces the user.
+LCD changes the power story vs e-ink: the **backlight must be on to show anything** (~80 mA), so this is
+an hours-to-days device on battery, not weeks. The base is the home; battery is for portability/outage.
 
-- The display always knows which way is "up" via an onboard accelerometer
-- If the device is picked up and held, the UI rotates to match orientation
-- When set back in the base, it returns to desk/table display mode automatically
+### 4A. USB-C input (base board)
+- USB-C receptacle (e.g. JAE **DX07S016JA1R1500**, ~US$1.70, [DigiKey](https://www.digikey.com/en/products/detail/espressif-systems/ESP32-S3-WROOM-1U-N8R8/16162638)) + **5.1 kΩ** CC1/CC2 pulldowns (configures 5 V sink).
+- TVS ESD array + ~1 A resettable PTC fuse. Only VBUS + GND cross to the device via 2 pogo contacts.
 
----
+### 4B. Charger + power-path — TI BQ24074
+- Li-ion linear charger with **dynamic power-path**: system runs from USB *and* charges simultaneously, so the cell doesn't micro-cycle every time it sits in the base.
+- Programmable charge current via ISET (set ~0.5 C). STAT pin → ESP32 GPIO for charge state.
+- Part **BQ24074RGTR** (VQFN-16). [Mouser](https://www.mouser.com/ProductDetail/Texas-Instruments/BQ24074RGTR?qs=ZV%2Fxhq4oszp2Nll7fIx5wg%3D%3D)
+- *Budget alt:* TP4056 (no power-path) — fine for prototype, not ideal for an always-plugged device.
 
-## Touch Interface
+### 4C. 3.3 V regulator — TI TPS62840
+- **60 nA quiescent**, 1.8–6.5 V in, **750 mA** out, DCS-Control, 1.8 MHz, 16 resistor-selectable output voltages via VSET. Tiny 1.5×2.0 mm package. Needs a 2.2 µH inductor + 4.7 µF input cap; follow the datasheet single-layer layout exactly.
+- Part **TPS62840DLCR**. [Mouser](https://www.mouser.com/ProductDetail/Texas-Instruments/TPS62840DLCR?qs=%2B6g0mu59x7L1%2Fxo1joT%2Bvg%3D%3D) · [TI datasheet](https://www.ti.com/product/TPS62840)
 
-Touch is the primary physical interaction method.
+### 4D. Fuel gauge — MAX17048
+- ModelGauge (no sense resistor), **~3 µA**, **I²C 0x36**, ALRT interrupt → GPIO for low-battery. [datasheet PDF](https://www.mouser.com/datasheet/2/609/MAX17048_MAX17049-3126952.pdf)
 
-- Capacitive touch layer integrated into the display module (GT911 or CST816 controller)
-- Supports: **tap, double-tap, swipe (left/right/up/down), long press**
-- Does NOT need to support multi-touch in v1 — single touch point is sufficient
-- Touch zones map to the circular UI:
-  - **Centre tap:** confirm / select / acknowledge
-  - **Swipe left/right:** navigate between screens
-  - **Swipe up:** surface goal detail / expand
-  - **Swipe down:** dismiss nudge / snooze
-  - **Long press:** enter settings / call up AI check-in
+### 4E. Battery
+- **1000–1500 mAh single-cell LiPo**, JST-PH/SH, with protection.
+- Sources: Adafruit **1200 mAh #258**, **2000 mAh #2011** ([adafruit.com](https://www.adafruit.com/product/2011)); or AliExpress 503450-class cells.
 
-### Touch on LCD vs E-Ink
-LCD touch response is instant — no refresh delay to design around. However:
-- Touch feedback animations must still be minimal — the product aesthetic is calm, not reactive
-- Swipe transitions use a simple state swap, not a slide animation — preserves the e-ink feel
-- If/when migrating to e-ink, the touch zone logic is unchanged — only the feedback timing changes
-
----
-
-## Back of Device — Grip & Comfort
-
-- Back surface is a smooth convex curve — no sharp edges, no protrusions
-- Material: matte soft-touch plastic (similar to Kindle Paperwhite back)
-- The curvature fits naturally into a cupped palm
-- Diameter at widest point (~90–100mm) sits comfortably across an average adult hand
-- Weight target: **under 180g**
-- No buttons on the back — all interaction via front touch surface
-- Single USB-C port on the base unit, not the device body — clean back surface
-
----
-
-## Power & Battery
-
-Gravity is **primarily a plugin device** — lives in its base, plugged in. Battery is for portability.
-
-| Property | Spec |
+| Power property | Spec |
 |---|---|
-| Primary power | USB-C, 5V via base |
-| Battery | 1000–1500mAh LiPo |
-| Estimated battery life (LCD) | 8–16 hours active, 2–3 days standby with backlight off |
-| Charge time | ~1.5 hours via USB-C |
-| Battery indicator | Shown on display — one persistent glyph in corner |
-| Low battery behaviour | Dims backlight to minimum, sends notification to companion app |
-
-### Power Architecture
-- When plugged in: full brightness, full refresh rate, all features active
-- On battery: backlight dims to 10–15%, refresh rate reduces, WiFi sync interval increases
-- Deep sleep mode: backlight off, display holds last frame, wakes on touch or RTC timer
-- Note: LCD requires backlight power to show content — unlike e-ink which holds image at zero power. This is the primary battery life difference between LCD and e-ink for this use case.
+| Primary power | USB-C 5 V via base |
+| Battery life (active, backlight on) | ~8–16 h |
+| Battery life (standby, backlight off, holds frame) | ~2–3 days |
+| Charge time | ~1.5 h |
+| On-battery behaviour | dim backlight 10–15 %, slow refresh, increase WiFi sync interval, deep sleep on idle |
 
 ---
 
-## Processor & Compute
+## 5. Touch Controller
 
-### Prototype: Raspberry Pi Zero 2W
-- Used for Stage 2 prototype only
-- Runs full Linux — easy Python development, fast iteration
-- WiFi built in
-- Drives ST7701S display via SPI
-- Downside: higher power draw, longer boot, physically larger than needed
+Touch is the primary interaction (tap, double-tap, swipe ×4, long-press; single-touch is enough for V1).
 
-### Production Target: ESP32-S3
-- Dual-core 240MHz, 512KB SRAM, supports external PSRAM
-- WiFi 802.11 b/g/n + Bluetooth 5.0 built in
-- Ultra low power deep sleep (~10µA)
-- Drives ST7701S display via SPI/RGB
-- Runs MicroPython or C++ firmware
-- Physically small — fits comfortably inside enclosure with room for battery
+| Option | Part | Touch | Bus | Use |
+|---|---|---|---|---|
+| Production (recommended) | **CST816S** | single-point + HW gestures, low-power **wake-on-touch** | I²C **0x15** + INT/RST | Cheapest, gesture engine in HW, INT wakes ESP32 from deep sleep |
+| Eval / off-the-shelf | **GT911** | up to 5-point | I²C (0x5D/0x14) | Ships on the BuyDisplay eval module |
 
-### Memory
-| Type | Size |
-|---|---|
-| Flash (program storage) | 16MB |
-| PSRAM (runtime) | 8MB |
-| SD card slot (optional) | Future firmware expansion |
+**Watch-out:** GT911 and CST816 have different default I²C addresses and register maps — confirm the
+variant on the *actual* panel before writing the touch driver. `TOUCH_INT` must land on an RTC-capable
+GPIO (0–21) for wake-on-touch.
 
 ---
 
-## Connectivity
+## 6. Sensors
+
+| Sensor | Part | Function | Bus / addr | Phase | Link |
+|---|---|---|---|---|---|
+| Accelerometer / IMU | **LIS2DW12** (ST) | Desk-vs-held orientation, UI rotation, wake-on-pickup; ~1 µA low-power | I²C **0x18/0x19** + INT | 1 | [ST community](https://community.st.com/t5/mems-sensors/lis2dw12-accelerometers-i2c-address-and-read-data/td-p/200812) |
+| Ambient light | **VEML7700** (Vishay) | Auto-dim backlight; 0–120k lux, 16-bit, 0.0036 lx/ct | I²C **0x10** | 1 | [Vishay datasheet](https://www.vishay.com/docs/84286/veml7700.pdf) · [Adafruit #4162](https://www.adafruit.com/product/4162) |
+| MEMS microphone | **ICS-43434** (TDK) | Voice onboarding/check-ins; on-device wake-word via S3 AI accel | I²S | 2 | [Adafruit #6049 breakout](https://www.mouser.com/ProductDetail/Adafruit/6049?qs=olJun0bQHM88XeFsw90dVw%3D%3D) |
+| Temperature | TMP117 (TI) | Passive environment / sleep correlation | I²C 0x48 | 2 | — |
+| Camera | OV-class / ToF | Presence / behaviour detection (TBD) | DVP/SPI/I²C | 3 | See §6A |
+
+*Prototype IMU alt:* MPU-6050 breakout (cheap, ~£2) — but it's ~3.6 mA active vs ~1 µA for the LIS2DW12,
+so swap to LIS2DW12 for the production board. ALS prototype alt: BH1750 (I²C 0x23).
+
+### 6A. Camera (Phase 3) — honest constraint
+A full parallel DVP camera (e.g. OV2640) needs ~13 GPIO and **does not fit** on a WROOM-1 alongside
+display + audio + sensors. For presence-only, use a low-pin I²C ToF/presence sensor (~2 pins). If real
+imaging is required, use a camera board variant that drops the microSD slot. Not populated in V1.
+
+---
+
+## 7. Audio
+
+| Block | Part | Detail | Bus | Link |
+|---|---|---|---|---|
+| Mic in | **ICS-43434** | I²S MEMS, needs an acoustic port hole | I²S #0 | [Adafruit #6049](https://www.mouser.com/ProductDetail/Adafruit/6049?qs=olJun0bQHM88XeFsw90dVw%3D%3D) |
+| Amp out | **MAX98357A** | I²S Class-D, mono ~3 W, filterless, drives **4 Ω+** speakers | I²S #1 | [Adafruit #3006](https://www.adafruit.com/product/3006) |
+| Speaker | 8 Ω, 20–28 mm | Behind acoustic-mesh grille | — | generic |
+
+ESP32-S3 has **two** I²S peripherals → mic-in and speaker-out run simultaneously without contention.
+**Design note:** product philosophy is "silent by default" — keep audio for spoken replies + rare
+rewards, not nudge alarms. Treat the amp + speaker as populate-optional if you want a silent demo unit.
+
+---
+
+## 8. Connectivity
 
 | Protocol | Purpose |
 |---|---|
-| WiFi 802.11 b/g/n | Primary data — syncs with backend, receives nudges, pushes logs |
-| Bluetooth 5.0 | Companion app pairing, proximity detection |
-| USB-C (base) | Power only in v1 — not data |
+| WiFi 802.11 b/g/n | Primary data — backend sync (WebSocket), nudge delivery, log push |
+| Bluetooth 5 (LE) | Companion-app pairing, proximity |
+| USB-C (base) | **Power only in V1** (not data) |
 
-### Offline Behaviour
-- Device caches today's schedule, non-negotiables, and current goal state locally
-- If WiFi drops, device continues to display and accept touch input
-- Syncs when connection restored
-- All AI processing happens in the cloud — device is a display terminal, not a compute node
+Offline: device caches today's schedule, non-negotiables, goal state in flash; keeps displaying and
+accepting touch with WiFi down; syncs on reconnect. All AI is cloud-side — the device is a display
+terminal, not a compute node.
 
 ---
 
-## Sensors
+## 9. Enclosure, Base & Mechanical
 
-| Sensor | Purpose | Phase |
-|---|---|---|
-| Accelerometer (IMU) | Orientation detection — desk mode vs held mode | Phase 1 |
-| Ambient light sensor | Auto-dim backlight based on room light level | Phase 1 |
-| MEMS Microphone | Voice onboarding, check-ins, ambient sound detection | Phase 2 |
-| Camera (small, low-res) | Presence detection — is user at desk? | Phase 3 / TBD |
-| Temperature sensor | Passive environmental data — sleep quality correlation | Phase 2 |
+**Materials:** ABS or PETG (3D-printed prototype → injection-moulded V1), matte black soft-touch coat,
+non-glossy. Anti-glare coating on the display window recommended (LCD reflects more than e-ink).
 
----
+**Construction:** two-piece shell (front face + bezel / convex back), clip or screw for repairability.
+Display recessed flush with the bezel — design the cutout **0.2–0.3 mm larger** than the panel Ø.
 
-## Prototype Bill of Materials (BOM) — Updated
+**Board layout rules:**
+- ESP32 module at the board edge, antenna end overhanging a **plastic-only keep-out** (no copper/metal/battery near it).
+- ESP32 + buck on the opposite side from the LiPo (thermal — heat-near-battery is a flagged risk).
+- 0.5 mm-pitch FPC is fragile — add strain relief in the enclosure.
 
-| Component | Source | Est. Cost |
-|---|---|---|
-| 2.8" Round IPS LCD — ST7701S, 480×480, capacitive touch | BuyDisplay / AliExpress | £15–20 |
-| Raspberry Pi Zero 2W | Pimoroni | £15 |
-| LiPo battery 1000–1500mAh | Adafruit / AliExpress | £5–8 |
-| USB-C charging + protection module (TP4056) | AliExpress | £2 |
-| Accelerometer (MPU-6050 breakout) | AliExpress | £2 |
-| Ambient light sensor (BH1750 breakout) | AliExpress | £1 |
-| SPI/FPC wiring, headers, connectors | AliExpress | £3 |
-| 3D printed enclosure (PLA/PETG filament) | Local print / filament | £5–10 |
-| Misc (resistors, standoffs, thermal tape) | — | £3 |
-| **Total** | | **~£51–64** |
-
-Target production BOM (ESP32-S3 + injection moulded + ST7701S at volume): **sub-£18**
-Target retail price: **£79–£99**
+**Base:** separate weighted puck, USB-C + protection board inside, 2 pogo receptacles mate the device's
+spring contacts, magnets/friction ribs seat it at 15–25° tilt. Charges when seated, runs on battery when
+lifted. Rubber foot ring.
 
 ---
 
-## Hardware Constraints & Known Challenges
+## 10. Bill of Materials — with links
 
-| Challenge | Notes |
+### 10A. Prototype (Stage 2 — RPi Zero 2W + eval display)
+
+| # | Component | Part / source | Qty | Unit £ | Link |
+|---|---|---|---|---|---|
+| 1 | 2.8" round LCD eval module | ER-TFT028-2-6318 (BuyDisplay) | 1 | ~£22 | [link](https://www.buydisplay.com/round-2-8-inch-480x480-tft-module-spi-i2c-opt-capacitive-touch-arduino-shield) |
+| 2 | Raspberry Pi Zero 2W | Pimoroni | 1 | ~£15 | pimoroni.com |
+| 3 | LiPo 1200–2000 mAh | Adafruit #258 / #2011 | 1 | £5–8 | [link](https://www.adafruit.com/product/2011) |
+| 4 | USB-C charger module | TP4056 (AliExpress) | 1 | ~£2 | — |
+| 5 | Accelerometer breakout | MPU-6050 (proto) | 1 | ~£2 | — |
+| 6 | Ambient light breakout | BH1750 / VEML7700 | 1 | £1–4 | [VEML7700 #4162](https://www.adafruit.com/product/4162) |
+| 7 | I²S mic breakout | ICS-43434 (Adafruit #6049) | 1 | ~£6 | [link](https://www.mouser.com/ProductDetail/Adafruit/6049?qs=olJun0bQHM88XeFsw90dVw%3D%3D) |
+| 8 | I²S amp + speaker | MAX98357A #3006 + 8 Ω | 1 | ~£7 | [link](https://www.adafruit.com/product/3006) |
+| 9 | Wiring / headers / FPC | AliExpress | — | ~£3 | — |
+| 10 | 3D-printed enclosure | PETG filament | — | £5–10 | — |
+| 11 | Misc (R/standoffs/tape) | — | — | ~£3 | — |
+| | **Prototype total** | | | **~£71–90** | |
+
+### 10B. Production V1 (ESP32-S3, custom PCB) — key actives
+
+| Component | Part | ~£ @100 | Link |
+|---|---|---|---|
+| MCU module | ESP32-S3-WROOM-1-N16R8 | 4–5 | [DigiKey](https://www.digikey.com/en/products/detail/espressif-systems/ESP32-S3-WROOM-1-N8R8/15295891) |
+| Round LCD (bare ST7701S) | TSLCD TST028WVBS-33 / GL Electronics | 5–8 | [TSLCD](https://www.tslcd.com/tsd-ips-2-8-inch-round-480x480-resolution-300-nits-spi-rgb-interface-tft-lcd-display-module_p763.html) |
+| Touch controller | CST816S | 0.6 | — |
+| Charger + power-path | BQ24074RGTR | 1.50 | [Mouser](https://www.mouser.com/ProductDetail/Texas-Instruments/BQ24074RGTR?qs=ZV%2Fxhq4oszp2Nll7fIx5wg%3D%3D) |
+| 3.3 V buck + 2.2 µH | TPS62840DLCR | 0.70 | [Mouser](https://www.mouser.com/ProductDetail/Texas-Instruments/TPS62840DLCR?qs=%2B6g0mu59x7L1%2Fxo1joT%2Bvg%3D%3D) |
+| Fuel gauge | MAX17048 | 1.00 | [datasheet](https://www.mouser.com/datasheet/2/609/MAX17048_MAX17049-3126952.pdf) |
+| Accelerometer | LIS2DW12 | 0.80 | ST |
+| Ambient light | VEML7700 | 0.50 | [Vishay](https://www.vishay.com/docs/84286/veml7700.pdf) |
+| I²S mic | ICS-43434 | 1.20 | TDK |
+| I²S amp | MAX98357A | 1.20 | Analog/Maxim |
+| Speaker 8 Ω | generic 20–28 mm | 1.50 | — |
+| USB-C recept. (base) | JAE DX07S016JA1R1500 | 1.70 | [DigiKey](https://www.digikey.com/en/products/detail/espressif-systems/ESP32-S3-WROOM-1U-N8R8/16162638) |
+| Custom 2-layer PCB | JLCPCB/PCBWay | 2–4 | jlcpcb.com |
+| Passives/FPC/pogo/JST | LCSC | ~3 | lcsc.com |
+
+> Production BOM target: **~£25–33** at volume (sub-£18 was the original aspiration; the audio + power-path
+> + fuel-gauge additions push it up — decide those explicitly). Retail target **£79–£99**.
+
+---
+
+## 11. Power Budget (LCD reality)
+
+| State | Draw |
 |---|---|
-| LCD backlight battery draw | Primary battery life constraint vs e-ink. Mitigated by aggressive auto-dim and deep sleep. Measure real draw early with actual hardware. |
-| ST7701S FPC connector fragility | 0.5mm pitch FPC is delicate — handle carefully during prototyping, add strain relief in enclosure design |
-| Display glass flush mount | Getting the display flush with the bezel requires precise enclosure tolerancing — design cutout 0.2–0.3mm larger than display diameter |
-| Touch controller firmware | GT911 and CST816 have different I2C address defaults — confirm variant before writing driver |
-| Ambient glare on LCD | LCD has surface reflections unlike e-ink. Matte anti-glare coating on display glass is recommended — confirm with supplier |
-| Heat from processor near battery | Keep RPi/ESP32 physically away from battery in enclosure — thermal tape on processor |
-| WiFi power draw during sync | On battery, limit sync frequency — configurable in firmware |
-| Enclosure tolerancing for round display | Round cutout must be machined or printed precisely — test fit with physical display before finalising enclosure design |
+| Deep sleep (backlight off, frame held, ESP32 ~10 µA + buck 60 nA + gauge 3 µA + IMU ~1 µA + touch LP ~3 µA) | **~20 µA** |
+| Idle, backlight ~35 % | ~40–70 mA |
+| Active, full backlight + WiFi | ~150–250 mA (WiFi TX peaks ~500 mA) |
+| Voice reply (mic + amp + WiFi) | ~200–350 mA |
+
+The dominant battery variable is **backlight on-time**, not compute. Aggressive auto-dim + deep sleep on
+idle is what gets you to the 8–16 h active / 2–3 day standby figures. **Measure real draw on the first
+hardware** — backlight current varies by panel batch.
 
 ---
 
-## Hardware Development Phases
+## 12. Risks & Procurement Notes
 
-### Phase 1 — Breadboard Prototype
-- RPi Zero 2W + 2.8" round ST7701S LCD on breadboard
-- No enclosure
-- Powered via USB
-- Goal: get display rendering, touch input, and WiFi sync working
+| Risk | Mitigation |
+|---|---|
+| Eval module ≠ production panel (LT7683/GT911 vs ST7701S/CST816S) | Build a clean display HAL; validate logic on eval, expect driver rework for the bare panel |
+| 0.5 mm FPC fragility | Strain relief in enclosure; handle with care; confirm exact pitch before PCB |
+| Touch controller variant / I²C address | Confirm GT911 vs CST816 on the actual panel before driver work |
+| LCD glare | Anti-glare coating on window; confirm with supplier |
+| LCD backlight battery draw | Auto-dim + deep sleep; measure real draw early |
+| Octal-PSRAM pins (GPIO26–37) | Never route them; respected in the PCB pin map |
+| TPS62840 layout sensitivity | Follow datasheet layout figure exactly |
+| ESP32-S3 supply intermittency | Identify a second authorised distributor pre-production |
+| Heat near battery | ESP32 + buck on opposite side from LiPo |
 
-### Phase 2 — Housed Prototype
-- Same electronics, 3D printed enclosure v1
-- Integrated battery + charging
-- Accelerometer + ambient light sensor added
-- Goal: validate form factor, ergonomics, hold feel, desk presence
+---
 
-### Phase 3 — ESP32 Migration
-- Port firmware from RPi (Python) to ESP32-S3 (MicroPython or C++)
-- Validate power draw, battery life, deep sleep behaviour
-- Goal: confirm production chip works end-to-end
+## 13. Development Phases
 
-### Phase 4 — V1 Hardware
-- Refined 3D printed or small-run injection moulded enclosure
-- All sensors integrated
-- USB-C in base, clean cable routing
-- Goal: shippable prototype quality unit
+1. **Breadboard** — RPi Zero 2W + ER-TFT028 eval display: get rendering, touch, WiFi sync working.
+2. **Housed prototype** — same electronics, 3D-printed enclosure v1, battery + charging, IMU + ALS.
+3. **ESP32 migration** — port firmware RPi→ESP32-S3 (MicroPython or C++/ESP-IDF); validate power draw, deep sleep; move to bare ST7701S panel + CST816S.
+4. **V1 hardware** — custom 2-layer PCB (KiCad 8), all sensors, USB-C base, clean routing. Order ~5 boards (JLCPCB/PCBWay), expect one respin.
+5. **Display revisit (future)** — swap driver layer to round e-ink when a volume source exists; HAL unchanged.
 
-### Phase 5 — Display Revisit (Future)
-- If a reliable 2.8"–3.0" round e-ink source becomes available at production volumes
-- Swap driver layer only — entire rendering stack above it unchanged
-- Evaluate based on supply chain stability, unit cost at volume, and battery life improvement
+---
+
+## 14. Source Index
+
+Display: [BuyDisplay ER-TFT028](https://www.buydisplay.com/round-2-8-inch-480x480-tft-module-spi-i2c-opt-capacitive-touch-arduino-shield) · [TSLCD bare panel](https://www.tslcd.com/tsd-ips-2-8-inch-round-480x480-resolution-300-nits-spi-rgb-interface-tft-lcd-display-module_p763.html) · [GL Electronics](https://lcdscreenmfg.com/product/2-8inch-round-ips-tft-lcd-display-480480-rgb-interface-st7701s-2-76-lcd-screen/)
+Compute: [Espressif WROOM-1U](https://www.espressif.com/en/module/esp32-s3-wroom-1u-en) · [DigiKey](https://www.digikey.com/en/products/detail/espressif-systems/ESP32-S3-WROOM-1-N8R8/15295891)
+Power: [TPS62840 (TI)](https://www.ti.com/product/TPS62840) · [BQ24074 (Mouser)](https://www.mouser.com/ProductDetail/Texas-Instruments/BQ24074RGTR?qs=ZV%2Fxhq4oszp2Nll7fIx5wg%3D%3D) · [MAX17048 datasheet](https://www.mouser.com/datasheet/2/609/MAX17048_MAX17049-3126952.pdf)
+Sensors/Audio: [VEML7700 (Vishay)](https://www.vishay.com/docs/84286/veml7700.pdf) · [LIS2DW12 (ST)](https://community.st.com/t5/mems-sensors/lis2dw12-accelerometers-i2c-address-and-read-data/td-p/200812) · [ICS-43434 (Adafruit)](https://www.mouser.com/ProductDetail/Adafruit/6049?qs=olJun0bQHM88XeFsw90dVw%3D%3D) · [MAX98357A (Adafruit)](https://www.adafruit.com/product/3006)
+
+*Prices are single-unit / low-qty planning figures (mid-2026) and will vary by region, tariff, and
+quantity. Confirm against the live supplier page before ordering, and confirm FPC pitch + touch variant
+against the physical panel before PCB layout.*
