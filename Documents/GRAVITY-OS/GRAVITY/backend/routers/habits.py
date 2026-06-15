@@ -223,6 +223,17 @@ async def complete_habit(
         await db.flush()
         # Invalidate context cache — today.habits_completed is now stale
         await invalidate_user_context(current_user.id, _get_redis())
+        from backend.services.connection_manager import manager
+        await manager.send_to_user(
+            current_user.id,
+            "HABIT_COMPLETED",
+            {
+                "habit_id": habit_id,
+                "habit_name": habit.name,
+                "is_non_negotiable": habit.is_non_negotiable,
+                "date": today_str,
+            },
+        )
 
     return HabitLogResponse(habit_id=habit_id, date=today_str, completed=log.completed)
 

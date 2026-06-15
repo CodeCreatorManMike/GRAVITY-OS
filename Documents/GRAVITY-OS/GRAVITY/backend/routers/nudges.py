@@ -269,6 +269,23 @@ async def evaluate(
     # ── 8. Invalidate context cache (nudge_history is now stale) ─────────────
     await invalidate_user_context(current_user.id, redis)
 
+    # ── 9. Broadcast via WebSocket if user is connected ───────────────────────
+    from backend.services.connection_manager import manager
+    await manager.send_to_user(
+        current_user.id,
+        "NUDGE",
+        {
+            "id": nudge_row.id,
+            "category": nudge_row.category,
+            "intensity": nudge_row.intensity,
+            "tone": nudge_row.tone,
+            "message": nudge_row.message,
+            "sub_message": nudge_row.sub_message or None,
+            "action_label": nudge_row.action_label,
+            "sent_at": nudge_row.sent_at.isoformat(),
+        },
+    )
+
     return NudgeEvaluateResponse(
         nudge=True,
         data=NudgeFiredData(
