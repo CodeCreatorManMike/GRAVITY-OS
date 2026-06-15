@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GRAVITY — 30-Day Habit Report</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Courier New", Courier, monospace;
+      background: #f4f2ea;
+      color: #14130d;
+      padding: 48px 56px;
+      font-size: 11pt;
+      line-height: 1.6;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    .header {
+      border-top: 2px solid #14130d;
+      border-bottom: 2px solid #14130d;
+      padding: 16px 0;
+      margin-bottom: 36px;
+    }
+
+    .header-title {
+      font-size: 18pt;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .header-meta {
+      margin-top: 8px;
+      font-size: 10pt;
+      letter-spacing: 0.06em;
+    }
+
+    .header-meta span {
+      margin-right: 24px;
+    }
+
+    /* ── Section ─────────────────────────────────────────────── */
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 10pt;
+      font-weight: bold;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #14130d;
+      padding-bottom: 4px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Summary stats ───────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stat-box {
+      border: 1px solid #14130d;
+      padding: 14px 16px;
+    }
+
+    .stat-label {
+      font-size: 8pt;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 20pt;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-unit {
+      font-size: 10pt;
+      margin-left: 2px;
+    }
+
+    /* ── Habits table ────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10pt;
+    }
+
+    th {
+      text-align: left;
+      border-bottom: 1px solid #14130d;
+      padding: 6px 8px;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 9pt;
+    }
+
+    td {
+      padding: 7px 8px;
+      border-bottom: 1px solid #14130d;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .non-neg-badge {
+      border: 1px solid #14130d;
+      padding: 1px 6px;
+      font-size: 8pt;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Progress bar ────────────────────────────────────────── */
+    .progress-track {
+      background: #e8e6de;
+      height: 8px;
+      width: 100%;
+      border: 1px solid #14130d;
+    }
+
+    .progress-fill {
+      background: #14130d;
+      height: 100%;
+    }
+
+    /* ── Patterns list ───────────────────────────────────────── */
+    .patterns-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .patterns-list li {
+      padding: 5px 0;
+      padding-left: 16px;
+      position: relative;
+      font-size: 10pt;
+    }
+
+    .patterns-list li::before {
+      content: "—";
+      position: absolute;
+      left: 0;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .footer {
+      margin-top: 48px;
+      border-top: 1px solid #14130d;
+      padding-top: 12px;
+      font-size: 9pt;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">30-Day Habit Report</div>
+    <div class="header-meta">
+      <span>{{ ctx.user.name | upper }}</span>
+      {% if analytics.date_from and analytics.date_to %}
+      <span>{{ analytics.date_from }} — {{ analytics.date_to }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="section">
+    <div class="section-title">Summary</div>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Completion Rate</div>
+        <div class="stat-value">
+          {{ "%.0f"|format(analytics.completion_rate * 100 if analytics.completion_rate <= 1 else analytics.completion_rate) }}<span class="stat-unit">%</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Best Streak</div>
+        <div class="stat-value">
+          {{ analytics.streak }}<span class="stat-unit">days</span>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Total Completions</div>
+        <div class="stat-value">{{ analytics.total_completions }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-habit breakdown -->
+  {% if analytics.habits %}
+  <div class="section">
+    <div class="section-title">Habit Breakdown</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Habit</th>
+          <th>30-Day %</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in analytics.habits %}
+        <tr>
+          <td>{{ h.name }}</td>
+          <td>
+            {% set pct = (h.completion_rate * 100 if h.completion_rate <= 1 else h.completion_rate) | int %}
+            {{ pct }}%
+            <div class="progress-track">
+              <div class="progress-fill" style="width: {{ pct }}%;"></div>
+            </div>
+          </td>
+          <td>{% if h.is_non_negotiable %}<span class="non-neg-badge">Non-neg</span>{% endif %}</td>
+          <td></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Patterns -->
+  {% if analytics.patterns %}
+  <div class="section">
+    <div class="section-title">Patterns</div>
+    <ul class="patterns-list">
+      {% for pattern in analytics.patterns %}
+      <li>{{ pattern }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>Generated by GRAVITY</span>
+    <span>{{ analytics.generated_at if analytics.generated_at else "" }}</span>
+  </div>
+
+</body>
+</html>

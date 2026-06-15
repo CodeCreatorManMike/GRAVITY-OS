@@ -1,5 +1,7 @@
 # AI providers
 anthropic
+groq
+ollama
 httpx
 
 # API / backend
@@ -8,9 +10,14 @@ uvicorn[standard]
 websockets
 
 # Database
-sqlalchemy
+sqlalchemy[asyncio]
+asyncpg
 psycopg2-binary
 alembic
+pgvector
+
+# Long-term memory
+sentence-transformers
 
 # Cache
 redis
@@ -56,5 +63,20 @@ PyJWT
 # Utilities
 python-dateutil
 pytz
-groq
 pillow
+
+# Document processing
+pymupdf
+weasyprint
+jinja2
+python-multipart
+
+# Web search + content extraction (SearXNG via Docker, Jina via HTTP)
+# No extra packages — both use httpx which is already listed
+
+# Calendar (CalDAV already listed above)
+icalendar
+
+# Weather (Open-Meteo via HTTP — no package needed)
+
+# Fitness (Wger public API via httpx — no package needed)

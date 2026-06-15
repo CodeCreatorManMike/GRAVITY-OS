@@ -16,5 +16,17 @@ services:
     ports:
       - "6379:6379"
 
+  searxng:
+    image: searxng/searxng:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SEARXNG_SECRET_KEY=gravity_searxng_dev_secret
+    volumes:
+      - ./searxng:/etc/searxng
+      - searxng_data:/data
+
 volumes:
   postgres_data:
+  searxng_data:

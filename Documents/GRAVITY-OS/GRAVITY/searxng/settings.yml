@@ -1,0 +1,27 @@
+use_default_settings: true
+
+server:
+  secret_key: "gravity_searxng_dev_secret"
+  bind_address: "0.0.0.0"
+  port: 8080
+  public_instance: false
+
+search:
+  safe_search: 0
+  default_lang: "en"
+  formats:
+    - html
+    - json
+
+ui:
+  default_theme: simple
+
+engines:
+  - name: google
+    engine: google
+    use_mobile_ui: false
+  - name: duckduckgo
+    engine: duckduckgo
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp

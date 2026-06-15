@@ -33,6 +33,10 @@ class User(Base):
     cycle_reviews      = relationship("CycleReview",      back_populates="user", cascade="all, delete-orphan")
     behaviour_patterns = relationship("BehaviourPattern", back_populates="user", cascade="all, delete-orphan")
     push_tokens        = relationship("PushToken",        back_populates="user", cascade="all, delete-orphan")
+    memories           = relationship("Memory",           back_populates="user", cascade="all, delete-orphan")
+    calendar_events    = relationship("CalendarEvent",    back_populates="user", cascade="all, delete-orphan")
+    location           = relationship("UserLocation",     back_populates="user", uselist=False, cascade="all, delete-orphan")
+    files              = relationship("UserFile",          back_populates="user", cascade="all, delete-orphan")
 
 class Goal(Base):
     __tablename__ = "goals"

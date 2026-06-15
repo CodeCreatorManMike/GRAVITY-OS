@@ -234,6 +234,23 @@ async def _build_from_db(
     risk = (goal.risk_factors if goal else []) or []
     known_blockers = list(dict.fromkeys(avoidance + risk))
 
+    # ── Relevant memories (long-term memory recall) ───────────────────────────
+    from backend.services.memory_service import recall_similar
+    relevant_memories = await recall_similar(
+        user_id,
+        query=f"goal: {goal.statement if goal else ''} habits: {[h.name for h in habits]}",
+        db=db,
+        limit=3,
+    )
+
+    # ── Today's calendar events ───────────────────────────────────────────────
+    from backend.services.calendar_service import get_today_events
+    today_events = await get_today_events(user_id, db)
+
+    # ── Weather for user's saved location ─────────────────────────────────────
+    from backend.services.weather_service import get_weather_for_user
+    weather = await get_weather_for_user(user_id, db, redis)
+
     # ── Assemble ──────────────────────────────────────────────────────────────
     return {
         "profile": {
@@ -272,7 +289,8 @@ async def _build_from_db(
             "habits_pending": habits_pending,
             "non_negotiables_completed": nn_completed,
             "non_negotiables_pending": nn_pending,
-            "schedule": [],  # placeholder — calendar events in future integration
+            "schedule": today_events,
+            "weather": weather,
         },
         "recent_behaviour": {
             "last_7_days_habit_completion": last_7_days,
@@ -281,6 +299,7 @@ async def _build_from_db(
             "steps_yesterday": steps_yesterday,
             "sleep_last_night_hours": sleep_hours,
             "sleep_last_night": sleep_label,
+            "relevant_memories": relevant_memories,
         },
         "nudge_history": {
             "last_nudge_sent": (
