@@ -178,8 +178,10 @@ def boot():
 
     _renderer = Renderer(_hal)
 
-    # ── 2. Boot screen ────────────────────────────────────────────────────────
-    _renderer.render_boot("STARTING...")
+    # ── 2. Boot animation ─────────────────────────────────────────────────────
+    import boot_animation
+    import display.components as _components
+    boot_animation.run(_hal, _components, version=config.FIRMWARE_VERSION)
 
     # ── 3. I2C bus ────────────────────────────────────────────────────────────
     print("[main] init I2C ...")
@@ -222,15 +224,16 @@ def boot():
     if cached_layout:
         print("[main] restoring cached layout ...")
         _renderer.load_layout(cached_layout)
-    else:
-        _renderer.render_boot("CONNECTING...")
 
     # ── 6. WiFi ───────────────────────────────────────────────────────────────
     print("[main] connecting WiFi ...")
-    _renderer.render_boot("WIFI...")
-    wifi.ensure_connected()
-    _renderer.render_boot("CONNECTED")
-    utime.sleep_ms(500)
+    try:
+        wifi.ensure_connected()
+        boot_animation.show_wifi_connected(_hal, _components, ssid=config.WIFI_SSID)
+    except Exception as e:
+        print(f"[main] WiFi failed: {e}")
+        boot_animation.show_wifi_failed(_hal, _components)
+        # Continue in offline mode — cached layout already loaded above
 
     # ── 7. WebSocket ──────────────────────────────────────────────────────────
     print("[main] connecting WebSocket ...")

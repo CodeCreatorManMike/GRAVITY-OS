@@ -48,6 +48,13 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => <TabIcon label="⊞" focused={focused} />,
         }}
       />
+      <Tabs.Screen
+        name="analytics"
+        options={{
+          title: 'DATA',
+          tabBarIcon: ({ focused }) => <TabIcon label="▦" focused={focused} />,
+        }}
+      />
     </Tabs>
   );
 }

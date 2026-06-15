@@ -29,9 +29,10 @@ class User(Base):
     habits            = relationship("Habit",           back_populates="user", cascade="all, delete-orphan")
     nudges            = relationship("Nudge",           back_populates="user", cascade="all, delete-orphan")
     nudge_settings    = relationship("NudgeSettings",   back_populates="user", uselist=False, cascade="all, delete-orphan")
-    health_data       = relationship("HealthData",      back_populates="user", cascade="all, delete-orphan")
-    cycle_reviews     = relationship("CycleReview",     back_populates="user", cascade="all, delete-orphan")
-    behaviour_patterns= relationship("BehaviourPattern",back_populates="user", cascade="all, delete-orphan")
+    health_data        = relationship("HealthData",       back_populates="user", cascade="all, delete-orphan")
+    cycle_reviews      = relationship("CycleReview",      back_populates="user", cascade="all, delete-orphan")
+    behaviour_patterns = relationship("BehaviourPattern", back_populates="user", cascade="all, delete-orphan")
+    push_tokens        = relationship("PushToken",        back_populates="user", cascade="all, delete-orphan")
 
 class Goal(Base):
     __tablename__ = "goals"

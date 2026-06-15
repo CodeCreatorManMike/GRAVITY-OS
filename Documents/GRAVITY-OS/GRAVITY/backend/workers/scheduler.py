@@ -127,8 +127,7 @@ async def _evaluate_for_user(
 
         await invalidate_user_context(user_id, redis)
 
-        # Broadcast via WebSocket if user is connected
-        await manager.send_to_user(user_id, "NUDGE", {
+        nudge_payload = {
             "id": nudge_row.id,
             "category": nudge_row.category,
             "intensity": nudge_row.intensity,
@@ -136,7 +135,18 @@ async def _evaluate_for_user(
             "sub_message": nudge_row.sub_message or None,
             "action_label": nudge_row.action_label,
             "sent_at": nudge_row.sent_at.isoformat(),
-        })
+        }
+        await manager.send_to_user(user_id, "NUDGE", nudge_payload)
+
+        if not manager.is_connected(user_id):
+            from backend.services.push_service import send_push_if_offline
+            await send_push_if_offline(
+                user_id,
+                title="GRAVITY",
+                body=nudge_row.message,
+                data=nudge_payload,
+                db=db,
+            )
 
 
 @scheduler.scheduled_job('cron', hour=2, minute=0, id='context_rebuild')

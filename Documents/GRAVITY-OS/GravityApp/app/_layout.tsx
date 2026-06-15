@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -9,17 +10,26 @@ const queryClient = new QueryClient({
   },
 });
 
+function AppInner() {
+  usePushNotifications();
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="login" />
+      <Stack.Screen name="onboarding" />
+      <Stack.Screen name="review" />
+      <Stack.Screen name="goal-edit" />
+      <Stack.Screen name="habits-manage" />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   const loadAuth = useAuthStore(s => s.loadAuth);
   useEffect(() => { loadAuth(); }, []);
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="review" />
-      </Stack>
+      <AppInner />
     </QueryClientProvider>
   );
 }

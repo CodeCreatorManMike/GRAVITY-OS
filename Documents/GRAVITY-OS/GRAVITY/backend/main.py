@@ -9,7 +9,7 @@ from jose import JWTError, jwt
 
 from backend.database import init_db
 from backend.config import get_settings
-from backend.routers import auth, onboarding, goals, habits, nudges, device, integrations, review
+from backend.routers import auth, onboarding, goals, habits, nudges, device, integrations, review, analytics, push
 from backend.services.connection_manager import manager
 from backend.workers.scheduler import scheduler
 
@@ -51,6 +51,8 @@ app.include_router(nudges.router)
 app.include_router(device.router)
 app.include_router(integrations.router)
 app.include_router(review.router)
+app.include_router(analytics.router)
+app.include_router(push.router)
 
 
 @app.get("/")

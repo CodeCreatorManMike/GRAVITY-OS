@@ -269,22 +269,29 @@ async def evaluate(
     # ── 8. Invalidate context cache (nudge_history is now stale) ─────────────
     await invalidate_user_context(current_user.id, redis)
 
-    # ── 9. Broadcast via WebSocket if user is connected ───────────────────────
+    # ── 9. Broadcast via WebSocket; fall back to push if offline ─────────────
     from backend.services.connection_manager import manager
-    await manager.send_to_user(
-        current_user.id,
-        "NUDGE",
-        {
-            "id": nudge_row.id,
-            "category": nudge_row.category,
-            "intensity": nudge_row.intensity,
-            "tone": nudge_row.tone,
-            "message": nudge_row.message,
-            "sub_message": nudge_row.sub_message or None,
-            "action_label": nudge_row.action_label,
-            "sent_at": nudge_row.sent_at.isoformat(),
-        },
-    )
+    nudge_payload = {
+        "id": nudge_row.id,
+        "category": nudge_row.category,
+        "intensity": nudge_row.intensity,
+        "tone": nudge_row.tone,
+        "message": nudge_row.message,
+        "sub_message": nudge_row.sub_message or None,
+        "action_label": nudge_row.action_label,
+        "sent_at": nudge_row.sent_at.isoformat(),
+    }
+    await manager.send_to_user(current_user.id, "NUDGE", nudge_payload)
+
+    if not manager.is_connected(current_user.id):
+        from backend.services.push_service import send_push_if_offline
+        await send_push_if_offline(
+            current_user.id,
+            title="GRAVITY",
+            body=nudge_row.message,
+            data=nudge_payload,
+            db=db,
+        )
 
     return NudgeEvaluateResponse(
         nudge=True,

@@ -37,6 +37,10 @@ class UserResponse(BaseModel):
     onboarding_complete: bool
     onboarding_phase: int
 
+class RefreshResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
 
 # ── Helpers ──────────────────────────────────────────────
 
@@ -134,3 +138,18 @@ async def me(current_user: User = Depends(get_current_user)):
         onboarding_complete=current_user.onboarding_complete,
         onboarding_phase=current_user.onboarding_phase,
     )
+
+
+@router.post("/refresh", response_model=RefreshResponse)
+async def refresh_token(current_user: User = Depends(get_current_user)):
+    """Issue a fresh token for an authenticated user. Client calls this before expiry."""
+    return RefreshResponse(access_token=create_token(current_user.id))
+
+
+@router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(current_user: User = Depends(get_current_user)):
+    """
+    Logout endpoint. JWTs are stateless — this is a no-op on the server.
+    The client must delete the stored token on receipt of 204.
+    """
+    return

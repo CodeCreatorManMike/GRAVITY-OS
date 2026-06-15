@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -33,6 +33,11 @@ class GoalUpdateRequest(BaseModel):
     real_why: Optional[str] = None
     likelihood_score: Optional[float] = None
 
+class GoalCreateRequest(BaseModel):
+    statement: str
+    real_why: str = ""
+    cycle_length_days: int = 180   # default 6 months
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -59,6 +64,44 @@ def _to_response(goal: Goal) -> GoalResponse:
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
+
+@router.post("", response_model=GoalResponse, status_code=status.HTTP_201_CREATED)
+async def create_goal(
+    req: GoalCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Directly create a goal (bypasses AI onboarding).
+    Deactivates any existing active goal first.
+    Used for post-cycle goal creation or manual override.
+    """
+    if not req.statement.strip():
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Statement cannot be empty")
+
+    # Deactivate existing active goal
+    existing = await db.execute(
+        select(Goal).where(Goal.user_id == current_user.id, Goal.is_active == True)
+    )
+    for g in existing.scalars().all():
+        g.is_active = False
+
+    today = date.today()
+    cycle_end = today + timedelta(days=max(1, req.cycle_length_days))
+
+    goal = Goal(
+        user_id=current_user.id,
+        statement=req.statement.strip(),
+        real_why=req.real_why.strip(),
+        cycle_start=str(today),
+        cycle_end=str(cycle_end),
+        likelihood_score=0.5,
+        is_active=True,
+    )
+    db.add(goal)
+    await db.flush()
+    return _to_response(goal)
+
 
 @router.get("", response_model=GoalResponse)
 async def get_active_goal(
