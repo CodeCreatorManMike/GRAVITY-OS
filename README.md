@@ -1,144 +1,193 @@
 # GRAVITY
 
-A physical AI-powered goal tracker. Circular e-ink display. Sits on your desk. Runs on a 6-month cycle. Learns your behaviour, nudges you when you drift.
-
----
+> A physical AI-powered goal tracker. 2.8" round IPS LCD. Sits on your desk. Runs on a 6-month cycle. Learns your behaviour, nudges you when you drift.
 
 ## What It Is
 
-Gravity is a palm-sized device with a **circular black-and-white e-ink display** (~3.71"–4.2", 90–95mm usable). It connects to a companion app and a backend AI engine. Every 6 months it runs a full re-onboarding — reviews what was achieved, resets goals, rebuilds the UI around the new cycle.
+Three surfaces, one purpose:
 
-It has one job: making sure you become the person you said you wanted to be.
+- **Device** — ESP32-S3, 2.8" round IPS LCD (480×480, ~174 PPI), warm paper aesthetic (INK `#14130D` / PAPER `#F4F2EA`), sits in an angled base, always glanceable.
+- **Companion App** — React Native (iOS-first), integrations hub, rich dashboard, onboarding chat.
+- **Backend** — Python FastAPI, owns all AI reasoning, serves device and app over WebSocket + REST.
 
-**Three surfaces:**
-1. **Device** — circular e-ink display, sits on desk, glanceable data, nudges
-2. **Companion App** — React Native (iOS + Android), integrations, rich dashboard, onboarding
-3. **Backend** — Python FastAPI, owns all AI reasoning, serves device and app
+## Build Status
 
----
+| Layer | What | Status |
+| --- | --- | --- |
+| AI Brain | Groq/Claude/Ollama swap, two-call nudge pipeline, 5-phase onboarding, pygame simulator | ✅ Complete |
+| Backend API | Auth, goals, habits, nudges, device, integrations, review, analytics, push, memory, research, calendar, files | ✅ Complete |
+| WebSocket | Connection manager, NUDGE/HABIT/HEARTBEAT/LAYOUT events, push fallback | ✅ Complete |
+| Scheduled workers | Nudge eval (15 min), context rebuild (02:00), pattern detection (02:30), cycle trigger (09:00) | ✅ Complete |
+| Long-term memory | pgvector + sentence-transformers, cosine recall, injected into every AI context | ✅ Complete |
+| React Native App | Login, onboarding chat, home, health, settings, analytics, goal/habit management, cycle review | ✅ Complete |
+| Apple Health | HealthKit sync → backend (steps, sleep, HR, calories) — needs EAS Build to run natively | ✅ Built |
+| Open-Meteo weather | No-key weather API, 1h Redis cache, wired into AI context | ✅ Complete |
+| CalDAV calendar | iCloud/any CalDAV sync, today's events in AI context | ✅ Complete |
+| Web research | SearXNG (self-hosted) + Jina Reader, Wger exercise database | ✅ Complete |
+| File upload + PDF export | PyMuPDF ingestion → memory, WeasyPrint cycle review + habit reports | ✅ Complete |
+| Push notifications | Expo Push API fallback when WebSocket offline | ✅ Complete |
+| ESP32-S3 firmware | MicroPython, ST7701S display HAL, layout JSON renderer, touch, IMU, ALS, OTA, boot animation | ✅ Complete |
+| Production deploy | Nginx + Gunicorn + Certbot, Hetzner one-command deploy script | ✅ Complete |
+| Voice (STT) | Whisper / faster-whisper — waiting on microphone hardware (ICS-43434) | ⏳ Needs hardware |
+| Voice (TTS) | Piper TTS — waiting on speaker hardware (MAX98357A) | ⏳ Needs hardware |
+| Wake word | OpenWakeWord "Hey Gravity" — waiting on microphone hardware | ⏳ Needs hardware |
+| Camera / presence | OpenCV / MediaPipe — Phase 3 | ⏳ Phase 3 |
+| Hardware bring-up | ESP32-S3 DevKit + ER-TFT028 eval display, breadboard, enclosure | ⏳ Parts to order |
 
-## Current Stage: Stage 0 — Brain First
+## Hardware Spec (V1)
 
-The AI onboarding conversation engine is built and tested. No app, no backend service yet — just the AI logic that makes the product real, plus a desktop simulator for the device UI.
+| Component | Part | Detail |
+| --- | --- | --- |
+| MCU | ESP32-S3-WROOM-1-N16R8 | Dual-core LX7 @ 240 MHz, 16 MB flash, 8 MB octal PSRAM, WiFi b/g/n + BLE 5 |
+| Display | 2.8" round IPS LCD, ST7701S | 480×480 px, ~174 PPI, Ø70.13 mm active area, 250–300 cd/m², SPI+RGB interface |
+| Touch | CST816S (production) | Single-point + HW gestures, I²C 0x15, wake-on-touch |
+| Eval display module | ER-TFT028-2-6318 (BuyDisplay) | LT7683 + GT911, Arduino-shield — breadboard bring-up only |
+| IMU | LIS2DW12 | 3-axis accel, ~1 µA, orientation + wake-on-motion, I²C 0x18 |
+| ALS | VEML7700 | Ambient light → backlight PWM, I²C 0x10 |
+| Charger | BQ24074 | Power-path charger — runs from USB while charging, no micro-cycling |
+| Regulator | TPS62840 | 60 nA quiescent buck — drives the standby battery life |
+| Fuel gauge | MAX17048 | Real state-of-charge, I²C 0x36, ~3 µA |
+| Mic | ICS-43434 | I²S MEMS mic (Phase 2 voice) |
+| Amp | MAX98357A | I²S Class-D, mono ~3 W (Phase 2 voice) |
+| Battery | 1000–1500 mAh LiPo | ~8–16 h active (backlight on), ~2–3 days standby |
+| Enclosure | ~90–100 mm dia, 40–50 mm deep | < 180 g device, < 250 g with base. 15–25° tilt in base |
 
-| Stage | What Gets Built | Status |
-|---|---|---|
-| 0 | AI onboarding brain — Python, Groq/Claude API, JSON profiles | **COMPLETE** |
-| 1 | FastAPI backend + PostgreSQL + React Native app shell | NOT STARTED |
-| 2 | RPi Zero 2W + round e-ink display prototype + MicroPython firmware | NOT STARTED |
-| 3 | Integration layer — Calendar, Health, Screen Time | NOT STARTED |
-| 4 | ESP32-S3 migration + custom PCB + 3D printed enclosure | NOT STARTED |
-| 5 | Polish, app store, launch | NOT STARTED |
-
-**Stage 0 "complete" means:** the 5-phase conversation runs end-to-end, emits the full profile JSON (`core/profile.py` schema), the two-call nudge pipeline (decide → generate) works, and the suite passes (`pytest tests/` — 25 tests, no API key required to run them).
-
----
-
-## Hardware — V1 (final / Stage 4)
-
-The production unit is built around an **ESP32-S3** module driving a circular e-ink display, with everything on a custom 2-layer PCB. The device is a display terminal — all AI runs in the cloud.
-
-| Spec | Value |
-|---|---|
-| Compute | ESP32-S3-WROOM-1-N16R8 (240 MHz dual-core, WiFi b/g/n + BLE 5.0, 16 MB flash / 8 MB PSRAM) |
-| Display | Round e-ink, Ø90–95 mm active (Waveshare 3.71" 480×480), pure B/W, holds image at 0 W |
-| Touch | CST816S capacitive — single touch + hardware gestures, wake-on-touch |
-| Battery | 1500 mAh LiPo · multi-week (deep sleep ~20 µA total) |
-| Body | Matte-black ABS/PETG puck, Ø110–120 mm, depth 45–55 mm, < 200 g, in an angled base |
-| PCB | Custom 2-layer, Ø75–85 mm, 1.0 mm · KiCad 8 |
-| Target BOM | ~£25–33 at volume · retail £79–£99 |
-
-**Core components**
-
-- **Compute:** ESP32-S3-WROOM-1-N16R8 (module, pre-certified antenna — no RF cert/tuning needed)
-- **Power:** BQ24074 charger with power-path · TPS62840 3.3 V buck (60 nA quiescent) · MAX17048 fuel gauge
-- **Sensors:** LIS2DW12 accelerometer (orientation + wake-on-pickup) · VEML7700 ambient light · TMP117 temp *(Phase 2)*
-- **Audio:** ICS-43434 I²S mic (voice + on-device wake-word) · MAX98357A class-D amp → 8 Ω speaker
-- **Display IF:** round e-ink over SPI · capacitive touch over I²C, FPC ribbons to the board
-- **Base:** USB-C (power-only in V1) + ESD/PTC protection on a small board; 2 pogo contacts (VBUS + GND) bridge the lift-out joint — device runs on battery when lifted, charges when seated
-
-Full detail in `MOCK-UPS/GRAVITY HARDWARE/uploads/GRAVITY_V1_PCB_DESIGN.md` and `GRAVITY_V1_FULL_BUILD_SPEC.md`.
-
-> **Display note:** Gravity is an **e-ink** device — the whole UI philosophy (no animation, weeks of battery, terminal aesthetic) depends on it. Earlier drafts referenced a 2.8" IPS LCD; that is superseded. The authoritative spec is round e-ink. See `CLAUDE_DOCS/HARDWARE.md`.
-
----
+The display renders a warm paper-on-ink aesthetic in software (background `#F4F2EA`, foreground `#14130D`, 1-bit palette). No e-ink hardware — instant refresh, stable supply, LCD all the way. E-ink remains a future swap at the driver layer when a reliable round source exists at volume.
 
 ## Project Structure
 
-```
-core/
-  ai_client.py         AI provider abstraction (Groq dev / Claude prod), lazy-loaded
-  profile.py           UserProfile schema — single source of truth
-  onboarding.py        5-phase conversation engine
-  nudge_engine.py      Two-call pipeline: decide → generate
-  prompts/             System prompts for each AI call
-
-simulator/
+```text
+GRAVITY/                     backend + core AI (run server from here)
+  core/
+    ai_client.py             AI provider swap (Groq / Claude / Ollama via .env)
+    nudge_engine.py          Two-call pipeline: decide_nudge() → generate_nudge_content()
+    profile.py               UserProfile Pydantic schema
+    prompts/                 System prompts for every AI call
+  backend/
+    main.py                  FastAPI app, WebSocket endpoint, scheduler lifespan
+    routers/                 auth, goals, habits, nudges, device, integrations, review,
+                             analytics, push, memory, research, calendar, files
+    services/                context, layout, memory, pattern, push, research, fitness,
+                             calendar, weather, document, pdf_generator, connection_manager
+    models/                  user, goal, habit, nudge, integration, memory,
+                             calendar_event, user_location, push, file
+    workers/
+      scheduler.py           APScheduler — 4 jobs running inside the FastAPI process
+    templates/pdf/           Jinja2 templates for WeasyPrint PDF exports
+  simulator/
+    display/
+      gravity_sim.py         Pygame live simulator (360×360 canvas — scaled-down preview)
+      screens.py             A1–A7 Direction A screen renders
+      primitives.py          PIL drawing library — arcs, ticks, rings, type
+  deploy/
+    Dockerfile
+    docker-compose.prod.yml
+    nginx.conf               HTTPS + WebSocket reverse proxy
+    deploy.sh                One-command Hetzner Ubuntu 24.04 bootstrap
+  searxng/settings.yml       Self-hosted SearXNG config
+GravityApp/                  React Native app (Expo SDK 56, iOS-first)
+  app/
+    (tabs)/                  Home, Health, Settings, Analytics
+    login.tsx
+    onboarding.tsx           5-phase AI onboarding chat
+    review.tsx               6-month cycle review chat
+    goal-edit.tsx
+    habits-manage.tsx
+  hooks/
+    useGravitySocket.ts      WebSocket with exponential backoff reconnect
+    usePushNotifications.ts  Expo push token registration on startup
+  components/
+    DevicePreview.tsx        Circular device preview (pure React Native, no SVG)
+firmware/                    ESP32-S3 MicroPython
+  main.py                    Boot sequence + 50 ms polling main loop
+  boot_animation.py          Terminal-style line-by-line boot reveal
+  websocket_client.py        Hand-rolled RFC 6455 client (no stdlib WS in MicroPython)
   display/
-    primitives.py      PIL drawing library — circles, arcs, ticks, type
-    screens.py         All screen renders
-    layout_engine.py   Profile → ordered screen list
-    gravity_sim.py     Pygame live simulator
-    fonts/             Monospace typeface files
-
-tests/                 pytest suite (profile, onboarding, nudge logic)
-profiles/              User profiles (gitignored)
+    hal.py                   Abstract HAL — 460 KB PSRAM framebuffer (480×480×2 bytes)
+    st7701s.py               Production ST7701S driver (SPI config + RGB pixel push)
+    lt7683.py                Eval board LT7683 driver (ER-TFT028 breadboard path)
+    renderer.py              Layout JSON → A1/A2/A3/A4/A5/A7 screen dispatch
+    components.py            Circle mask (r=230), arc, progress ring, bitmap font, heatmap
+  touch.py                   CST816S + GT911 unified driver
+  imu.py                     LIS2DW12 orientation + wake-on-motion
+  als.py                     VEML7700 ambient light → backlight PWM
+  power.py                   MAX17048 fuel gauge + deep sleep entry
+  ota.py                     OTA firmware update handler
+CLAUDE_DOCS/                 Architecture, hardware spec, product docs
 ```
 
-Hardware design for the production unit (Stage 4) lives in
-`MOCK-UPS/GRAVITY HARDWARE/uploads/`:
-`GRAVITY_V1_PCB_DESIGN.md` and `GRAVITY_V1_FULL_BUILD_SPEC.md`.
+## Running Locally
 
----
-
-## Running with Docker
+### Backend
 
 ```bash
-cp .env.example .env        # add your GROQ_API_KEY for live onboarding
-docker compose build
-docker compose run --rm gravity                            # runs the test suite
-docker compose run --rm gravity python -m core.onboarding  # runs onboarding
+cd GRAVITY
+docker-compose up -d          # Postgres (pgvector/pg16), Redis, SearXNG
+source .venv/bin/activate
+uvicorn backend.main:app --reload --port 8000
 ```
 
-## Running locally
+### App
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python -m pytest tests/ -v          # no API key needed
-python -m core.onboarding           # needs GROQ_API_KEY (or AI_PROVIDER=anthropic)
+cd GravityApp
+npx expo start                # Expo Go for most screens
+
+# Apple Health + push require a native build:
+npx expo prebuild && open ios/GravityApp.xcworkspace
 ```
 
 ### Simulator
 
 ```bash
-source .venv/bin/activate
-cd simulator/display
-python3 gravity_sim.py
+cd GRAVITY && source .venv/bin/activate
+cd simulator/display && python3 gravity_sim.py
+# ←/→ navigate | N = fire test nudge | R = re-render | Q = quit
 ```
 
-Controls: `←/→` (or click left/right half) navigate screens · `N` test nudge · `O` onboarding hint · `R` re-render · `Q` quit
+## AI Provider
 
----
+```bash
+# Development (free tier, fast)
+AI_PROVIDER=groq
+GROQ_API_KEY=your_key
+
+# Local offline (no rate limits, needs Ollama running)
+AI_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.1:8b
+
+# Production
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=your_key
+```
+
+## Hardware — Next Milestone
+
+Order these to start firmware bring-up:
+
+| Part | Source | ~£ |
+| --- | --- | --- |
+| ESP32-S3-DevKitC-1-N8R8 | DigiKey / Mouser | ~£15 |
+| ER-TFT028-2-6318 (2.8" round IPS LCD eval module) | BuyDisplay | ~£22 |
+| LiPo 1200–2000 mAh with protection | Adafruit | ~£6 |
+| TP4056 USB-C charge module | AliExpress | ~£2 |
+
+> **Note:** the eval module uses an LT7683 controller, not the production ST7701S. The firmware has separate drivers for both — swap via `DISPLAY_DRIVER` in `firmware/config.py`. Rendering and touch logic validated on the eval module transfers directly; the driver layer is the only thing that changes for production.
+
+Full BOM, GPIO map, and wiring guide: [`CLAUDE_DOCS/HARDWARE.md`](CLAUDE_DOCS/HARDWARE.md) and [`firmware/README.md`](firmware/README.md).
 
 ## Documentation
 
-Full design docs live in `CLAUDE_DOCS/`:
-
 | File | Contents |
-|---|---|
-| `PRODUCT.md` | Product vision, 6-month cycle, monetisation |
-| `HARDWARE.md` | Display spec, BOM, component decisions |
-| `SOFTWARE_ARCH.md` | System architecture, API design, data models |
-| `AI_BEHAVIOUR.md` | AI philosophy, nudge logic, adaptation engine |
-| `UI_UX.md` | Design language, screen states, component system |
-| `FEATURES.md` | Complete feature list by category |
-| `CONSTRAINTS.md` | AI cost tiers, budget targets, technical limits |
-| `PROJECT_CONTEXT.md` | Quick-start context for AI assistants and collaborators |
-
----
+| --- | --- |
+| [`CLAUDE_DOCS/PRODUCT.md`](CLAUDE_DOCS/PRODUCT.md) | Product vision, 6-month cycle, monetisation |
+| [`CLAUDE_DOCS/HARDWARE.md`](CLAUDE_DOCS/HARDWARE.md) | Full hardware spec, BOM, GPIO map, power budget |
+| [`CLAUDE_DOCS/SOFTWARE_ARCH.md`](CLAUDE_DOCS/SOFTWARE_ARCH.md) | System architecture, API design, data models |
+| [`CLAUDE_DOCS/AI_BEHAVIOUR.md`](CLAUDE_DOCS/AI_BEHAVIOUR.md) | AI philosophy, nudge logic, adaptation engine |
+| [`CLAUDE_DOCS/FEATURES.md`](CLAUDE_DOCS/FEATURES.md) | Complete feature list by category |
+| [`CLAUDE_DOCS/OPEN_SOURCE_STACK.md`](CLAUDE_DOCS/OPEN_SOURCE_STACK.md) | Every third-party tool and why it was chosen |
 
 ## Built By
 
-**Michael Jones** — Junior Technical Analyst, VX One, London. Age 20. Solo.
-Building in ~1–2 hours/day alongside a full-time job.
+**Michael Jones** — London. Age 20. Solo. Building alongside a full-time job.
