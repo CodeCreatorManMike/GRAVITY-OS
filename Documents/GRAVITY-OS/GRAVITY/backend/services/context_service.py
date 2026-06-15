@@ -22,6 +22,7 @@ from sqlalchemy import select, and_, func
 import redis.asyncio as aioredis
 
 from backend.models.user import Goal, Habit, HabitLog, Nudge, NudgeSettings, User
+from backend.models.integration import HealthData, BehaviourPattern
 
 CONTEXT_TTL = 3600  # 1 hour
 
@@ -171,6 +172,34 @@ async def _build_from_db(
     cooldown_key = f"nudge_cooldown:{user_id}"
     cooldown_active = bool(await redis.exists(cooldown_key))
 
+    # ── Yesterday's health data (Apple Health) ────────────────────────────
+    yesterday_str = str(date.today() - timedelta(days=1))
+    health_result = await db.execute(
+        select(HealthData).where(
+            and_(
+                HealthData.user_id == user_id,
+                HealthData.date == yesterday_str,
+            )
+        )
+    )
+    health_yesterday = health_result.scalar_one_or_none()
+
+    steps_yesterday = health_yesterday.steps if health_yesterday else 0
+    sleep_hours = health_yesterday.sleep_hours if health_yesterday else 0.0
+    sleep_quality = health_yesterday.sleep_quality if health_yesterday else "unknown"
+    sleep_label = "unknown"
+    if sleep_hours > 0:
+        sleep_label = f"{sleep_hours:.1f}h ({sleep_quality})"
+
+    # ── Active behaviour patterns ─────────────────────────────────────────
+    patterns_result = await db.execute(
+        select(BehaviourPattern.pattern).where(
+            BehaviourPattern.user_id == user_id,
+            BehaviourPattern.is_active == True,
+        ).order_by(BehaviourPattern.confidence.desc()).limit(5)
+    )
+    active_patterns = [row[0] for row in patterns_result.all()]
+
     # ── NudgeSettings — real values, never baked-in defaults ─────────────────
     # If no row exists yet, surface the defaults without writing to DB;
     # the router creates the row on first /nudges/settings access.
@@ -248,10 +277,10 @@ async def _build_from_db(
         "recent_behaviour": {
             "last_7_days_habit_completion": last_7_days,
             "nudge_response_rate": nudge_response_rate,
-            "patterns_identified": [],    # placeholder — pattern detection not yet built
-            "steps_yesterday": 0,         # placeholder — Apple Health / Google Fit
-            "sleep_last_night_hours": 0.0,
-            "sleep_last_night": "unknown",
+            "patterns_identified": active_patterns,
+            "steps_yesterday": steps_yesterday,
+            "sleep_last_night_hours": sleep_hours,
+            "sleep_last_night": sleep_label,
         },
         "nudge_history": {
             "last_nudge_sent": (

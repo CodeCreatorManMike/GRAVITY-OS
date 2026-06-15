@@ -25,10 +25,13 @@ class User(Base):
     known_dead_zones       = Column(JSON, default=list)
     realistic_daily_hours  = Column(Float, default=1.0)
     avoidance_behaviours   = Column(JSON, default=list)
-    goals          = relationship("Goal",          back_populates="user", cascade="all, delete-orphan")
-    habits         = relationship("Habit",         back_populates="user", cascade="all, delete-orphan")
-    nudges         = relationship("Nudge",         back_populates="user", cascade="all, delete-orphan")
-    nudge_settings = relationship("NudgeSettings", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    goals             = relationship("Goal",            back_populates="user", cascade="all, delete-orphan")
+    habits            = relationship("Habit",           back_populates="user", cascade="all, delete-orphan")
+    nudges            = relationship("Nudge",           back_populates="user", cascade="all, delete-orphan")
+    nudge_settings    = relationship("NudgeSettings",   back_populates="user", uselist=False, cascade="all, delete-orphan")
+    health_data       = relationship("HealthData",      back_populates="user", cascade="all, delete-orphan")
+    cycle_reviews     = relationship("CycleReview",     back_populates="user", cascade="all, delete-orphan")
+    behaviour_patterns= relationship("BehaviourPattern",back_populates="user", cascade="all, delete-orphan")
 
 class Goal(Base):
     __tablename__ = "goals"

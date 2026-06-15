@@ -157,3 +157,55 @@ async def nightly_context_rebuild():
         await invalidate_user_context(user_id, redis)
 
     print(f"[scheduler] nightly rebuild: cleared context for {len(user_ids)} users")
+
+
+@scheduler.scheduled_job('cron', hour=2, minute=30, id='pattern_detection')
+async def nightly_pattern_detection():
+    """
+    02:30 daily: run behavioural pattern detection for all active users.
+    Runs after context_rebuild so patterns are fresh when context is rebuilt.
+    """
+    from backend.services.pattern_service import run_pattern_detection
+    redis = _get_redis()
+
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(User.id).where(User.is_active == True)
+        )
+        user_ids = [row[0] for row in result.all()]
+
+    for user_id in user_ids:
+        try:
+            async with AsyncSessionLocal() as db:
+                patterns = await run_pattern_detection(user_id, db, redis)
+                await db.commit()
+            print(f"[scheduler] patterns for user {user_id}: {len(patterns)} detected")
+        except Exception as e:
+            print(f"[scheduler] pattern detection failed for user {user_id}: {e}")
+        await asyncio.sleep(1)
+
+
+@scheduler.scheduled_job('cron', hour=9, minute=0, id='cycle_trigger')
+async def daily_cycle_trigger():
+    """
+    09:00 daily: check if any active goal cycle has ended and notify user.
+    Sends a CYCLE_REVIEW_READY WebSocket event if cycle_end <= today.
+    """
+    from backend.services.connection_manager import manager
+    today_str = str(date.today())
+
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Goal.user_id, Goal.id, Goal.cycle_end)
+            .where(Goal.is_active == True)
+            .where(Goal.cycle_end != "")
+            .where(Goal.cycle_end <= today_str)
+        )
+        ending_cycles = result.all()
+
+    for user_id, goal_id, cycle_end in ending_cycles:
+        print(f"[scheduler] cycle ended for user {user_id} (goal {goal_id}, end {cycle_end})")
+        await manager.send_to_user(user_id, "CYCLE_REVIEW_READY", {
+            "goal_id": goal_id,
+            "cycle_end": cycle_end,
+        })
