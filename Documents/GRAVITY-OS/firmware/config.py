@@ -76,3 +76,11 @@ ADDR_GT911    = 0x5D
 ADDR_LIS2DW12 = 0x18
 ADDR_VEML7700 = 0x10
 ADDR_MAX17048 = 0x36
+
+# ── Voice pipeline ────────────────────────────────────────────────────────────
+# Wake word: ESP-SR used if native module available; falls back to energy threshold.
+# Tune WAKE_THRESHOLD_RMS after hardware arrives (run calibration loop).
+VOICE_ENABLED         = True
+VOICE_RECORD_SECONDS  = 5       # capture window after wake
+WAKE_THRESHOLD_RMS    = 800     # 0–32767 — raise if false positives, lower if misses
+WAKE_TRIGGER_FRAMES   = 3       # consecutive hot frames required

@@ -19,6 +19,7 @@ import wifi
 from websocket_client import WebSocketClient
 from display.hal import DisplayHAL
 from display.renderer import Renderer
+from voice import VoiceManager
 import touch as touch_mod
 import imu as imu_mod
 import als as als_mod
@@ -43,6 +44,7 @@ _last_heartbeat_ms      = 0
 _last_layout_refresh_ms = 0
 _last_activity_ms       = 0     # timestamp of last touch or incoming message
 _current_nudge_id       = None  # if a nudge is displayed
+_voice                  = None  # VoiceManager instance
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -53,7 +55,7 @@ def _on_layout_update(data):
     global _last_activity_ms
     print("[main] LAYOUT_UPDATE received")
     cache.save_layout(data)
-    _renderer.load_layout(data)
+    _renderer.load_layout(data, offline=False)
     _last_activity_ms = utime.ticks_ms()
     _reset_backlight()
 
@@ -123,32 +125,27 @@ def _handle_touch_gesture(gesture, x, y):
 
     if gesture == "tap":
         _ws.send_event("TOUCH_EVENT", {"gesture": "tap", "screen": screen_type})
-        # On A2: detect checklist tap → HABIT_COMPLETED
-        if screen_type == "A2":
-            _handle_a2_tap(x, y, current.get("data", {}))
+        # task_list: detect checklist tap → HABIT_COMPLETED
+        if screen_type == "task_list":
+            _handle_task_tap(x, y, current)
 
 
-def _handle_a2_tap(x, y, data):
+def _handle_task_tap(x, y, face):
     """
-    Determine which checklist item was tapped on screen A2.
-    Items are stacked vertically; approximate row from y position.
+    Detect tap on a task_list face item.
+    Checklist rows start at y≈124, each row 28px tall.
     """
-    from display.components import _CHAR_H
-    nonneg    = data.get("nonneg", [])
-    completed = set(data.get("nonneg_completed", []))
-
-    # Checklist starts around y=160 (after task text + divider), each row ~12px
-    ITEM_H = (_CHAR_H + 4)   # matches draw_checklist_item spacing
-    y_start = 160
-    idx = (y - y_start) // ITEM_H
-    if 0 <= idx < len(nonneg):
-        habit = nonneg[idx]
-        if habit not in completed:
-            print(f"[main] habit completed: {habit}")
-            cache.record_habit_completed(habit)
-            _ws.send_event("HABIT_COMPLETED", {"habit_name": habit})
-            # Update local data so the checkmark shows immediately
-            data.setdefault("nonneg_completed", []).append(habit)
+    tasks   = face.get("tasks", [])
+    Y_START = 124
+    ROW_H   = 28
+    idx     = (y - Y_START) // ROW_H
+    if 0 <= idx < len(tasks):
+        task = tasks[idx]
+        if not task.get("done", False):
+            task_id = task.get("id")
+            print(f"[main] task tapped: id={task_id}")
+            task["done"] = True
+            _ws.send_event("TASK_COMPLETED", {"task_id": task_id})
             _renderer.render_current()
 
 
@@ -157,7 +154,7 @@ def _handle_a2_tap(x, y, data):
 # ══════════════════════════════════════════════════════════════════════════════
 
 def boot():
-    global _hal, _renderer, _ws, _touch, _imu, _als, _power
+    global _hal, _renderer, _ws, _touch, _imu, _als, _power, _voice
     global _last_heartbeat_ms, _last_layout_refresh_ms, _last_activity_ms
 
     now = utime.ticks_ms()
@@ -219,11 +216,11 @@ def boot():
     except Exception as e:
         print(f"[main] power init error (non-fatal): {e}")
 
-    # ── 5. Load cached layout ─────────────────────────────────────────────────
+    # ── 5. Load cached layout (offline mode until WS delivers fresh layout) ──
     cached_layout = cache.load_layout()
     if cached_layout:
-        print("[main] restoring cached layout ...")
-        _renderer.load_layout(cached_layout)
+        print("[main] restoring cached layout (offline) ...")
+        _renderer.load_layout(cached_layout, offline=True)
 
     # ── 6. WiFi ───────────────────────────────────────────────────────────────
     print("[main] connecting WiFi ...")
@@ -264,6 +261,12 @@ def boot():
     else:
         _renderer.render_boot("WAITING...")
 
+    # ── 8. Voice pipeline ─────────────────────────────────────────────────────
+    if config.VOICE_ENABLED:
+        print("[main] init voice manager ...")
+        _voice = VoiceManager(_ws, cache)
+        _voice.start()
+
     print("[main] boot complete — entering main loop")
 
 
@@ -287,6 +290,14 @@ def main_loop():
         if _touch and _touch.has_data():
             gesture, x, y = _touch.read()
             _handle_touch_gesture(gesture, x, y)
+
+        # ── Poll voice (non-blocking) ─────────────────────────────────────────
+        if _voice:
+            _voice.poll()
+
+        # ── Offline badge sync ────────────────────────────────────────────────
+        if _ws and _renderer:
+            _renderer.set_offline(not _ws.is_connected())
 
         # ── Heartbeat ─────────────────────────────────────────────────────────
         if utime.ticks_diff(now, _last_heartbeat_ms) >= config.HEARTBEAT_INTERVAL_MS:

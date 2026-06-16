@@ -1,44 +1,61 @@
-# display/renderer.py — layout JSON → framebuffer
+# display/renderer.py — layout JSON → round display
 #
-# The renderer owns the screen list and current screen index.
-# It calls only HAL primitives and components — never touches SPI or registers.
+# Handles the 5 new face types (Tier 1 schema):
+#   goal_arc        — perimeter progress ring, pct, days left
+#   task_list       — up to 6 tasks with ring checkboxes
+#   habit_heatmap   — 7-day completion grid per habit
+#   timer           — depleting arc countdown
+#   study_progress  — module completion ring
 #
-# Screen types handled:
-#   A1  Ambient/Idle    — clock, date, streak
-#   A2  Morning Brief   — top task + non-negotiables checklist
-#   A3  Active Nudge    — full-screen message
-#   A4  Goal Progress   — progress ring + pct + label
-#   A5  Weekly Heatmap  — 7-day habit grid
-#   A7  Wind-down       — lights-out time + tomorrow task
+# Also handles legacy A3 (nudge) and offline badge.
+#
+# Layout dict accepted formats:
+#   NEW: {"faces": [{"type": "goal_arc", ...flat fields...}], "generated_at": "..."}
+#   OLD: {"screens": [{"type": "A1", "data": {...}}]}   ← backwards compat only
 
 import utime
 from display.hal import COLOR_BG, COLOR_FG, WIDTH, HEIGHT
 from display import components as comp
 
-_CX = WIDTH  // 2
-_CY = HEIGHT // 2
+_CX = WIDTH  // 2   # 240
+_CY = HEIGHT // 2   # 240
 
 
 class Renderer:
 
     def __init__(self, hal):
-        self._hal     = hal
-        self._screens = []      # list of {"type": "A1", "data": {...}}
-        self._index   = 0       # current screen index
-        self._nudge   = None    # active nudge data or None
-        self._prev_index = 0    # screen to return to after nudge dismiss
+        self._hal        = hal
+        self._screens    = []   # normalised list of face dicts (flat, type field present)
+        self._index      = 0
+        self._nudge      = None
+        self._prev_index = 0
+        self._offline    = False   # draw offline badge when True
 
-    # ── Layout loading ────────────────────────────────────────────────────────
+    # ── Layout loading ─────────────────────────────────────────────────────────
 
-    def load_layout(self, layout_dict):
-        """Accept a parsed layout dict (from cache or WS LAYOUT_UPDATE)."""
-        screens = layout_dict.get("screens", [])
-        if not screens:
-            print("[renderer] layout has no screens")
+    def load_layout(self, layout_dict, offline=False):
+        """Accept layout from WS LAYOUT_UPDATE or flash cache."""
+        self._offline = offline
+
+        # Accept both "faces" (new) and "screens" (legacy) keys
+        faces = layout_dict.get("faces") or layout_dict.get("screens") or []
+        if not faces:
+            print("[renderer] layout has no faces")
             return
-        self._screens = screens
+
+        # Normalise legacy {"type": "A1", "data": {...}} into flat dict
+        normalised = []
+        for f in faces:
+            if "data" in f and isinstance(f["data"], dict):
+                flat = dict(f["data"])
+                flat["type"] = f.get("type", "")
+                normalised.append(flat)
+            else:
+                normalised.append(f)
+
+        self._screens = normalised
         self._index   = 0
-        print(f"[renderer] loaded {len(screens)} screens, direction={layout_dict.get('direction')}")
+        print(f"[renderer] loaded {len(normalised)} faces")
         self.render_current()
 
     def get_screens(self):
@@ -49,7 +66,10 @@ class Renderer:
             return None
         return self._screens[self._index]
 
-    # ── Navigation ────────────────────────────────────────────────────────────
+    def set_offline(self, offline):
+        self._offline = offline
+
+    # ── Navigation ─────────────────────────────────────────────────────────────
 
     def next_screen(self):
         if not self._screens:
@@ -64,14 +84,15 @@ class Renderer:
         self.render_current()
 
     def show_nudge(self, nudge_data):
-        """Push a nudge screen (A3) on top of the current screen."""
+        """Overlay nudge on current screen."""
         self._prev_index = self._index
         self._nudge      = nudge_data
-        self._render_A3(nudge_data)
+        self._hal.clear()
+        self._render_nudge(nudge_data)
+        comp.apply_circle_mask(self._hal)
         self._hal.show()
 
     def dismiss_nudge(self):
-        """Return to the screen that was showing before the nudge."""
         self._nudge = None
         self._index = self._prev_index
         self.render_current()
@@ -79,194 +100,285 @@ class Renderer:
     def is_nudge_active(self):
         return self._nudge is not None
 
-    # ── Render dispatch ───────────────────────────────────────────────────────
+    # ── Render dispatch ────────────────────────────────────────────────────────
 
     def render_current(self):
-        screen = self.current_screen()
-        if screen is None:
+        face = self.current_screen()
+        if face is None:
             self._render_boot("NO DATA")
+            comp.apply_circle_mask(self._hal)
+            self._hal.show()
             return
-        stype = screen.get("type", "")
-        data  = screen.get("data", {})
+
+        ftype = face.get("type", "")
         self._hal.clear()
-        fn = {
-            "A1": self._render_A1,
-            "A2": self._render_A2,
-            "A3": self._render_A3,
-            "A4": self._render_A4,
-            "A5": self._render_A5,
-            "A7": self._render_A7,
-        }.get(stype)
+
+        dispatch = {
+            "goal_arc":       self._render_goal_arc,
+            "task_list":      self._render_task_list,
+            "habit_heatmap":  self._render_habit_heatmap,
+            "timer":          self._render_timer,
+            "study_progress": self._render_study_progress,
+            # Legacy nudge (pushed separately via show_nudge in normal flow)
+            "A3":             self._render_nudge,
+        }
+        fn = dispatch.get(ftype)
         if fn:
-            fn(data)
+            fn(face)
         else:
-            print(f"[renderer] unknown screen type: {stype}")
-            comp.draw_text_centred(self._hal, stype, _CY - 20, scale=2)
+            print(f"[renderer] unknown face type: {ftype}")
+            comp.draw_text_centred(self._hal, ftype or "?", _CY, scale=2)
+
         comp.apply_circle_mask(self._hal)
+
+        # Offline badge — small dot + "OFFLINE" at bottom of circle
+        if self._offline:
+            self._draw_offline_badge()
+
+        # Dot pagination indicator (bottom arc)
+        self._draw_dots()
+
         self._hal.show()
 
     def render_boot(self, line2="CONNECTING..."):
+        self._hal.clear()
         self._render_boot(line2)
         comp.apply_circle_mask(self._hal)
         self._hal.show()
 
-    # ── Screen implementations ────────────────────────────────────────────────
+    # ── Boot screen ────────────────────────────────────────────────────────────
 
     def _render_boot(self, line2):
-        self._hal.clear()
         comp.draw_text_centred(self._hal, "GRAVITY", _CY - 24, scale=3)
         comp.draw_text_centred(self._hal, line2,     _CY + 12, scale=1)
 
-    def _render_A1(self, data):
-        """Ambient / Idle — clock, date, streak."""
-        # Time
-        t = utime.localtime()
-        time_str  = "{:02d}:{:02d}".format(t[3], t[4])
-        date_str  = "{:04d}-{:02d}-{:02d}".format(t[0], t[1], t[2])
-        streak    = data.get("streak", 0)
+    # ── Offline badge ──────────────────────────────────────────────────────────
 
-        # Large clock in centre
-        comp.draw_text_centred(self._hal, time_str, _CY - 40, scale=4)
+    def _draw_offline_badge(self):
+        comp.draw_text_centred(self._hal, "OFFLINE", HEIGHT - 72, scale=1)
 
-        # Date below
-        comp.draw_text_centred(self._hal, date_str, _CY + 20, scale=1)
+    # ── Dot pagination ─────────────────────────────────────────────────────────
 
-        # Streak at bottom
-        streak_text = f"streak {streak}"
-        comp.draw_text_centred(self._hal, streak_text, _CY + 60, scale=2)
+    def _draw_dots(self):
+        n = len(self._screens)
+        if n <= 1:
+            return
+        dot_size   = 4
+        dot_gap    = 8
+        total_w    = n * dot_size + (n - 1) * dot_gap
+        x0         = _CX - total_w // 2
+        y          = HEIGHT - 52
+        for i in range(n):
+            x = x0 + i * (dot_size + dot_gap)
+            if i == self._index:
+                self._hal.fill_rect(x, y, dot_size, dot_size, COLOR_FG)
+            else:
+                self._hal.draw_hline(x, y, dot_size, COLOR_FG)
+                self._hal.draw_hline(x, y + dot_size - 1, dot_size, COLOR_FG)
+                self._hal.draw_vline(x, y, dot_size, COLOR_FG)
+                self._hal.draw_vline(x + dot_size - 1, y, dot_size, COLOR_FG)
 
-    def _render_A2(self, data):
-        """Morning Brief — top task + non-negotiables checklist."""
-        task      = data.get("task", "")
-        nonneg    = data.get("nonneg", [])
-        completed = set(data.get("nonneg_completed", []))
+    # ══════════════════════════════════════════════════════════════════════════
+    # Face renderers
+    # ══════════════════════════════════════════════════════════════════════════
 
-        # Top task — large, centred, wrapped to 2 lines if needed
-        words = task.upper().split()
-        line1, line2 = _wrap_words(words, max_chars=12)
-        y = 90
-        if line2:
-            comp.draw_text_centred(self._hal, line1, y,      scale=2)
-            comp.draw_text_centred(self._hal, line2, y + 24, scale=2)
-            y += 58
-        else:
-            comp.draw_text_centred(self._hal, line1, y, scale=2)
-            y += 36
+    def _render_goal_arc(self, face):
+        """
+        goal_arc — perimeter progress ring filling from top, pct in centre.
+        JSON: {type, label, pct, days_left, on_track, sub_label}
+        """
+        pct       = float(face.get("pct", 0.0))
+        label     = str(face.get("label", "GOAL")).upper()
+        days_left = int(face.get("days_left", 0))
+        on_track  = face.get("on_track", True)
+        sub_label = str(face.get("sub_label", "")).upper()
 
-        comp.draw_divider(self._hal, y, margin=60)
-        y += 10
+        # Outer progress ring (radius 210, thickness 18 — near display edge)
+        comp.draw_progress_ring(self._hal, _CX, _CY, radius=210, pct=pct, thickness=18)
 
-        # Checklist
-        left_x = 80
-        for item in nonneg:
-            if y > HEIGHT - 60:
+        # Second inner border ring
+        comp.draw_arc(self._hal, _CX, _CY, 192, 0, 360, thickness=2)
+
+        # Large pct in centre
+        pct_str = f"{int(pct * 100)}%"
+        comp.draw_text_centred(self._hal, pct_str, _CY - 36, scale=4)
+
+        # Goal label
+        label_w = comp.text_width(label, scale=1)
+        if label_w > 200:
+            label = label[:18] + "..."
+        comp.draw_text_centred(self._hal, label, _CY + 20, scale=1)
+
+        # Days left + on-track indicator
+        days_str = f"{days_left}d left"
+        if not on_track:
+            days_str += " !"
+        comp.draw_text_centred(self._hal, days_str, _CY + 38, scale=1)
+
+        # Sub-label (sub-goal or milestone)
+        if sub_label:
+            comp.draw_text_centred(self._hal, sub_label[:20], _CY + 58, scale=1)
+
+    def _render_task_list(self, face):
+        """
+        task_list — up to 6 tasks with checkboxes.
+        JSON: {type, tasks: [{id, title, done}], done_count, total_count, next_label}
+        """
+        tasks      = face.get("tasks", [])[:6]
+        done_count = int(face.get("done_count", 0))
+        total      = int(face.get("total_count", len(tasks)))
+        next_label = str(face.get("next_label", "")).upper()
+
+        # Header: count
+        header = f"{done_count}/{total} DONE"
+        comp.draw_text_centred(self._hal, header, 76, scale=1)
+
+        # "NEXT" label if all tasks not done
+        if next_label and done_count < total:
+            nl = next_label[:18]
+            comp.draw_text_centred(self._hal, nl, 94, scale=1)
+
+        comp.draw_divider(self._hal, 112, margin=80)
+
+        # Task rows — centred column, 6 tasks max
+        n = len(tasks)
+        row_h = 28
+        y_start = 124
+        left_x  = 80
+
+        for i, task in enumerate(tasks):
+            y    = y_start + i * row_h
+            if y > HEIGHT - 80:
                 break
-            done = item in completed
-            y = comp.draw_checklist_item(self._hal, left_x, y, item, done, scale=1)
+            done  = bool(task.get("done", False))
+            title = str(task.get("title", "")).upper()[:16]
+            comp.draw_checklist_item(self._hal, left_x, y, title, done, scale=1)
 
-    def _render_A3(self, data):
-        """Active Nudge — full-screen message."""
+    def _render_habit_heatmap(self, face):
+        """
+        habit_heatmap — 7-day grid per habit, streak at bottom.
+        JSON: {type, habits: [{name, days: [bool x 7]}], streak, week_label}
+        """
+        habits_list = face.get("habits", [])
+        streak      = int(face.get("streak", 0))
+        week_label  = str(face.get("week_label", "THIS WEEK")).upper()
+
+        # Convert list to dict for draw_heatmap
+        habits_dict = {}
+        for h in habits_list[:5]:   # max 5 habits
+            name = str(h.get("name", ""))[:10]
+            days = h.get("days", [False] * 7)
+            habits_dict[name] = days
+
+        if not habits_dict:
+            comp.draw_text_centred(self._hal, "NO HABITS", _CY, scale=2)
+            return
+
+        comp.draw_text_centred(self._hal, week_label, 80, scale=1)
+
+        # Day headers
+        headers    = ["M", "T", "W", "T", "F", "S", "S"]
+        cell_total = 24
+        grid_w     = 7 * cell_total - 4
+        hx         = _CX - grid_w // 2
+        for i, h in enumerate(headers):
+            comp.draw_text(self._hal, hx + i * cell_total + 8, 100, h, scale=1)
+
+        comp.draw_heatmap(self._hal, habits_dict, cx=_CX, cy=_CY + 10, cell_size=20, gap=4)
+
+        # Streak
+        if streak:
+            comp.draw_text_centred(self._hal, f"{streak} DAY STREAK", HEIGHT - 88, scale=1)
+
+    def _render_timer(self, face):
+        """
+        timer — depleting arc + large remaining time.
+        JSON: {type, label, duration_seconds, remaining_seconds, running}
+        """
+        label     = str(face.get("label", "FOCUS")).upper()
+        duration  = int(face.get("duration_seconds",  25 * 60))
+        remaining = int(face.get("remaining_seconds", duration))
+        running   = bool(face.get("running", False))
+
+        pct  = remaining / duration if duration > 0 else 0.0
+        mins = remaining // 60
+        secs = remaining % 60
+
+        # Outer ring — depleting (full = 1.0 at start, 0.0 done)
+        comp.draw_progress_ring(self._hal, _CX, _CY, radius=210, pct=pct, thickness=18)
+        comp.draw_arc(self._hal, _CX, _CY, 192, 0, 360, thickness=2)
+
+        # Remaining time large centre
+        time_str = f"{mins:02d}:{secs:02d}"
+        comp.draw_text_centred(self._hal, time_str, _CY - 32, scale=4)
+
+        # Label
+        comp.draw_text_centred(self._hal, label, _CY + 24, scale=1)
+
+        # Running indicator
+        status = "RUNNING" if running else "PAUSED"
+        comp.draw_text_centred(self._hal, status, _CY + 42, scale=1)
+
+    def _render_study_progress(self, face):
+        """
+        study_progress — module arc + lesson counter + streak.
+        JSON: {type, subject, pct, current_lesson, total_lessons, target_grade, streak_days}
+        """
+        subject       = str(face.get("subject", "STUDY")).upper()
+        pct           = float(face.get("pct", 0.0))
+        current       = int(face.get("current_lesson", 0))
+        total         = int(face.get("total_lessons", 0))
+        target_grade  = str(face.get("target_grade", "")).upper()
+        streak_days   = int(face.get("streak_days", 0))
+
+        # Outer arc
+        comp.draw_progress_ring(self._hal, _CX, _CY, radius=210, pct=pct, thickness=18)
+        comp.draw_arc(self._hal, _CX, _CY, 192, 0, 360, thickness=2)
+
+        # Subject name
+        subj = subject[:14]
+        comp.draw_text_centred(self._hal, subj, _CY - 60, scale=2)
+
+        # Pct
+        pct_str = f"{int(pct * 100)}%"
+        comp.draw_text_centred(self._hal, pct_str, _CY - 24, scale=4)
+
+        # Lesson counter
+        if total > 0:
+            lesson_str = f"{current}/{total} LESSONS"
+            comp.draw_text_centred(self._hal, lesson_str, _CY + 24, scale=1)
+
+        # Target grade
+        if target_grade:
+            comp.draw_text_centred(self._hal, f"TARGET {target_grade}", _CY + 42, scale=1)
+
+        # Streak
+        if streak_days:
+            comp.draw_text_centred(self._hal, f"{streak_days}d STREAK", _CY + 60, scale=1)
+
+    def _render_nudge(self, data):
+        """Full-screen nudge message (overlaid on current face or legacy A3)."""
         self._hal.clear()
-        message  = data.get("message", "")
-        nudge_id = data.get("nudge_id", "")
+        message = data.get("message", "")
 
-        # Wrap message into lines of ~16 chars
-        words = message.split()
-        lines = []
+        # Word-wrap to ~16 chars per line
+        words   = message.split()
+        lines   = []
         current = ""
         for w in words:
-            if len(current) + len(w) + 1 > 16:
-                if current:
-                    lines.append(current.strip())
-                current = w + " "
+            test = (current + " " + w).strip()
+            if len(test) <= 16:
+                current = test
             else:
-                current += w + " "
-        if current.strip():
-            lines.append(current.strip())
+                if current:
+                    lines.append(current)
+                current = w
+        if current:
+            lines.append(current)
 
-        n = len(lines)
+        n       = len(lines)
         y_start = _CY - (n * 20) // 2
         for i, line in enumerate(lines):
             comp.draw_text_centred(self._hal, line.upper(), y_start + i * 20, scale=2)
 
         comp.draw_text_centred(self._hal, "TAP TO DISMISS", HEIGHT - 90, scale=1)
-        comp.apply_circle_mask(self._hal)
-
-    def _render_A4(self, data):
-        """Goal Progress — progress ring + percentage + label + days."""
-        pct        = data.get("pct", 0.0)
-        label      = data.get("label", "GOAL").upper()
-        days_left  = data.get("days_left", 0)
-        milestones = data.get("milestones", [])
-
-        # Outer progress ring
-        comp.draw_progress_ring(self._hal, _CX, _CY, radius=200, pct=pct, thickness=14)
-
-        # Inner ring border
-        comp.draw_arc(self._hal, _CX, _CY, 182, 0, 360, thickness=2)
-
-        # Large percentage in centre
-        pct_str = f"{int(pct*100)}%"
-        comp.draw_text_centred(self._hal, pct_str, _CY - 30, scale=4)
-
-        # Goal label
-        comp.draw_text_centred(self._hal, label, _CY + 28, scale=1)
-
-        # Days remaining
-        comp.draw_text_centred(self._hal, f"{days_left}d left", _CY + 46, scale=1)
-
-        # Milestones as small text at bottom
-        if milestones:
-            ms_text = " / ".join(milestones[:3])
-            comp.draw_text_centred(self._hal, ms_text, _CY + 80, scale=1)
-
-    def _render_A5(self, data):
-        """Weekly Heatmap — 7-column habit completion grid from cache."""
-        import cache
-        habits = cache.get_habit_history()
-        if not habits:
-            comp.draw_text_centred(self._hal, "NO HABIT DATA", _CY, scale=1)
-            return
-
-        comp.draw_text_centred(self._hal, "THIS WEEK", 80, scale=1)
-
-        # Day-of-week headers: M T W T F S S
-        headers = ["M", "T", "W", "T", "F", "S", "S"]
-        cell_total = 24
-        grid_w     = 7 * cell_total - 4
-        hx = _CX - grid_w // 2
-        for i, h in enumerate(headers):
-            comp.draw_text(self._hal, hx + i * cell_total + 8, 110, h, scale=1)
-
-        comp.draw_heatmap(self._hal, habits, cx=_CX, cy=_CY + 20, cell_size=20, gap=4)
-
-        # Legend
-        comp.draw_text_centred(self._hal, "filled = done", HEIGHT - 90, scale=1)
-
-    def _render_A7(self, data):
-        """Wind-down — lights-out time and tomorrow's task."""
-        lights_out     = data.get("lights_out", "23:00")
-        tomorrow_task  = data.get("tomorrow_task", "")
-
-        comp.draw_text_centred(self._hal, "LIGHTS OUT", _CY - 60, scale=2)
-        comp.draw_text_centred(self._hal, lights_out,   _CY - 20, scale=4)
-
-        comp.draw_divider(self._hal, _CY + 40, margin=80)
-
-        comp.draw_text_centred(self._hal, "TOMORROW", _CY + 60, scale=1)
-        comp.draw_text_centred(self._hal, tomorrow_task.upper(), _CY + 80, scale=2)
-
-
-# ── Utility ───────────────────────────────────────────────────────────────────
-
-def _wrap_words(words, max_chars):
-    """Split word list into two lines with at most max_chars per line."""
-    line1 = ""
-    for i, w in enumerate(words):
-        test = (line1 + " " + w).strip()
-        if len(test) <= max_chars:
-            line1 = test
-        else:
-            line2 = " ".join(words[i:])
-            return line1, line2
-    return line1, ""
