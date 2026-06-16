@@ -1,12 +1,10 @@
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
-
-const INK = '#14130d';
-const PAPER = '#f4f2ea';
+import { BG, BORDER, WHITE, DIM } from '../../constants/theme';
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   return (
-    <Text style={{ fontSize: 10, color: focused ? INK : '#888', letterSpacing: 1, fontWeight: focused ? '700' : '400' }}>
+    <Text style={{ fontSize: 14, color: focused ? WHITE : DIM }}>
       {label}
     </Text>
   );
@@ -17,13 +15,14 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: PAPER,
-          borderTopColor: 'rgba(20,19,13,0.1)',
-          height: 56,
-          paddingBottom: 8,
+          backgroundColor: BG,
+          borderTopColor: BORDER,
+          height: 60,
+          paddingBottom: 10,
         },
-        tabBarActiveTintColor: INK,
-        tabBarInactiveTintColor: '#888',
+        tabBarActiveTintColor: WHITE,
+        tabBarInactiveTintColor: DIM,
+        tabBarLabelStyle: { fontSize: 9, letterSpacing: 1.5, fontWeight: '600' },
         headerShown: false,
       }}
     >
@@ -35,10 +34,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="health"
+        name="goals"
         options={{
-          title: 'HEALTH',
-          tabBarIcon: ({ focused }) => <TabIcon label="♡" focused={focused} />,
+          title: 'GOALS',
+          tabBarIcon: ({ focused }) => <TabIcon label="◎" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="today"
+        options={{
+          title: 'TODAY',
+          tabBarIcon: ({ focused }) => <TabIcon label="▦" focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -48,13 +54,9 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => <TabIcon label="⊞" focused={focused} />,
         }}
       />
-      <Tabs.Screen
-        name="analytics"
-        options={{
-          title: 'DATA',
-          tabBarIcon: ({ focused }) => <TabIcon label="▦" focused={focused} />,
-        }}
-      />
+      {/* Hidden routes — still navigable, not in tab bar */}
+      <Tabs.Screen name="health"    options={{ href: null }} />
+      <Tabs.Screen name="analytics" options={{ href: null }} />
     </Tabs>
   );
 }
