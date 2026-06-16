@@ -1,260 +1,129 @@
 /**
- * DevicePreview — circular 280×280 (default) preview of a single GRAVITY device screen.
+ * DevicePreview — circular preview of a single GRAVITY face card.
+ *
+ * Renders the 5 face types from backend/schemas/face.py:
+ *   goal_arc | task_list | habit_heatmap | timer | study_progress
  *
  * Pure React Native: View + Text + Animated only. No SVG, no canvas.
- * Mirrors the e-ink aesthetic of the physical 480×480 circular display.
+ * INK/PAPER palette matches physical display.
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 
 const INK = '#14130d';
 const PAPER = '#f4f2ea';
 
-// ---------- types ----------
+// ── Face schema types (mirror backend/schemas/face.py) ──────────────────────
 
-interface ScreenData {
-  type: string;
-  data: Record<string, unknown>;
+export interface GoalArcFace {
+  type: 'goal_arc';
+  label: string;
+  pct: number;
+  days_left: number;
+  on_track: boolean;
+  sub_label?: string;
 }
+
+export interface TaskItem {
+  title: string;
+  done: boolean;
+  active: boolean;
+}
+
+export interface TaskListFace {
+  type: 'task_list';
+  tasks: TaskItem[];
+  done_count: number;
+  total_count: number;
+  next_label?: string;
+}
+
+export interface HabitRow {
+  name: string;
+  days: boolean[];
+}
+
+export interface HabitHeatmapFace {
+  type: 'habit_heatmap';
+  habits: HabitRow[];
+  streak: number;
+  week_label?: string;
+}
+
+export interface TimerFace {
+  type: 'timer';
+  label?: string;
+  duration_seconds: number;
+  remaining_seconds: number;
+  running: boolean;
+}
+
+export interface StudyProgressFace {
+  type: 'study_progress';
+  subject: string;
+  pct: number;
+  current_lesson: number;
+  total_lessons: number;
+  target_grade?: string;
+  streak_days?: number;
+}
+
+export type FaceCard =
+  | GoalArcFace
+  | TaskListFace
+  | HabitHeatmapFace
+  | TimerFace
+  | StudyProgressFace;
+
+// ── Props ─────────────────────────────────────────────────────────────────────
 
 interface DevicePreviewProps {
-  screen: ScreenData | null;
+  face: FaceCard | null;
   size?: number;
+  offline?: boolean;
 }
 
-// ---------- helpers ----------
+// ── Scale helper ──────────────────────────────────────────────────────────────
 
-function useTime(): string {
-  const [time, setTime] = useState(() => {
-    const now = new Date();
-    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  });
-  useEffect(() => {
-    const id = setInterval(() => {
-      const now = new Date();
-      setTime(`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
-    }, 30_000);
-    return () => clearInterval(id);
-  }, []);
-  return time;
+function sc(size: number) {
+  const b = size / 280;
+  return {
+    xl: Math.round(52 * b),
+    lg: Math.round(38 * b),
+    md: Math.round(16 * b),
+    sm: Math.round(12 * b),
+    xs: Math.round(10 * b),
+    micro: Math.round(8 * b),
+  };
 }
 
-function asString(v: unknown, fallback = ''): string {
-  return typeof v === 'string' ? v : fallback;
-}
+// ── Arc progress (two half-ring clip trick, no SVG) ───────────────────────────
 
-function asNumber(v: unknown, fallback = 0): number {
-  return typeof v === 'number' ? v : fallback;
-}
-
-function asStringArray(v: unknown): string[] {
-  return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
-}
-
-// ---------- screen renderers ----------
-
-/** A1 — Ambient: streak + live clock */
-function ScreenA1({ data, s }: { data: Record<string, unknown>; s: ReturnType<typeof makeScales> }) {
-  const time = useTime();
-  const streak = asNumber(data.streak, 0);
-
-  return (
-    <>
-      <Text style={[styles.topLabel, { fontSize: s.tiny, color: INK }]}>{time}</Text>
-      <Text style={[styles.bigNumber, { fontSize: s.huge, color: INK, lineHeight: s.huge * 1.05 }]}>
-        {streak}
-      </Text>
-      <Text style={[styles.subLabel, { fontSize: s.micro, color: INK }]}>DAY STREAK</Text>
-    </>
-  );
-}
-
-/** A2 — Morning Brief: top task + nonneg checklist */
-function ScreenA2({ data, s }: { data: Record<string, unknown>; s: ReturnType<typeof makeScales> }) {
-  const task = asString(data.task, '—');
-  const nonneg = asStringArray(data.nonneg);
-  const completed = asStringArray(data.nonneg_completed);
-
-  return (
-    <>
-      <Text style={[styles.topLabel, { fontSize: s.tiny, color: INK }]}>TODAY</Text>
-      <Text
-        style={[styles.centreText, { fontSize: s.medium, color: INK, lineHeight: s.medium * 1.3 }]}
-        numberOfLines={2}
-      >
-        {task}
-      </Text>
-      <View style={styles.checklist}>
-        {nonneg.slice(0, 5).map((item) => {
-          const done = completed.includes(item);
-          return (
-            <View key={item} style={styles.checkRow}>
-              <Text style={[styles.checkGlyph, { fontSize: s.micro, color: INK }]}>
-                {done ? '✓' : '○'}
-              </Text>
-              <Text
-                style={[
-                  styles.checkLabel,
-                  { fontSize: s.micro, color: INK, opacity: done ? 0.35 : 0.85 },
-                ]}
-                numberOfLines={1}
-              >
-                {item}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
-    </>
-  );
-}
-
-/** A3 — Nudge: centred message */
-function ScreenA3({ data, s }: { data: Record<string, unknown>; s: ReturnType<typeof makeScales> }) {
-  const message = asString(data.message, '—');
-
-  return (
-    <>
-      <Text
-        style={[styles.centreText, { fontSize: s.medium, color: INK, lineHeight: s.medium * 1.35 }]}
-        numberOfLines={4}
-      >
-        {message}
-      </Text>
-      <Text style={[styles.bottomLabel, { fontSize: s.micro, color: INK }]}>TAP TO DISMISS</Text>
-    </>
-  );
-}
-
-/**
- * A4 — Goal Progress: large pct + arc border simulation.
- *
- * Arc approach: the outer ring is split into two half-circle views rotated to
- * form a progress arc — no SVG, pure View borderRadius trick.
- */
-function ScreenA4({ data, s, size }: { data: Record<string, unknown>; s: ReturnType<typeof makeScales>; size: number }) {
-  const pct = Math.min(1, Math.max(0, asNumber(data.pct, 0)));
-  const label = asString(data.label, '');
-  const daysLeft = asNumber(data.days_left, 0);
-  const pctDisplay = `${Math.round(pct * 100)}%`;
-
-  // Arc drawn as two masked half-rings.
-  // We use a thick-bordered circle clip trick:
-  // - A full ring (opacity ~0.1) as the track
-  // - A progress indicator via border opacity based on progress
-  const ringSize = size * 0.88;
-  const ringBorder = size * 0.055;
-
-  return (
-    <>
-      {/* Track ring */}
-      <View
-        style={{
-          position: 'absolute',
-          width: ringSize,
-          height: ringSize,
-          borderRadius: ringSize / 2,
-          borderWidth: ringBorder,
-          borderColor: `rgba(20,19,13,0.1)`,
-        }}
-      />
-      {/* Progress ring — rotate to fill proportionally */}
-      <ProgressArc pct={pct} size={ringSize} border={ringBorder} />
-
-      <Text style={[styles.topLabel, { fontSize: s.tiny, color: INK }]} numberOfLines={1}>
-        {label}
-      </Text>
-      <Text style={[styles.bigNumber, { fontSize: s.large, color: INK, lineHeight: s.large * 1.1 }]}>
-        {pctDisplay}
-      </Text>
-      <Text style={[styles.subLabel, { fontSize: s.micro, color: INK }]}>
-        {daysLeft} DAYS LEFT
-      </Text>
-    </>
-  );
-}
-
-/**
- * Arc progress rendered as two clipped half-ring Views.
- * For pct ≤ 0.5: only the right half is shown (rotated).
- * For pct > 0.5: right half full + left half partially shown.
- */
 function ProgressArc({ pct, size, border }: { pct: number; size: number; border: number }) {
-  const halfSize = size / 2;
-  // Degrees: 0–360
-  const degrees = pct * 360;
-
-  // Right half fills first (0→180°), then left half (180→360°)
+  const degrees = Math.max(0, Math.min(1, pct)) * 360;
+  const half = size / 2;
   const rightDeg = Math.min(degrees, 180);
   const leftDeg = Math.max(0, degrees - 180);
 
   return (
     <View style={{ position: 'absolute', width: size, height: size }}>
-      {/* Container clips each half */}
-      {/* Right half — rotates from 0 to 180 */}
-      <View
-        style={{
-          position: 'absolute',
-          width: size,
-          height: size,
-          overflow: 'hidden',
-        }}
-      >
-        <View
-          style={{
-            position: 'absolute',
-            right: 0,
-            width: halfSize,
-            height: size,
-            overflow: 'hidden',
-          }}
-        >
-          <Animated.View
-            style={{
-              position: 'absolute',
-              left: -halfSize,
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              borderWidth: border,
-              borderColor: INK,
-              transform: [{ rotate: `${rightDeg - 180}deg` }],
-            }}
-          />
+      <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
+        <View style={{ position: 'absolute', right: 0, width: half, height: size, overflow: 'hidden' }}>
+          <View style={{
+            position: 'absolute', left: -half, width: size, height: size,
+            borderRadius: size / 2, borderWidth: border, borderColor: INK,
+            transform: [{ rotate: `${rightDeg - 180}deg` }],
+          }} />
         </View>
       </View>
-
-      {/* Left half — only rendered when pct > 0.5 */}
       {leftDeg > 0 && (
-        <View
-          style={{
-            position: 'absolute',
-            width: size,
-            height: size,
-            overflow: 'hidden',
-          }}
-        >
-          <View
-            style={{
-              position: 'absolute',
-              left: 0,
-              width: halfSize,
-              height: size,
-              overflow: 'hidden',
-            }}
-          >
-            <Animated.View
-              style={{
-                position: 'absolute',
-                left: 0,
-                width: size,
-                height: size,
-                borderRadius: size / 2,
-                borderWidth: border,
-                borderColor: INK,
-                transform: [{ rotate: `${leftDeg}deg` }],
-              }}
-            />
+        <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
+          <View style={{ position: 'absolute', left: 0, width: half, height: size, overflow: 'hidden' }}>
+            <View style={{
+              position: 'absolute', left: 0, width: size, height: size,
+              borderRadius: size / 2, borderWidth: border, borderColor: INK,
+              transform: [{ rotate: `${leftDeg}deg` }],
+            }} />
           </View>
         </View>
       )}
@@ -262,192 +131,185 @@ function ProgressArc({ pct, size, border }: { pct: number; size: number; border:
   );
 }
 
-/** A5 — Heatmap: 5×7 grid of squares */
-function ScreenA5({ s, size }: { data: Record<string, unknown>; s: ReturnType<typeof makeScales>; size: number }) {
-  // Static placeholder grid — actual data would need date-range logic
-  const rows = 5;
-  const cols = 7;
-  const dotSize = Math.floor(size * 0.07);
-  const gap = Math.floor(size * 0.025);
+// ── Face renderers ────────────────────────────────────────────────────────────
 
-  // Pseudo-random fill for visual representation (seeded by day of week)
-  const today = new Date().getDay();
-  const filled = (r: number, c: number) => (r * 7 + c + today) % 3 !== 0;
+function GoalArcRenderer({ face, s, size }: { face: GoalArcFace; s: ReturnType<typeof sc>; size: number }) {
+  const ringSize = size * 0.86;
+  const border = size * 0.055;
+  const pct = Math.max(0, Math.min(100, face.pct));
 
   return (
     <>
-      <Text style={[styles.topLabel, { fontSize: s.tiny, color: INK }]}>THIS WEEK</Text>
-      <View style={styles.gridContainer}>
-        {Array.from({ length: rows }).map((_, r) => (
-          <View key={r} style={[styles.gridRow, { gap }]}>
-            {Array.from({ length: cols }).map((_, c) => (
-              <View
-                key={c}
-                style={{
-                  width: dotSize,
-                  height: dotSize,
-                  backgroundColor: filled(r, c) ? INK : 'rgba(20,19,13,0.12)',
-                }}
-              />
+      <View style={{ position: 'absolute', width: ringSize, height: ringSize, borderRadius: ringSize / 2, borderWidth: border, borderColor: 'rgba(20,19,13,0.1)' }} />
+      <ProgressArc pct={pct / 100} size={ringSize} border={border} />
+      <Text style={[styles.topLabel, { fontSize: s.xs, color: INK }]} numberOfLines={1}>{face.label.toUpperCase()}</Text>
+      <Text style={[styles.bigNum, { fontSize: s.xl, color: INK }]}>{Math.round(pct)}%</Text>
+      <Text style={[styles.subLabel, { fontSize: s.micro, color: INK }]}>{face.days_left}D LEFT</Text>
+      {face.sub_label ? (
+        <Text style={[styles.bottomLabel, { fontSize: s.micro, color: INK }]} numberOfLines={1}>{face.sub_label}</Text>
+      ) : (
+        <Text style={[styles.bottomLabel, { fontSize: s.micro, color: INK }]}>{face.on_track ? 'ON TRACK' : 'AT RISK'}</Text>
+      )}
+    </>
+  );
+}
+
+function TaskListRenderer({ face, s }: { face: TaskListFace; s: ReturnType<typeof sc> }) {
+  return (
+    <>
+      <Text style={[styles.topLabel, { fontSize: s.xs, color: INK }]}>
+        {face.done_count}/{face.total_count} DONE
+      </Text>
+      <View style={styles.taskList}>
+        {face.tasks.slice(0, 5).map((t, i) => (
+          <View key={i} style={styles.taskRow}>
+            <Text style={{ fontSize: s.sm, color: INK, marginRight: 5 }}>{t.done ? '✓' : t.active ? '▶' : '○'}</Text>
+            <Text
+              style={{ fontSize: s.sm, color: INK, flex: 1, opacity: t.done ? 0.35 : 1 }}
+              numberOfLines={1}
+            >
+              {t.title}
+            </Text>
+          </View>
+        ))}
+      </View>
+      {face.next_label ? (
+        <Text style={[styles.bottomLabel, { fontSize: s.micro, color: INK }]} numberOfLines={1}>{face.next_label}</Text>
+      ) : null}
+    </>
+  );
+}
+
+function HabitHeatmapRenderer({ face, s, size }: { face: HabitHeatmapFace; s: ReturnType<typeof sc>; size: number }) {
+  const dotSize = Math.floor(size * 0.065);
+  const gap = Math.floor(size * 0.02);
+
+  return (
+    <>
+      <Text style={[styles.topLabel, { fontSize: s.xs, color: INK }]}>{face.week_label ?? 'THIS WEEK'}</Text>
+      <View style={styles.heatmapGrid}>
+        {face.habits.slice(0, 5).map((h, r) => (
+          <View key={r} style={[styles.heatmapRow, { gap }]}>
+            {h.days.slice(0, 7).map((filled, c) => (
+              <View key={c} style={{ width: dotSize, height: dotSize, backgroundColor: filled ? INK : 'rgba(20,19,13,0.12)' }} />
             ))}
           </View>
         ))}
       </View>
+      <Text style={[styles.bottomLabel, { fontSize: s.micro, color: INK }]}>{face.streak}D STREAK</Text>
     </>
   );
 }
 
-/** A7 — Wind-down: moon glyph, lights-out time, tomorrow task */
-function ScreenA7({ data, s }: { data: Record<string, unknown>; s: ReturnType<typeof makeScales> }) {
-  const lightsOut = asString(data.lights_out, '—');
-  const tomorrowTask = asString(data.tomorrow_task, '—');
+function TimerRenderer({ face, s, size }: { face: TimerFace; s: ReturnType<typeof sc>; size: number }) {
+  const ringSize = size * 0.86;
+  const border = size * 0.055;
+  const pct = face.duration_seconds > 0 ? face.remaining_seconds / face.duration_seconds : 0;
+  const mins = Math.floor(face.remaining_seconds / 60);
+  const secs = face.remaining_seconds % 60;
 
   return (
     <>
-      <Text style={[styles.moonGlyph, { fontSize: s.large, color: INK }]}>◑</Text>
-      <Text style={[styles.subLabel, { fontSize: s.small, color: INK, marginBottom: 4 }]}>
-        LIGHTS OUT {lightsOut}
+      <View style={{ position: 'absolute', width: ringSize, height: ringSize, borderRadius: ringSize / 2, borderWidth: border, borderColor: 'rgba(20,19,13,0.1)' }} />
+      <ProgressArc pct={pct} size={ringSize} border={border} />
+      <Text style={[styles.topLabel, { fontSize: s.xs, color: INK }]}>{(face.label ?? 'FOCUS').toUpperCase()}</Text>
+      <Text style={[styles.bigNum, { fontSize: s.lg, color: INK }]}>
+        {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
       </Text>
-      <Text style={[styles.subLabel, { fontSize: s.micro, color: INK, opacity: 0.6 }]} numberOfLines={1}>
-        TOMORROW: {tomorrowTask}
-      </Text>
+      <Text style={[styles.bottomLabel, { fontSize: s.micro, color: INK }]}>{face.running ? 'RUNNING' : 'PAUSED'}</Text>
     </>
   );
 }
 
-/** Fallback for unknown screen types */
-function ScreenUnknown({ type, s }: { type: string; s: ReturnType<typeof makeScales> }) {
+function StudyProgressRenderer({ face, s, size }: { face: StudyProgressFace; s: ReturnType<typeof sc>; size: number }) {
+  const ringSize = size * 0.86;
+  const border = size * 0.055;
+  const pct = Math.max(0, Math.min(100, face.pct));
+
   return (
-    <Text style={[styles.centreText, { fontSize: s.micro, color: INK, opacity: 0.4 }]}>
-      {type}
-    </Text>
+    <>
+      <View style={{ position: 'absolute', width: ringSize, height: ringSize, borderRadius: ringSize / 2, borderWidth: border, borderColor: 'rgba(20,19,13,0.1)' }} />
+      <ProgressArc pct={pct / 100} size={ringSize} border={border} />
+      <Text style={[styles.topLabel, { fontSize: s.xs, color: INK }]} numberOfLines={1}>{face.subject.toUpperCase()}</Text>
+      <Text style={[styles.bigNum, { fontSize: s.xl, color: INK }]}>{Math.round(pct)}%</Text>
+      <Text style={[styles.subLabel, { fontSize: s.micro, color: INK }]}>
+        {face.current_lesson}/{face.total_lessons} LESSONS
+      </Text>
+      {face.target_grade ? (
+        <Text style={[styles.bottomLabel, { fontSize: s.micro, color: INK }]}>TARGET {face.target_grade}</Text>
+      ) : null}
+    </>
   );
 }
 
-// ---------- scale factory ----------
+// ── Main component ────────────────────────────────────────────────────────────
 
-function makeScales(size: number) {
-  const base = size / 280;
-  return {
-    huge: Math.round(72 * base),
-    large: Math.round(48 * base),
-    medium: Math.round(18 * base),
-    small: Math.round(13 * base),
-    tiny: Math.round(10 * base),
-    micro: Math.round(9 * base),
-  };
-}
+export default function DevicePreview({ face, size = 280, offline = false }: DevicePreviewProps) {
+  const s = sc(size);
+  const inner = size - 4;
 
-// ---------- main component ----------
-
-export default function DevicePreview({ screen, size = 280 }: DevicePreviewProps) {
-  const s = makeScales(size);
-  const inner = size - 4; // slight inset so border doesn't clip content
-
-  const renderContent = () => {
-    if (!screen) {
+  const renderFace = () => {
+    if (!face) {
       return (
-        <Text style={[styles.centreText, { fontSize: s.micro, color: INK, opacity: 0.3 }]}>
-          NO SIGNAL
+        <Text style={{ fontSize: s.micro, color: INK, opacity: 0.3, letterSpacing: 1 }}>
+          {offline ? 'OFFLINE' : 'NO SIGNAL'}
         </Text>
       );
     }
 
-    const { type, data } = screen;
-
-    switch (type) {
-      case 'A1': return <ScreenA1 data={data} s={s} />;
-      case 'A2': return <ScreenA2 data={data} s={s} />;
-      case 'A3': return <ScreenA3 data={data} s={s} />;
-      case 'A4': return <ScreenA4 data={data} s={s} size={inner} />;
-      case 'A5': return <ScreenA5 data={data} s={s} size={inner} />;
-      case 'A7': return <ScreenA7 data={data} s={s} />;
-      default:   return <ScreenUnknown type={type} s={s} />;
+    switch (face.type) {
+      case 'goal_arc':     return <GoalArcRenderer face={face} s={s} size={inner} />;
+      case 'task_list':    return <TaskListRenderer face={face} s={s} />;
+      case 'habit_heatmap': return <HabitHeatmapRenderer face={face} s={s} size={inner} />;
+      case 'timer':        return <TimerRenderer face={face} s={s} size={inner} />;
+      case 'study_progress': return <StudyProgressRenderer face={face} s={s} size={inner} />;
+      default:             return <Text style={{ fontSize: s.micro, color: INK, opacity: 0.4 }}>{(face as any).type}</Text>;
     }
   };
 
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: PAPER,
-        borderWidth: 2,
-        borderColor: INK,
-        overflow: 'hidden',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      {renderContent()}
+    <View style={{
+      width: size, height: size, borderRadius: size / 2,
+      backgroundColor: PAPER,
+      borderWidth: offline ? 1 : 2,
+      borderColor: offline ? 'rgba(20,19,13,0.3)' : INK,
+      overflow: 'hidden',
+      justifyContent: 'center',
+      alignItems: 'center',
+      opacity: offline ? 0.6 : 1,
+    }}>
+      {renderFace()}
     </View>
   );
 }
 
-// ---------- shared styles ----------
+// ── Styles ────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   topLabel: {
-    position: 'absolute',
-    top: '18%',
-    textAlign: 'center',
-    fontWeight: '600',
-    letterSpacing: 2,
-    opacity: 0.55,
+    position: 'absolute', top: '17%',
+    textAlign: 'center', fontWeight: '600', letterSpacing: 2, opacity: 0.55,
   },
   bottomLabel: {
-    position: 'absolute',
-    bottom: '16%',
-    textAlign: 'center',
-    fontWeight: '600',
-    letterSpacing: 1.5,
-    opacity: 0.4,
+    position: 'absolute', bottom: '15%',
+    textAlign: 'center', fontWeight: '600', letterSpacing: 1.5, opacity: 0.45,
+  },
+  bigNum: {
+    fontWeight: '700', letterSpacing: -1, textAlign: 'center',
   },
   subLabel: {
-    textAlign: 'center',
-    fontWeight: '600',
-    letterSpacing: 2,
-    marginTop: 4,
+    textAlign: 'center', fontWeight: '600', letterSpacing: 2, marginTop: 4,
   },
-  bigNumber: {
-    fontWeight: '700',
-    letterSpacing: -1,
-    textAlign: 'center',
+  taskList: {
+    width: '72%', marginTop: 6,
   },
-  centreText: {
-    textAlign: 'center',
-    fontWeight: '500',
-    paddingHorizontal: '12%',
+  taskRow: {
+    flexDirection: 'row', alignItems: 'center', marginBottom: 4,
   },
-  moonGlyph: {
-    textAlign: 'center',
-    marginBottom: 12,
+  heatmapGrid: {
+    marginTop: 8, alignItems: 'center', gap: 3,
   },
-  checklist: {
-    marginTop: 8,
-    width: '70%',
-  },
-  checkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 3,
-  },
-  checkGlyph: {
-    marginRight: 5,
-    fontWeight: '600',
-  },
-  checkLabel: {
-    flex: 1,
-    fontWeight: '400',
-  },
-  gridContainer: {
-    marginTop: 10,
-    alignItems: 'center',
-    gap: 4,
-  },
-  gridRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  heatmapRow: {
+    flexDirection: 'row', alignItems: 'center',
   },
 });

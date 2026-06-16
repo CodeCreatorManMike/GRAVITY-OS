@@ -196,6 +196,19 @@ export default function SettingsScreen() {
         </>
       )}
 
+      {/* Device */}
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: INK }]}>DEVICE</Text>
+        <TouchableOpacity style={styles.row} onPress={() => router.push('/faces' as any)} activeOpacity={0.7}>
+          <Text style={[styles.rowLabel, { color: INK }]}>Face editor</Text>
+          <Text style={[styles.rowValue, { color: INK, opacity: 0.4 }]}>→</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.row} onPress={() => router.push('/files' as any)} activeOpacity={0.7}>
+          <Text style={[styles.rowLabel, { color: INK }]}>Files</Text>
+          <Text style={[styles.rowValue, { color: INK, opacity: 0.4 }]}>→</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Log out */}
       <View style={styles.section}>
         <TouchableOpacity style={[styles.logoutBtn, { borderColor: INK }]} onPress={handleLogout}>

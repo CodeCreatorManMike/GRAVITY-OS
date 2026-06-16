@@ -5,8 +5,8 @@
     "semantic_hash": ""
   },
   ".claude/settings.local.json": {
-    "mtime": 1781633376.1470048,
-    "ast_hash": "00c1ceb468edbc1ab41fdb1f903b3e88",
+    "mtime": 1781645043.6649704,
+    "ast_hash": "ac255d5e4262f51daabff9e3af7e85d5",
     "semantic_hash": ""
   },
   "GRAVITY/.claude/settings.json": {
@@ -130,167 +130,167 @@
     "semantic_hash": ""
   },
   "GRAVITY/backend/__init__.py": {
-    "mtime": 1781385571.2587512,
+    "mtime": 1781644289.211271,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/config.py": {
-    "mtime": 1781643710.6533344,
+    "mtime": 1781644289.397078,
     "ast_hash": "1bef20893407379a8d36087719004cd3",
     "semantic_hash": ""
   },
   "GRAVITY/backend/database.py": {
-    "mtime": 1781553348.3948584,
+    "mtime": 1781644289.2889855,
     "ast_hash": "da37d9bd00b8fccefe69c46f5ae3fdf3",
     "semantic_hash": ""
   },
   "GRAVITY/backend/main.py": {
-    "mtime": 1781643831.4503841,
+    "mtime": 1781644289.3978145,
     "ast_hash": "50391900a0d708d5dd921234c1ee4af0",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/__init__.py": {
-    "mtime": 1781553493.0405135,
+    "mtime": 1781644289.2893796,
     "ast_hash": "def7c0d85ee966bf2915a09ad412cda6",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/goal.py": {
-    "mtime": 1781385571.2960231,
+    "mtime": 1781644289.2118149,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/habit.py": {
-    "mtime": 1781385571.298206,
+    "mtime": 1781644289.2118773,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/integration.py": {
-    "mtime": 1781550934.7579858,
+    "mtime": 1781644289.2321029,
     "ast_hash": "4d530e62d15dfd509174eef7487c81ff",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/nudge.py": {
-    "mtime": 1781385571.3002944,
+    "mtime": 1781644289.2119343,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/user.py": {
-    "mtime": 1781643787.6507068,
+    "mtime": 1781644289.3983884,
     "ast_hash": "b9ecd75aa0e8a38cfbc55858134ba6ef",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/__init__.py": {
-    "mtime": 1781385571.2713404,
+    "mtime": 1781644289.2120986,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/auth.py": {
-    "mtime": 1781552314.3720121,
+    "mtime": 1781644289.2715542,
     "ast_hash": "5bb7b70764877e401a97d25de5e00606",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/device.py": {
-    "mtime": 1781552430.8039303,
-    "ast_hash": "e1be191c11eb08556b8a6427ef6d79c8",
+    "mtime": 1781645216.9245765,
+    "ast_hash": "43904aceeac80c7e1f81d2e3c260ca2f",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/goals.py": {
-    "mtime": 1781552329.1675088,
+    "mtime": 1781644289.2717516,
     "ast_hash": "fca6253e78d2b42702717947d9b69680",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/habits.py": {
-    "mtime": 1781550326.4845915,
+    "mtime": 1781644289.2127435,
     "ast_hash": "ad95e70f118475340ecb1031f9b9dd33",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/integrations.py": {
-    "mtime": 1781550974.5533905,
+    "mtime": 1781644289.2323031,
     "ast_hash": "6c9cc84be54f6f40e13e626bd0471798",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/nudges.py": {
-    "mtime": 1781552445.6208174,
+    "mtime": 1781644289.2718518,
     "ast_hash": "e1c2f93703d34a2a12c1e38a022d81a9",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/onboarding.py": {
-    "mtime": 1781549629.997626,
+    "mtime": 1781644289.101669,
     "ast_hash": "d8f2d0db8431e327370ed2b806469291",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/review.py": {
-    "mtime": 1781551018.0122395,
+    "mtime": 1781644289.232387,
     "ast_hash": "9409fe07f58d71edcdacc82ea3226bcc",
     "semantic_hash": ""
   },
   "GRAVITY/backend/schemas/__init__.py": {
-    "mtime": 1781643929.084411,
+    "mtime": 1781644289.2130895,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/schemas/goal.py": {
-    "mtime": 1781385571.3152955,
+    "mtime": 1781644289.213152,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/schemas/habit.py": {
-    "mtime": 1781385571.3168924,
+    "mtime": 1781644289.2132063,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/schemas/nudge.py": {
-    "mtime": 1781385571.3184884,
+    "mtime": 1781644289.213261,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/schemas/user.py": {
-    "mtime": 1781385571.3137305,
+    "mtime": 1781644289.213312,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/__init__.py": {
-    "mtime": 1781385571.3023803,
+    "mtime": 1781644289.2133713,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/ai_service.py": {
-    "mtime": 1781385571.3045645,
+    "mtime": 1781644289.213439,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/connection_manager.py": {
-    "mtime": 1781550039.0970032,
+    "mtime": 1781644289.213697,
     "ast_hash": "314be4d43c2df25d5afebedd794034cc",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/context_service.py": {
-    "mtime": 1781553476.068129,
+    "mtime": 1781644289.2906194,
     "ast_hash": "41a0d8dabfbd43c36c19b2661cdfe650",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/layout_service.py": {
-    "mtime": 1781643966.9164426,
-    "ast_hash": "1bc86a0089176ecdaef0766679aa163d",
+    "mtime": 1781645237.0367436,
+    "ast_hash": "99d7254ddf7ad4c77ae688f283f161ef",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/nudge_service.py": {
-    "mtime": 1781385571.30658,
+    "mtime": 1781644289.2138324,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/pattern_service.py": {
-    "mtime": 1781551060.785785,
+    "mtime": 1781644289.2327516,
     "ast_hash": "17502dfe051bf5001c852dca85b1cc6b",
     "semantic_hash": ""
   },
   "GRAVITY/backend/workers/__init__.py": {
-    "mtime": 1781550192.0609183,
+    "mtime": 1781644289.2138908,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/workers/scheduler.py": {
-    "mtime": 1781643987.385192,
+    "mtime": 1781644289.402252,
     "ast_hash": "81945015a8408714987153e55186497a",
     "semantic_hash": ""
   },
@@ -300,7 +300,7 @@
     "semantic_hash": ""
   },
   "GRAVITY/core/ai_client.py": {
-    "mtime": 1781553392.547819,
+    "mtime": 1781644289.292063,
     "ast_hash": "be3e3ff6df96b8685a09ec5ca9db0d2c",
     "semantic_hash": ""
   },
@@ -395,87 +395,87 @@
     "semantic_hash": ""
   },
   "GravityApp/App.tsx": {
-    "mtime": 1781550344.65486,
+    "mtime": 1781644289.2145317,
     "ast_hash": "731f821041b5c3db08788f28bf3c467e",
     "semantic_hash": ""
   },
   "GravityApp/app.json": {
-    "mtime": 1781550390.8877215,
+    "mtime": 1781644289.2146094,
     "ast_hash": "ce73d4c3dd6b93cf64bee75e4db44668",
     "semantic_hash": ""
   },
   "GravityApp/app/(tabs)/_layout.tsx": {
-    "mtime": 1781552425.0905607,
+    "mtime": 1781644289.2727466,
     "ast_hash": "ce8ccf1cf910c8b2735cacfec7806dc3",
     "semantic_hash": ""
   },
   "GravityApp/app/(tabs)/health.tsx": {
-    "mtime": 1781551207.3427408,
+    "mtime": 1781644289.2331424,
     "ast_hash": "1d66cdb75704021b37c63b72c019da0b",
     "semantic_hash": ""
   },
   "GravityApp/app/(tabs)/index.tsx": {
-    "mtime": 1781551157.6888862,
-    "ast_hash": "824bdf8cea52b1bf71b6d5579cd961f0",
+    "mtime": 1781645401.1185453,
+    "ast_hash": "32f1049ec39363de1a017c1a78d2b054",
     "semantic_hash": ""
   },
   "GravityApp/app/(tabs)/settings.tsx": {
-    "mtime": 1781551238.465079,
-    "ast_hash": "5ea1592b4197a429df2d0467bcaa81a8",
+    "mtime": 1781645408.7743604,
+    "ast_hash": "7a74b702c2c06461321b1c40d8212f1f",
     "semantic_hash": ""
   },
   "GravityApp/app/_layout.tsx": {
-    "mtime": 1781552534.7918794,
-    "ast_hash": "2a8cf5fa161126cf58c9795f584d7b3d",
+    "mtime": 1781645303.6094818,
+    "ast_hash": "ddf8f4646dd0c34d3e64c476c04e1c86",
     "semantic_hash": ""
   },
   "GravityApp/app/index.tsx": {
-    "mtime": 1781551269.7909994,
-    "ast_hash": "323cebf37dda4a042b0dbb75b1e2b2e8",
+    "mtime": 1781645298.845614,
+    "ast_hash": "97387760e1d1607264712c04a9a9d92c",
     "semantic_hash": ""
   },
   "GravityApp/app/login.tsx": {
-    "mtime": 1781550415.5652845,
+    "mtime": 1781644289.214902,
     "ast_hash": "26b5133a4de6b3be41b6e674052e6182",
     "semantic_hash": ""
   },
   "GravityApp/app/onboarding.tsx": {
-    "mtime": 1781550433.638344,
+    "mtime": 1781644289.2149892,
     "ast_hash": "5741c40d3e7a50bd63b02c3b183f2b4f",
     "semantic_hash": ""
   },
   "GravityApp/app/review.tsx": {
-    "mtime": 1781551265.6227992,
+    "mtime": 1781644289.2338815,
     "ast_hash": "94d223747374947fd0064ca061edb573",
     "semantic_hash": ""
   },
   "GravityApp/constants/api.ts": {
-    "mtime": 1781550398.4500327,
+    "mtime": 1781644289.2152066,
     "ast_hash": "ad647398556310ba8a773edf4d004dcf",
     "semantic_hash": ""
   },
   "GravityApp/hooks/useGravitySocket.ts": {
-    "mtime": 1781551114.675425,
-    "ast_hash": "14d053f0bd397c74621c09d5013eeabc",
+    "mtime": 1781645291.538927,
+    "ast_hash": "5ee07805ed1d7bfccc92895f8c896eb3",
     "semantic_hash": ""
   },
   "GravityApp/index.ts": {
-    "mtime": 1781550344.654712,
+    "mtime": 1781644289.2152767,
     "ast_hash": "33caa6d28d87fc7e637c033d0d7124b1",
     "semantic_hash": ""
   },
   "GravityApp/package.json": {
-    "mtime": 1781552622.548112,
-    "ast_hash": "8c14b0693433e24a013fb16db87599bd",
+    "mtime": 1781645122.9808295,
+    "ast_hash": "f2296c4b315d65e050b095afa74949b3",
     "semantic_hash": ""
   },
   "GravityApp/store/authStore.ts": {
-    "mtime": 1781550402.2372139,
-    "ast_hash": "bd2915f3b159fa4c3d04032363484e0c",
+    "mtime": 1781645256.811217,
+    "ast_hash": "cc6dff41a344c09a5e77e831a2fb4b4e",
     "semantic_hash": ""
   },
   "GravityApp/tsconfig.json": {
-    "mtime": 1781550344.6492858,
+    "mtime": 1781644289.215586,
     "ast_hash": "a5df9ddad82c56de332cbb7d00dd294b",
     "semantic_hash": ""
   },
@@ -615,92 +615,92 @@
     "semantic_hash": ""
   },
   "firmware/als.py": {
-    "mtime": 1781551287.8214557,
+    "mtime": 1781644289.2533765,
     "ast_hash": "a9328ff4bad0d17e3286a702cf6fe546",
     "semantic_hash": ""
   },
   "firmware/boot.py": {
-    "mtime": 1781550899.9477897,
+    "mtime": 1781644289.2534854,
     "ast_hash": "e6bda535c469451a94109b50fd6f566e",
     "semantic_hash": ""
   },
   "firmware/cache.py": {
-    "mtime": 1781550978.4785335,
+    "mtime": 1781644289.253569,
     "ast_hash": "731d065faeefe6d54322997a0942da62",
     "semantic_hash": ""
   },
   "firmware/config.py": {
-    "mtime": 1781550917.3846765,
+    "mtime": 1781644289.2536833,
     "ast_hash": "d2817c40fdde87c325c69baf93a7af34",
     "semantic_hash": ""
   },
   "firmware/display/__init__.py": {
-    "mtime": 1781550981.5432022,
+    "mtime": 1781644289.2538376,
     "ast_hash": "e61becddd713361e65e33ba6d2404d2a",
     "semantic_hash": ""
   },
   "firmware/display/components.py": {
-    "mtime": 1781551156.4548786,
+    "mtime": 1781644289.253972,
     "ast_hash": "bc8c3f8a54df28719d31194c5f2f97fe",
     "semantic_hash": ""
   },
   "firmware/display/hal.py": {
-    "mtime": 1781551006.7263918,
+    "mtime": 1781644289.2542086,
     "ast_hash": "2830082f4bb7fd3a6b9c17315568e4bc",
     "semantic_hash": ""
   },
   "firmware/display/lt7683.py": {
-    "mtime": 1781551091.1854131,
+    "mtime": 1781644289.2543347,
     "ast_hash": "3c48a801264b00fe05678438a0dfc9d7",
     "semantic_hash": ""
   },
   "firmware/display/renderer.py": {
-    "mtime": 1781551200.7494442,
+    "mtime": 1781644289.2544703,
     "ast_hash": "5f98950ebf0aeba70402ce32d0a69a0c",
     "semantic_hash": ""
   },
   "firmware/display/st7701s.py": {
-    "mtime": 1781551048.2914646,
+    "mtime": 1781644289.2545938,
     "ast_hash": "1edafad1a194a786b9f5210f897f5728",
     "semantic_hash": ""
   },
   "firmware/imu.py": {
-    "mtime": 1781551264.8284266,
+    "mtime": 1781644289.2546933,
     "ast_hash": "e6140d51d0d0f298e26f6d75ad7006f4",
     "semantic_hash": ""
   },
   "firmware/main.py": {
-    "mtime": 1781552578.0850732,
+    "mtime": 1781644289.2736216,
     "ast_hash": "12ac482c7c39d7c77f66e6a63dda5c24",
     "semantic_hash": ""
   },
   "firmware/ota.py": {
-    "mtime": 1781551334.3140001,
+    "mtime": 1781644289.2549784,
     "ast_hash": "1b51d85125575bb87a352efaf3eb1c65",
     "semantic_hash": ""
   },
   "firmware/power.py": {
-    "mtime": 1781551311.6617863,
+    "mtime": 1781644289.2550707,
     "ast_hash": "3100dba1e363625a669a2b5568d9c25f",
     "semantic_hash": ""
   },
   "firmware/touch.py": {
-    "mtime": 1781551236.607501,
+    "mtime": 1781644289.255237,
     "ast_hash": "37da21be746b742b0d48e837107c770c",
     "semantic_hash": ""
   },
   "firmware/websocket_client.py": {
-    "mtime": 1781550963.036615,
+    "mtime": 1781644289.255354,
     "ast_hash": "d37f894d3b08c23fae8506ac7103f138",
     "semantic_hash": ""
   },
   "firmware/wifi.py": {
-    "mtime": 1781550927.2689412,
+    "mtime": 1781644289.2554476,
     "ast_hash": "a7e80a5e4abe4b7627c79ec4c0cda908",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1781643687.5165787,
+    "mtime": 1781644289.3962886,
     "ast_hash": "691d6bad8ba4ec09f923fdbcf9c80048",
     "semantic_hash": ""
   },
@@ -870,7 +870,7 @@
     "semantic_hash": ""
   },
   "GRAVITY/README.md": {
-    "mtime": 1781554602.2485569,
+    "mtime": 1781644289.3715289,
     "ast_hash": "847102c77d56fcf523f23c46b1a13aac",
     "semantic_hash": ""
   },
@@ -915,22 +915,22 @@
     "semantic_hash": ""
   },
   "GRAVITY/docker-compose.yml": {
-    "mtime": 1781643695.3467827,
+    "mtime": 1781644289.402692,
     "ast_hash": "4719a6aa1bed4ab44807a64a225aab0d",
     "semantic_hash": ""
   },
   "GRAVITY/requirements.txt": {
-    "mtime": 1781644001.792291,
+    "mtime": 1781644289.4031646,
     "ast_hash": "cae89ce8dd1c693d9ab7c9768164865b",
     "semantic_hash": ""
   },
   "GravityApp/AGENTS.md": {
-    "mtime": 1781550362.1966558,
+    "mtime": 1781644289.3269038,
     "ast_hash": "0168b78417bf60f34fd1233c69591023",
     "semantic_hash": ""
   },
   "GravityApp/CLAUDE.md": {
-    "mtime": 1781550362.196824,
+    "mtime": 1781644289.326965,
     "ast_hash": "5c27369b226fcf2be8a6cfe52224e767",
     "semantic_hash": ""
   },
@@ -1010,7 +1010,7 @@
     "semantic_hash": ""
   },
   "firmware/README.md": {
-    "mtime": 1781551434.6606932,
+    "mtime": 1781644289.2532513,
     "ast_hash": "423915cc7e7fe9dfdacc3ad702b078e5",
     "semantic_hash": ""
   },
@@ -1125,32 +1125,32 @@
     "semantic_hash": ""
   },
   "GravityApp/assets/android-icon-background.png": {
-    "mtime": 1781550344.6499102,
+    "mtime": 1781644289.3272252,
     "ast_hash": "2d65569cc0e2afdcea0af9f9902d4173",
     "semantic_hash": ""
   },
   "GravityApp/assets/android-icon-foreground.png": {
-    "mtime": 1781550344.6507056,
+    "mtime": 1781644289.3281887,
     "ast_hash": "72e71a9c846c6aa4ae32476641a00e18",
     "semantic_hash": ""
   },
   "GravityApp/assets/android-icon-monochrome.png": {
-    "mtime": 1781550344.651002,
+    "mtime": 1781644289.3291762,
     "ast_hash": "1e097dab989759fc0b69440092ca22cd",
     "semantic_hash": ""
   },
   "GravityApp/assets/favicon.png": {
-    "mtime": 1781550344.6511989,
+    "mtime": 1781644289.3292582,
     "ast_hash": "d9f444efbdfbe7931aa93beada07318a",
     "semantic_hash": ""
   },
   "GravityApp/assets/icon.png": {
-    "mtime": 1781550344.6539352,
+    "mtime": 1781644289.3304582,
     "ast_hash": "cb975bba2216ce10a60e6c0ffe9941a2",
     "semantic_hash": ""
   },
   "GravityApp/assets/splash-icon.png": {
-    "mtime": 1781550344.6545105,
+    "mtime": 1781644289.3307593,
     "ast_hash": "97dae5a0e62ad8551d8a31897b425e63",
     "semantic_hash": ""
   },
@@ -1285,197 +1285,197 @@
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/calendar_event.py": {
-    "mtime": 1781553368.9876144,
+    "mtime": 1781644289.2895741,
     "ast_hash": "96f9871199c02490f0b237e404c8f7e9",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/file.py": {
-    "mtime": 1781553484.3493235,
+    "mtime": 1781644289.2896838,
     "ast_hash": "b1f754235e5bd1ba8da1414155ea40d4",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/memory.py": {
-    "mtime": 1781553311.5715814,
+    "mtime": 1781644289.2897546,
     "ast_hash": "061b0d503b1a4416e1ded537de339209",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/push.py": {
-    "mtime": 1781552378.5967655,
+    "mtime": 1781644289.2712016,
     "ast_hash": "22246611e095a3fed24957e67c726a4c",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/user_location.py": {
-    "mtime": 1781553373.022618,
+    "mtime": 1781644289.2899632,
     "ast_hash": "e6eca6a153958628eaf2db5ff5e3e17d",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/analytics.py": {
-    "mtime": 1781552372.5585961,
+    "mtime": 1781644289.27144,
     "ast_hash": "d3e9963e3e1b7b2f6e76a86b6809a454",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/calendar.py": {
-    "mtime": 1781553452.0511625,
+    "mtime": 1781644289.2900603,
     "ast_hash": "8eecd377a4fe8b07240c6701d431c1ee",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/memory.py": {
-    "mtime": 1781553373.8703566,
+    "mtime": 1781644289.290256,
     "ast_hash": "68957edf94592166a5aa5d272e9c8ac4",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/push.py": {
-    "mtime": 1781552414.1541274,
+    "mtime": 1781644289.2719152,
     "ast_hash": "5cdea8097f3f48a18572c1df4e1fd631",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/research.py": {
-    "mtime": 1781553433.9888625,
+    "mtime": 1781644289.2903209,
     "ast_hash": "2179efc92d1d15e965f167de64189e9f",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/calendar_service.py": {
-    "mtime": 1781553410.1923664,
+    "mtime": 1781644289.2904472,
     "ast_hash": "4b0f7e3c65a70e892dd2a93e9763c523",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/document_service.py": {
-    "mtime": 1781553418.08286,
+    "mtime": 1781644289.2909756,
     "ast_hash": "ad8d4bdbcb90618c1d5c8a833172de52",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/fitness_service.py": {
-    "mtime": 1781553418.0777066,
+    "mtime": 1781644289.291078,
     "ast_hash": "2ddba98068e99183701970119878c460",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/memory_service.py": {
-    "mtime": 1781553326.1418285,
+    "mtime": 1781644289.2911603,
     "ast_hash": "22e5051123a780023755b6321385518f",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/pdf_generator.py": {
-    "mtime": 1781553434.7706316,
+    "mtime": 1781644289.2912345,
     "ast_hash": "9f5305c6c16235f7e2ca99373d484d3c",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/push_service.py": {
-    "mtime": 1781552399.5601995,
+    "mtime": 1781644289.271986,
     "ast_hash": "eda5aca12905601194dfb9c0c870d46d",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/research_service.py": {
-    "mtime": 1781553406.3299448,
+    "mtime": 1781644289.2913122,
     "ast_hash": "676fa73a10b685527d4828291f36c313",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/weather_service.py": {
-    "mtime": 1781553423.7019086,
+    "mtime": 1781644289.2915409,
     "ast_hash": "7a4442126a9cec328536051c565dbef0",
     "semantic_hash": ""
   },
   "GRAVITY/deploy/deploy.sh": {
-    "mtime": 1781552320.2662086,
+    "mtime": 1781644289.2725086,
     "ast_hash": "8e46528259b51e8d87f875e928e8f5bd",
     "semantic_hash": ""
   },
   "GRAVITY/backend/templates/pdf/cycle_review.html": {
-    "mtime": 1781553458.6290379,
+    "mtime": 1781644289.2917933,
     "ast_hash": "8cdb1288d7cd963de110b5ea9c04c72e",
     "semantic_hash": ""
   },
   "GRAVITY/backend/templates/pdf/habit_report.html": {
-    "mtime": 1781553479.6766644,
+    "mtime": 1781644289.2918866,
     "ast_hash": "c8daa4beed1aab1620b62a55c8df695d",
     "semantic_hash": ""
   },
   "GRAVITY/deploy/README.md": {
-    "mtime": 1781552339.4179788,
+    "mtime": 1781644289.272427,
     "ast_hash": "5ea1a406fd6887311c8a85497d17735d",
     "semantic_hash": ""
   },
   "GRAVITY/deploy/docker-compose.prod.yml": {
-    "mtime": 1781552273.3263204,
+    "mtime": 1781644289.2725694,
     "ast_hash": "029ab5774889e356a19e28e35ba34c98",
     "semantic_hash": ""
   },
   "GRAVITY/searxng/settings.yml": {
-    "mtime": 1781553453.4321265,
+    "mtime": 1781644289.292422,
     "ast_hash": "3f409501670330bd8b0a306ba31aa3ef",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/files.py": {
-    "mtime": 1781643764.794636,
+    "mtime": 1781644289.3991506,
     "ast_hash": "e2ce5e7c260d9bdcfbe0b03705bd2a65",
     "semantic_hash": ""
   },
   "GravityApp/app/(tabs)/analytics.tsx": {
-    "mtime": 1781552419.1325374,
+    "mtime": 1781644289.2728508,
     "ast_hash": "b69e002d6a07c7ce24abd2867419b46c",
     "semantic_hash": ""
   },
   "GravityApp/app/goal-edit.tsx": {
-    "mtime": 1781552503.6326652,
+    "mtime": 1781644289.273013,
     "ast_hash": "961901562ec1b5cfa3f5f08e0ec9ec3a",
     "semantic_hash": ""
   },
   "GravityApp/app/habits-manage.tsx": {
-    "mtime": 1781552530.6462119,
+    "mtime": 1781644289.2730896,
     "ast_hash": "0597839429896f33dd613f58becc02ef",
     "semantic_hash": ""
   },
   "GravityApp/components/DevicePreview.tsx": {
-    "mtime": 1781552373.752347,
-    "ast_hash": "4273647b36a110deb678c066a3d7f8fb",
+    "mtime": 1781645350.3197803,
+    "ast_hash": "d07efe952221d8ed8968eeedff21b150",
     "semantic_hash": ""
   },
   "GravityApp/hooks/usePushNotifications.ts": {
-    "mtime": 1781552467.9657352,
+    "mtime": 1781644289.273295,
     "ast_hash": "31756f5c79bd70ff7a3e4d0d6a6bcb13",
     "semantic_hash": ""
   },
   "firmware/boot_animation.py": {
-    "mtime": 1781552555.3561015,
+    "mtime": 1781644289.2734537,
     "ast_hash": "ab6dec5bc53541de96d7ec49febe5e9b",
     "semantic_hash": ""
   },
   ".github/workflows/ci.yml": {
-    "mtime": 1781552347.4878526,
+    "mtime": 1781644289.270889,
     "ast_hash": "3b3996d0468b8fa55bd4ebd8820b6917",
     "semantic_hash": ""
   },
   "GRAVITY/backend/models/ai_log.py": {
-    "mtime": 1781643778.193099,
+    "mtime": 1781644289.3980825,
     "ast_hash": "722439d928759bd59bf0a88a1559be79",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/ai_log.py": {
-    "mtime": 1781643821.5715373,
+    "mtime": 1781644289.3986359,
     "ast_hash": "c628b657e13f9a29bd97b0bc4a485387",
     "semantic_hash": ""
   },
   "GRAVITY/backend/routers/voice.py": {
-    "mtime": 1781643901.6351974,
+    "mtime": 1781644289.3994548,
     "ast_hash": "0a57f9d103bee3f19304343b04aefcaf",
     "semantic_hash": ""
   },
   "GRAVITY/backend/schemas/face.py": {
-    "mtime": 1781643924.654069,
+    "mtime": 1781644289.3998506,
     "ast_hash": "5f851a778bbd9b0d150ff9462f50fe3c",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/ai_log_service.py": {
-    "mtime": 1781643812.1938658,
+    "mtime": 1781644289.4002178,
     "ast_hash": "3b90e40a17cd9234563c5bec32bf1f88",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/storage_service.py": {
-    "mtime": 1781643725.9070702,
+    "mtime": 1781644289.4011908,
     "ast_hash": "62980d62b926ea0637027bc41cf19c21",
     "semantic_hash": ""
   },
   "GRAVITY/backend/services/voice_service.py": {
-    "mtime": 1781643885.5310838,
+    "mtime": 1781644289.4017076,
     "ast_hash": "c41ee36e594f2d5ebc24be813b24928e",
     "semantic_hash": ""
   },
@@ -1560,7 +1560,7 @@
     "semantic_hash": ""
   },
   "GRAVITY/GRAVITY_BUILD_CONTEXT.md": {
-    "mtime": 1781643672.7188148,
+    "mtime": 1781644289.396655,
     "ast_hash": "51b78a9746973d6296879244844f56a2",
     "semantic_hash": ""
   },
@@ -1652,6 +1652,21 @@
   "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/pasted-1781515025918-0.png": {
     "mtime": 1781640321.0,
     "ast_hash": "60aa2e3ee0d5322ec8b3ecec3f626542",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/faces.tsx": {
+    "mtime": 1781645445.385825,
+    "ast_hash": "74447fc8fedf4fc03ea45482aea666ef",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/files.tsx": {
+    "mtime": 1781645475.958737,
+    "ast_hash": "fb3a818ce6de554fff1723f833757d03",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/DOCLING_INGESTION.md": {
+    "mtime": 1781644288.99441,
+    "ast_hash": "47ff642f356c71b908ec45542378c035",
     "semantic_hash": ""
   }
 }

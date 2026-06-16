@@ -1,16 +1,16 @@
 # Graph Report - GRAVITY-OS  (2026-06-16)
 
 ## Corpus Check
-- 221 files · ~571,523 words
+- 224 files · ~575,782 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3515 nodes · 7841 edges · 193 communities (185 shown, 8 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 491 edges (avg confidence: 0.57)
+- 3555 nodes · 7893 edges · 193 communities (185 shown, 8 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 493 edges (avg confidence: 0.57)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a0f6d6b4`
+- Built from commit: `418cb5d1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -172,10 +172,10 @@
 - [[_COMMUNITY_Community 186|Community 186]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `User` - 116 edges
+1. `User` - 118 edges
 2. `Goal` - 42 edges
 3. `Habit` - 33 edges
-4. `useAuthStore` - 29 edges
+4. `useAuthStore` - 33 edges
 5. `HabitLog` - 28 edges
 6. `T()` - 23 edges
 7. `T()` - 23 edges
@@ -185,15 +185,15 @@
 
 ## Surprising Connections (you probably didn't know these)
 - `AsyncSession` --uses--> `User`  [INFERRED]
+  GRAVITY/backend/routers/device.py → GRAVITY/backend/models/user.py
+- `Redis` --uses--> `User`  [INFERRED]
+  GRAVITY/backend/routers/device.py → GRAVITY/backend/models/user.py
+- `AsyncSession` --uses--> `User`  [INFERRED]
   GRAVITY/backend/routers/voice.py → GRAVITY/backend/models/user.py
 - `Redis` --uses--> `User`  [INFERRED]
   GRAVITY/backend/routers/voice.py → GRAVITY/backend/models/user.py
 - `UploadFile` --uses--> `User`  [INFERRED]
   GRAVITY/backend/routers/voice.py → GRAVITY/backend/models/user.py
-- `OAuth2PasswordRequestForm` --uses--> `User`  [INFERRED]
-  GRAVITY/backend/routers/auth.py → GRAVITY/backend/models/user.py
-- `Image` --uses--> `UserProfile`  [INFERRED]
-  GRAVITY/simulator/display/gravity_sim.py → GRAVITY/core/profile.py
 
 ## Import Cycles
 - 1-file cycle: `GRAVITY/backend/main.py -> GRAVITY/backend/main.py`
@@ -205,8 +205,8 @@ Cohesion: 0.04
 Nodes (48): AI Layer Strategy — Cost Tiers, Android-Specific Constraints, App Development Costs, App Store Review Risks, Backend Costs, BOM Risk Factors, Budget Targets, Claude API Cost Model (detailed) (+40 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.29
-Nodes (9): RootIndex(), useGravitySocket(), useAuthStore, Goal, Habit, HomeScreen(), NudgeData, styles (+1 more)
+Cohesion: 0.22
+Nodes (8): FaceCard, carousel, DeviceState, FACE_SIZE, Goal, Habit, NudgeData, styles
 
 ### Community 2 - "Community 2"
 Cohesion: 0.18
@@ -321,8 +321,8 @@ Cohesion: 0.06
 Nodes (34): 10. Build sequence to the demo unit, 11. Risks & procurement notes, 12. Cost & retail summary, 1. What the final unit is, 2. Look & feel — industrial design, 3. Architecture decision (recap, settled), 4.10 Camera (Phase 3 — honest constraint), 4.11 Storage (optional, DNP) (+26 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.14
-Nodes (31): AsyncSession, Redis, User, Nudge, NudgeSettings, Per-user nudge preferences — one row per user, created on first access., Nudge, NudgeSettings (+23 more)
+Cohesion: 0.13
+Nodes (33): Base, DeclarativeBase, AsyncSession, Redis, User, Nudge, NudgeSettings, Per-user nudge preferences — one row per user, created on first access. (+25 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.08
@@ -349,8 +349,8 @@ Cohesion: 0.08
 Nodes (13): D1(), D10(), D2(), D3(), D4(), D5(), D8(), E9() (+5 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.09
-Nodes (47): Base, DeclarativeBase, AsyncSession, UploadFile, User, AsyncSession, Redis, User (+39 more)
+Cohesion: 0.08
+Nodes (54): AsyncSession, User, AsyncSession, Redis, User, AsyncSession, Redis, BehaviourPattern (+46 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.21
@@ -461,8 +461,8 @@ Cohesion: 0.11
 Nodes (12): ABC, Image, DisplayBackend, HardwareBackend, PygameBackend, device_sim.py — Hardware device abstraction stub.  In production this will drive, Abstract backend — Pygame simulator or real SPI hardware., Push a 360×360 PIL image to the display. (+4 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.13
-Nodes (26): AsyncSession, User, AsyncSession, Redis, User, User, Config, InteractionResponse (+18 more)
+Cohesion: 0.15
+Nodes (22): AsyncSession, Redis, User, device_heartbeat(), FacePrefsRequest, FacePrefsResponse, FirmwareResponse, get_device_state() (+14 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.18
@@ -478,7 +478,7 @@ Nodes (21): arc(), botLabel(), check(), curve(), dot(), f(), faceFocus(), faceGo
 
 ### Community 69 - "Community 69"
 Cohesion: 0.08
-Nodes (23): dependencies, expo, expo-device, expo-notifications, expo-router, expo-secure-store, expo-status-bar, react (+15 more)
+Nodes (25): dependencies, expo, expo-device, expo-document-picker, expo-notifications, expo-router, expo-secure-store, expo-status-bar (+17 more)
 
 ### Community 70 - "Community 70"
 Cohesion: 0.31
@@ -517,8 +517,8 @@ Cohesion: 0.16
 Nodes (5): DisplayHAL, Initialize hardware and clear screen., Push the framebuffer to the panel., Fill entire buffer with color (default = background)., Fill an axis-aligned rectangle.
 
 ### Community 79 - "Community 79"
-Cohesion: 0.11
-Nodes (34): AsyncSession, User, AsyncSession, Redis, User, BehaviourPattern, HealthData, AI-identified behavioural patterns — rebuilt nightly by pattern_service. (+26 more)
+Cohesion: 0.18
+Nodes (21): AsyncSession, UploadFile, User, UserFile, _build_cycle_review_data(), _build_habit_analytics(), Config, delete_file() (+13 more)
 
 ### Community 80 - "Community 80"
 Cohesion: 0.22
@@ -526,7 +526,7 @@ Nodes (8): 11.1 Expo — React Native Framework, 11.2 react-native-usage-stats �
 
 ### Community 81 - "Community 81"
 Cohesion: 0.12
-Nodes (16): 6.2 sentence-transformers — Local Embeddings, 6.3 PyMuPDF — PDF Processing, 6.4 WeasyPrint — Document Generation, Alternatives, Alternatives, How it connects, How it connects, How it connects (+8 more)
+Nodes (16): 6.1 pgvector — Vector Search in PostgreSQL, 6.2 sentence-transformers — Local Embeddings, 6.4 WeasyPrint — Document Generation, Alternatives, Alternatives, How it connects, How it connects, How it connects (+8 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.13
@@ -593,8 +593,8 @@ Cohesion: 0.33
 Nodes (9): build_layout(), _days_remaining(), _focus_line(), _nonneg_display(), layout_engine.py — Builds an ordered list of screen configs from a UserProfile., Format non-negotiables as checklist items, capped at 5., Short motivational focus line from profile data., Build an ordered list of screen configs for a given profile.      Each config: (+1 more)
 
 ### Community 98 - "Community 98"
-Cohesion: 0.19
-Nodes (14): AsyncSession, _ai_pattern_call(), _day_name(), _detect_patterns_ai(), get_active_patterns(), _is_weekend(), Pattern service — nightly behavioural pattern detection.  Reads the last 30 days, Return current active pattern strings for a user — used by context_service. (+6 more)
+Cohesion: 0.13
+Nodes (14): 1 — What Docling Is, 2 — Where It Sits in the System, 3 — What You Need, 4.1 Parsing, 4.2 Structure-aware chunking, 4.3 Full ingestion into the existing memory system, 4 — Code Pattern, 5 — How This Improves Accuracy (+6 more)
 
 ### Community 99 - "Community 99"
 Cohesion: 0.22
@@ -625,8 +625,8 @@ Cohesion: 0.25
 Nodes (8): 3.1 Open-Meteo — Weather, Alternatives, How it connects, SECTION 3 — WEATHER & ENVIRONMENTAL DATA, Unique options, What it does in Gravity, What the data enables, What you need
 
 ### Community 106 - "Community 106"
-Cohesion: 0.09
-Nodes (18): Config, init_db(), lifespan(), Persistent WebSocket connection per user.     Auth: JWT passed as ?token= query, websocket_endpoint(), FastAPI, WebSocket, AsyncSession (+10 more)
+Cohesion: 0.07
+Nodes (34): Config, init_db(), lifespan(), Persistent WebSocket connection per user.     Auth: JWT passed as ?token= query, websocket_endpoint(), FastAPI, WebSocket, AsyncSession (+26 more)
 
 ### Community 107 - "Community 107"
 Cohesion: 0.25
@@ -658,7 +658,7 @@ Nodes (5): For /graphify explain, For /graphify path, graphify reference: query,
 
 ### Community 114 - "Community 114"
 Cohesion: 0.12
-Nodes (36): BaseModel, AsyncSession, Redis, User, AsyncSession, Redis, UserLocation, CalDAVSyncRequest (+28 more)
+Nodes (36): AsyncSession, Redis, User, AsyncSession, Redis, UserLocation, User, CalDAVSyncRequest (+28 more)
 
 ### Community 115 - "Community 115"
 Cohesion: 0.10
@@ -697,24 +697,24 @@ Cohesion: 0.10
 Nodes (20): 0. Why this is the production board, not the prototype, 1. System block diagram, 2.1 MCU — ESP32-S3-WROOM-1-N16R8, 2.2 Power — input, charge, regulate, gauge, 2.3 E-ink display interface (SPI), 2.4 Capacitive touch — CST816S, 2.5 IMU — LIS2DW12, 2.6 Ambient light — VEML7700 (+12 more)
 
 ### Community 154 - "Community 154"
-Cohesion: 0.08
-Nodes (37): AsyncSession, User, AsyncSession, AsyncSession, Redis, Memory, Memory, Config (+29 more)
+Cohesion: 0.06
+Nodes (49): AIInteraction, AsyncSession, User, AsyncSession, AsyncSession, AsyncSession, Redis, Memory (+41 more)
 
 ### Community 155 - "Community 155"
 Cohesion: 0.11
-Nodes (25): AsyncSession, User, ExerciseSearchRequest, fetch_url(), FetchRequest, Research router — web search, content extraction, exercise database.    POST /re, Search the web via SearXNG. Returns [] if SearXNG is not running., Extract clean text content from a URL via Jina Reader. (+17 more)
+Nodes (26): BaseModel, AsyncSession, User, ExerciseSearchRequest, fetch_url(), FetchRequest, Research router — web search, content extraction, exercise database.    POST /re, Search the web via SearXNG. Returns [] if SearXNG is not running. (+18 more)
 
 ### Community 156 - "Community 156"
 Cohesion: 0.23
 Nodes (15): get_settings(), Settings, BaseSettings, delete_file(), download_file(), _ensure_bucket(), _get_client(), _object_name() (+7 more)
 
 ### Community 157 - "Community 157"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (19): AsyncSession, User, AsyncSession, PushToken, Expo push notification token per user device., Push notification router.    POST /push/register    ← app registers/updates its, Register or refresh an Expo push token for this user's device., Deactivate a push token on logout. (+11 more)
 
 ### Community 158 - "Community 158"
-Cohesion: 0.17
-Nodes (14): asNumber(), asString(), asStringArray(), DevicePreview(), DevicePreviewProps, makeScales(), ScreenA1(), ScreenA2() (+6 more)
+Cohesion: 0.12
+Nodes (11): DevicePreview(), DevicePreviewProps, GoalArcFace, HabitHeatmapFace, HabitRow, sc(), StudyProgressFace, styles (+3 more)
 
 ### Community 159 - "Community 159"
 Cohesion: 0.16
@@ -737,15 +737,15 @@ Cohesion: 0.24
 Nodes (9): build_pdf(), generate_cycle_review_pdf(), generate_habit_report_pdf(), PDF generator — produces downloadable reports for users. Templates in backend/te, Sync. Load Jinja2 template from backend/templates/pdf/{template_name}.html,, Generic async wrapper — offloads sync WeasyPrint to a thread., 6-month cycle review PDF.     ctx  — user context dict from context_service.buil, 30-day habit analytics report PDF.     ctx       — user context dict     analyti (+1 more)
 
 ### Community 164 - "Community 164"
-Cohesion: 0.22
-Nodes (6): LoginScreen(), styles, Message, ReviewScreen(), styles, AuthState
+Cohesion: 0.14
+Nodes (11): Habit, HabitsManageScreen(), styles, RootIndex(), Message, ReviewScreen(), styles, AuthState (+3 more)
 
 ### Community 165 - "Community 165"
-Cohesion: 0.21
-Nodes (6): Goal, GoalEditScreen(), styles, HealthScreen(), HealthSnapshot, styles
+Cohesion: 0.17
+Nodes (13): ALL_FACE_TYPES, FaceKey, FacesScreen(), styles, Goal, GoalEditScreen(), styles, LoginScreen() (+5 more)
 
 ### Community 166 - "Community 166"
-Cohesion: 0.32
+Cohesion: 0.38
 Nodes (4): AppInner(), queryClient, RootLayout(), usePushNotifications()
 
 ### Community 167 - "Community 167"
@@ -765,48 +765,48 @@ Cohesion: 0.29
 Nodes (6): DAYS, IntegrationStatus, NudgeSettings, SENSITIVITY_LABELS, SettingsScreen(), styles
 
 ### Community 171 - "Community 171"
-Cohesion: 0.33
-Nodes (5): GravityEvent, HabitCompletedData, NudgeData, UseGravitySocketOptions, WS_BASE
+Cohesion: 0.29
+Nodes (6): GravityEvent, HabitCompletedData, NudgeData, UseGravitySocketOptions, VoiceActionData, WS_BASE
 
 ### Community 172 - "Community 172"
 Cohesion: 0.13
 Nodes (14): Agentic Actions, AI Provider Strategy, Backend Architecture, Camera — V2 Only, Demo Target (Pre-Hardware), Device UI — 5 Faces, GRAVITY — Build Context & Architecture Decisions, Hardware (V1) (+6 more)
 
 ### Community 173 - "Community 173"
-Cohesion: 0.50
-Nodes (3): Habit, HabitsManageScreen(), styles
+Cohesion: 0.29
+Nodes (9): AsyncSession, User, Config, InteractionResponse, list_interactions(), OutcomeRequest, post_outcome(), AI log router — app and device report back whether a user acted on AI output.  P (+1 more)
 
 ### Community 174 - "Community 174"
 Cohesion: 0.50
 Nodes (3): Message, OnboardingScreen(), styles
 
 ### Community 176 - "Community 176"
-Cohesion: 0.23
-Nodes (10): AIInteraction, AsyncSession, AIInteraction, Every AI-generated message/action. UUID ties back to outcome., get_recent_interactions(), log_interaction(), AI interaction logging — every AI-generated output gets a row. Call log_interact, Persist an AI interaction. Returns the interaction id. (+2 more)
+Cohesion: 0.33
+Nodes (3): FilesScreen(), GravityFile, styles
 
 ### Community 180 - "Community 180"
 Cohesion: 0.40
-Nodes (5): 6.1 pgvector — Vector Search in PostgreSQL, Alternatives, How it connects, What it does in Gravity, What you need
+Nodes (5): 6.3 PyMuPDF — PDF Processing, Alternatives, How it connects, What it does in Gravity, What you need
 
 ## Knowledge Gaps
-- **717 isolated node(s):** `WEEK`, `STREAK14`, `directions`, `main`, `gallerySections` (+712 more)
+- **744 isolated node(s):** `WEEK`, `STREAK14`, `directions`, `main`, `gallerySections` (+739 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `UserProfile` connect `Community 66` to `Community 97`, `Community 77`, `Community 46`, `Community 114`, `Community 116`, `Community 86`?**
+- **Why does `UserProfile` connect `Community 66` to `Community 97`, `Community 77`, `Community 46`, `Community 116`, `Community 86`, `Community 155`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `User` connect `Community 114` to `Community 65`, `Community 37`, `Community 40`, `Community 106`, `Community 42`, `Community 76`, `Community 173`, `Community 44`, `Community 79`, `Community 87`, `Community 154`, `Community 155`, `Community 157`, `Community 30`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **Why does `User` connect `Community 65` to `Community 98`, `Community 37`, `Community 40`, `Community 106`, `Community 42`, `Community 76`, `Community 44`, `Community 79`, `Community 114`, `Community 87`, `Community 154`, `Community 155`, `Community 157`, `Community 30`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **Why does `build_layout()` connect `Community 97` to `Community 24`, `Community 77`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **Are the 115 inferred relationships involving `User` (e.g. with `AsyncSession` and `User`) actually correct?**
-  _`User` has 115 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `UserProfile` connect `Community 97` to `Community 66`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Are the 117 inferred relationships involving `User` (e.g. with `AsyncSession` and `User`) actually correct?**
+  _`User` has 117 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 41 inferred relationships involving `Goal` (e.g. with `AsyncSession` and `User`) actually correct?**
   _`Goal` has 41 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 32 inferred relationships involving `Habit` (e.g. with `AsyncSession` and `User`) actually correct?**
   _`Habit` has 32 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `WEEK`, `STREAK14`, `directions` to the rest of the system?**
-  _980 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1009 weakly-connected nodes found - possible documentation gaps or missing edges._

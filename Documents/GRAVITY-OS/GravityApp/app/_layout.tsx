@@ -20,6 +20,8 @@ function AppInner() {
       <Stack.Screen name="review" />
       <Stack.Screen name="goal-edit" />
       <Stack.Screen name="habits-manage" />
+      <Stack.Screen name="faces" />
+      <Stack.Screen name="files" />
     </Stack>
   );
 }

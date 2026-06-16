@@ -35,8 +35,13 @@ async def generate_layout(
 ) -> dict:
     """Return the layout JSON for the user's device (max 5 faces, AI-ranked)."""
     ctx = await build_user_context(user_id, db, redis)
+
+    # Respect user-pinned face type order if set
+    prefs_raw = await redis.get(f"face_prefs:{user_id}")
+    pinned: list[str] | None = json.loads(prefs_raw) if prefs_raw else None
+
     try:
-        faces = await _ai_ranked_faces(ctx)
+        faces = await _ai_ranked_faces(ctx, pinned_types=pinned)
     except Exception as e:
         print(f"[layout] AI ranking failed, using rule-based fallback: {e}")
         faces = _rule_based_faces(ctx)
@@ -62,7 +67,7 @@ Return ONLY the JSON array, no other text.
 """
 
 
-async def _ai_ranked_faces(ctx: dict) -> list[FaceCard]:
+async def _ai_ranked_faces(ctx: dict, pinned_types: list[str] | None = None) -> list[FaceCard]:
     import anthropic
 
     profile = ctx.get("profile", {})
@@ -86,10 +91,21 @@ async def _ai_ranked_faces(ctx: dict) -> list[FaceCard]:
         "hour": datetime.now().hour,
     }
 
+    if pinned_types:
+        type_constraint = (
+            f"The user has pinned these face types in this exact order: {pinned_types}. "
+            "You MUST produce faces for exactly these types in exactly this order. "
+            "Fill in the content fields based on context."
+        )
+    else:
+        type_constraint = (
+            "Pick the faces that will be most useful RIGHT NOW based on context. Max 5, min 1. "
+            "Always include goal_arc if there is an active goal. Include task_list if there are pending tasks."
+        )
+
     system = f"""You are selecting and building the device faces for {profile.get('name', 'a user')}'s Gravity device.
 {_FACE_SCHEMA_HINT}
-Pick the faces that will be most useful RIGHT NOW based on context. Max 5, min 1.
-Always include goal_arc if there is an active goal. Include task_list if there are pending tasks."""
+{type_constraint}"""
 
     user_msg = f"User context:\n{json.dumps(context_summary, indent=2)}\n\nReturn the face array."
 

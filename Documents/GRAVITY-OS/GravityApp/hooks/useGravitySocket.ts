@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { API_BASE } from '../constants/api';
@@ -10,7 +10,15 @@ type GravityEvent =
   | { event: 'NUDGE'; data: NudgeData }
   | { event: 'HABIT_COMPLETED'; data: HabitCompletedData }
   | { event: 'LAYOUT_UPDATE'; data: object }
-  | { event: 'CYCLE_REVIEW_READY'; data: { goal_id: number; cycle_end: string } };
+  | { event: 'CYCLE_REVIEW_READY'; data: { goal_id: number; cycle_end: string } }
+  | { event: 'VOICE_ACTION'; data: VoiceActionData };
+
+interface VoiceActionData {
+  action_type: string;
+  payload: Record<string, unknown>;
+  transcript: string;
+  spoken: string;
+}
 
 interface NudgeData {
   id: number;
@@ -32,6 +40,7 @@ interface HabitCompletedData {
 interface UseGravitySocketOptions {
   onNudge?: (data: NudgeData) => void;
   onCycleReviewReady?: (data: { goal_id: number; cycle_end: string }) => void;
+  onVoiceAction?: (data: VoiceActionData) => void;
 }
 
 export function useGravitySocket(options: UseGravitySocketOptions = {}) {
@@ -41,6 +50,7 @@ export function useGravitySocket(options: UseGravitySocketOptions = {}) {
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectDelayRef = useRef(2000);
   const mountedRef = useRef(true);
+  const [isConnected, setIsConnected] = useState(false);
 
   const connect = useCallback(() => {
     if (!token || !userId || !mountedRef.current) return;
@@ -51,6 +61,7 @@ export function useGravitySocket(options: UseGravitySocketOptions = {}) {
 
     ws.onopen = () => {
       reconnectDelayRef.current = 2000;
+      setIsConnected(true);
     };
 
     ws.onmessage = (event) => {
@@ -83,6 +94,13 @@ export function useGravitySocket(options: UseGravitySocketOptions = {}) {
           case 'CYCLE_REVIEW_READY':
             options.onCycleReviewReady?.(msg.data);
             break;
+
+          case 'VOICE_ACTION':
+            // Voice actions (add_task, start_timer, etc.) invalidate relevant queries
+            queryClient.invalidateQueries({ queryKey: ['habits'] });
+            queryClient.invalidateQueries({ queryKey: ['device_state'] });
+            options.onVoiceAction?.(msg.data);
+            break;
         }
       } catch {
         // malformed message — ignore
@@ -95,9 +113,10 @@ export function useGravitySocket(options: UseGravitySocketOptions = {}) {
 
     ws.onclose = () => {
       wsRef.current = null;
+      setIsConnected(false);
       if (!mountedRef.current) return;
-      // Exponential backoff: 2s → 4s → 8s → ... → 300s max
-      const delay = Math.min(reconnectDelayRef.current, 300_000);
+      // Exponential backoff: 2s → 4s → 8s → ... → 30s max
+      const delay = Math.min(reconnectDelayRef.current, 30_000);
       reconnectDelayRef.current = delay * 2;
       reconnectTimeoutRef.current = setTimeout(() => {
         if (mountedRef.current) connect();
@@ -121,5 +140,5 @@ export function useGravitySocket(options: UseGravitySocketOptions = {}) {
     }
   }, []);
 
-  return { sendEvent };
+  return { sendEvent, isConnected };
 }

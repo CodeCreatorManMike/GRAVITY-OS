@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +10,7 @@ from backend.models.user import User
 from backend.routers.auth import get_current_user
 from backend.config import get_settings
 from backend.services.layout_service import generate_layout
+from backend.schemas.face import FACE_TYPES
 
 router = APIRouter(prefix="/device", tags=["device"])
 
@@ -48,8 +51,37 @@ class HeartbeatResponse(BaseModel):
     latest_firmware: str
     update_available: bool
 
+class FacePrefsRequest(BaseModel):
+    face_types: list[str]
+
+class FacePrefsResponse(BaseModel):
+    face_types: list[str]
+
 
 # ── Routes ────────────────────────────────────────────────────────────────────
+
+_FACE_PREFS_KEY = "face_prefs:{}"
+
+
+@router.put("/layout", response_model=FacePrefsResponse)
+async def set_face_prefs(
+    req: FacePrefsRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Store user's preferred face types and order (max 5). AI fills content for these types."""
+    valid = [t for t in req.face_types if t in FACE_TYPES][:5]
+    await get_redis().set(_FACE_PREFS_KEY.format(current_user.id), json.dumps(valid))
+    return FacePrefsResponse(face_types=valid)
+
+
+@router.get("/layout/prefs", response_model=FacePrefsResponse)
+async def get_face_prefs(
+    current_user: User = Depends(get_current_user),
+):
+    """Return user's pinned face types. Empty list = fully AI-ranked."""
+    raw = await get_redis().get(_FACE_PREFS_KEY.format(current_user.id))
+    return FacePrefsResponse(face_types=json.loads(raw) if raw else [])
+
 
 @router.get("/state")
 async def get_device_state(
