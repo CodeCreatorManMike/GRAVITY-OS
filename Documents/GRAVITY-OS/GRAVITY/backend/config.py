@@ -14,6 +14,12 @@ class Settings(BaseSettings):
     anthropic_model: str = "claude-sonnet-4-6"
     debug: bool = True
     app_name: str = "Gravity API"
+    # MinIO object storage
+    minio_endpoint: str = "localhost:9000"
+    minio_access_key: str = "gravity"
+    minio_secret_key: str = "gravity_dev_minio"
+    minio_secure: bool = False
+    minio_bucket: str = "gravity-files"
 
     class Config:
         env_file = ".env"

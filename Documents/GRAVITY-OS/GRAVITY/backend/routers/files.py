@@ -23,7 +23,7 @@ from backend.models.file import UserFile
 from backend.models.user import Habit, HabitLog, User
 from backend.models.integration import CycleReview
 from backend.routers.auth import get_current_user
-from backend.services import document_service, pdf_generator
+from backend.services import document_service, pdf_generator, storage_service
 from backend.services.context_service import build_user_context
 
 router = APIRouter(prefix="/files", tags=["files"])
@@ -41,6 +41,7 @@ class FileResponse(BaseModel):
     pages: int
     chunks: int
     uploaded_at: str
+    download_url: str | None = None
 
     class Config:
         from_attributes = True
@@ -77,7 +78,7 @@ async def upload_file(
         db=db,
     )
 
-    # Persist file metadata
+    # Persist file metadata first to get the DB id
     user_file = UserFile(
         user_id=current_user.id,
         filename=file.filename,
@@ -87,9 +88,21 @@ async def upload_file(
         chunks=result["chunks"],
     )
     db.add(user_file)
-    await db.commit()
+    await db.flush()
     await db.refresh(user_file)
 
+    # Store raw bytes in MinIO keyed by db id
+    await storage_service.upload_file(
+        user_id=current_user.id,
+        file_id=user_file.id,
+        filename=file.filename,
+        data=file_bytes,
+        content_type="application/pdf",
+    )
+
+    await db.commit()
+
+    download_url = storage_service.presigned_url(current_user.id, user_file.id, file.filename)
     return FileResponse(
         id=user_file.id,
         filename=user_file.filename,
@@ -98,6 +111,7 @@ async def upload_file(
         pages=user_file.pages,
         chunks=user_file.chunks,
         uploaded_at=user_file.uploaded_at.isoformat(),
+        download_url=download_url,
     )
 
 
@@ -124,6 +138,7 @@ async def list_files(
             pages=f.pages,
             chunks=f.chunks,
             uploaded_at=f.uploaded_at.isoformat(),
+            download_url=storage_service.presigned_url(f.user_id, f.id, f.filename),
         )
         for f in files
     ]
@@ -147,6 +162,12 @@ async def delete_file(
     user_file = result.scalar_one_or_none()
     if user_file is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+    # Remove from MinIO before deleting the DB record
+    try:
+        await storage_service.delete_file(user_file.user_id, user_file.id, user_file.filename)
+    except Exception as e:
+        print(f"[files] MinIO delete failed (continuing): {e}")
 
     await db.delete(user_file)
     await db.commit()

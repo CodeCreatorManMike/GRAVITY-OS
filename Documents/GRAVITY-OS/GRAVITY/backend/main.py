@@ -9,7 +9,8 @@ from jose import JWTError, jwt
 
 from backend.database import init_db
 from backend.config import get_settings
-from backend.routers import auth, onboarding, goals, habits, nudges, device, integrations, review, analytics, push, memory, research, calendar, files
+from backend.routers import auth, onboarding, goals, habits, nudges, device, integrations, review, analytics, push, memory, research, calendar, files, voice, ai_log as ai_log_router
+from backend.models import ai_log  # noqa: F401 — registers AIInteraction/AIOutcome tables
 from backend.services.connection_manager import manager
 from backend.workers.scheduler import scheduler
 
@@ -56,6 +57,8 @@ app.include_router(push.router)
 app.include_router(memory.router)
 app.include_router(research.router)
 app.include_router(calendar.router)
+app.include_router(voice.router)
+app.include_router(ai_log_router.router)
 app.include_router(files.router)
 
 

@@ -149,6 +149,89 @@ async def _evaluate_for_user(
             )
 
 
+@scheduler.scheduled_job('cron', hour=1, minute=0, id='nightly_summarisation')
+async def nightly_summarisation():
+    """
+    01:00 daily: convert each user's raw daily data into structured fact strings,
+    embed them, and upsert to pgvector as memory_type='daily_summary'.
+    These facts are retrieved on every AI call — they are the long-term user model.
+    """
+    from backend.services.memory_service import store_memory
+    from backend.models.user import Goal, Habit, HabitLog, Nudge
+    from backend.models.ai_log import AIInteraction, AIOutcome
+    from sqlalchemy import select as sa_select
+    from datetime import date as _date, timedelta
+
+    today_str = str(_date.today())
+    yesterday_str = str(_date.today() - timedelta(days=1))
+
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(select(User.id, User.name).where(User.is_active == True))
+        users = result.all()
+
+    for user_id, user_name in users:
+        try:
+            async with AsyncSessionLocal() as db:
+                # Habits completed yesterday
+                logs_result = await db.execute(
+                    sa_select(HabitLog, Habit.name)
+                    .join(Habit, Habit.id == HabitLog.habit_id)
+                    .where(HabitLog.user_id == user_id, HabitLog.date == yesterday_str)
+                )
+                logs = logs_result.all()
+                completed_habits = [name for log, name in logs if log.completed]
+                missed_habits = [name for log, name in logs if not log.completed]
+
+                # Active goal progress
+                goal_result = await db.execute(
+                    sa_select(Goal).where(Goal.user_id == user_id, Goal.is_active == True).limit(1)
+                )
+                goal = goal_result.scalar_one_or_none()
+
+                # Nudges sent + acted on yesterday
+                nudge_result = await db.execute(
+                    sa_select(AIInteraction, AIOutcome)
+                    .outerjoin(AIOutcome, AIOutcome.interaction_id == AIInteraction.id)
+                    .where(
+                        AIInteraction.user_id == user_id,
+                        AIInteraction.mode == "nudge",
+                        AIInteraction.created_at >= yesterday_str,
+                    )
+                )
+                nudge_rows = nudge_result.all()
+                nudges_sent = len(nudge_rows)
+                nudges_acted = sum(1 for _, outcome in nudge_rows if outcome and outcome.acted)
+
+                # Build fact string
+                parts = []
+                if completed_habits:
+                    parts.append(f"Completed: {', '.join(completed_habits)}.")
+                if missed_habits:
+                    parts.append(f"Missed: {', '.join(missed_habits)}.")
+                if goal:
+                    parts.append(f"Active goal: {goal.title}. Target: {goal.cycle_end}.")
+                if nudges_sent:
+                    parts.append(f"Received {nudges_sent} nudge(s), acted on {nudges_acted}.")
+
+                if not parts:
+                    continue
+
+                fact = f"[{yesterday_str}] " + " ".join(parts)
+                await store_memory(
+                    user_id=user_id,
+                    content=fact,
+                    memory_type="daily_summary",
+                    source="nightly_summarisation",
+                    db=db,
+                )
+                await db.commit()
+                print(f"[scheduler] summarised user {user_id}: {fact[:80]}...")
+
+        except Exception as e:
+            print(f"[scheduler] summarisation failed for user {user_id}: {e}")
+        await asyncio.sleep(0.5)
+
+
 @scheduler.scheduled_job('cron', hour=2, minute=0, id='context_rebuild')
 async def nightly_context_rebuild():
     """

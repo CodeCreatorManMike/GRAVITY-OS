@@ -1,0 +1,1657 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1781400124.6993268,
+    "ast_hash": "e1073342e958ac9f00716938c8f165e3",
+    "semantic_hash": ""
+  },
+  ".claude/settings.local.json": {
+    "mtime": 1781633376.1470048,
+    "ast_hash": "00c1ceb468edbc1ab41fdb1f903b3e88",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/settings.json": {
+    "mtime": 1781384100.084637,
+    "ast_hash": "e1073342e958ac9f00716938c8f165e3",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/gravity-build.js": {
+    "mtime": 1781384100.0560544,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/gravity-gallery.js": {
+    "mtime": 1781384100.0562975,
+    "ast_hash": "229d161b39613d8013edd00e148ede81",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/gravity-library.js": {
+    "mtime": 1781384100.0565078,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/uploads/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.0583882,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/uploads/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.0586753,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/uploads/Gravity/gravity-build.js": {
+    "mtime": 1781384100.0595524,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/gravity-app.js": {
+    "mtime": 1781384100.0616176,
+    "ast_hash": "06bf0bce7f090008a5eeda4bce920abc",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/gravity-build.js": {
+    "mtime": 1781384100.0617845,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/gravity-disc.js": {
+    "mtime": 1781384100.062184,
+    "ast_hash": "d4f1e1f751b0ea1ca702224947979823",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/gravity-gallery.js": {
+    "mtime": 1781384100.0623233,
+    "ast_hash": "229d161b39613d8013edd00e148ede81",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/gravity-library.js": {
+    "mtime": 1781384100.062451,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/uploads/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.0648236,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/uploads/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.0650828,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/uploads/Gravity/gravity-build.js": {
+    "mtime": 1781384100.0657878,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/gravity-build.js": {
+    "mtime": 1781384100.066489,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/gravity-gallery.js": {
+    "mtime": 1781384100.066656,
+    "ast_hash": "229d161b39613d8013edd00e148ede81",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/gravity-library.js": {
+    "mtime": 1781384100.066799,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/uploads/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.0681343,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/uploads/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.0683906,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/uploads/Gravity/gravity-build.js": {
+    "mtime": 1781384100.0692558,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.0699673,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.0701017,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity/gravity-build.js": {
+    "mtime": 1781384100.0706751,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/__init__.py": {
+    "mtime": 1781385571.2587512,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/config.py": {
+    "mtime": 1781643710.6533344,
+    "ast_hash": "1bef20893407379a8d36087719004cd3",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/database.py": {
+    "mtime": 1781553348.3948584,
+    "ast_hash": "da37d9bd00b8fccefe69c46f5ae3fdf3",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/main.py": {
+    "mtime": 1781643831.4503841,
+    "ast_hash": "50391900a0d708d5dd921234c1ee4af0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/__init__.py": {
+    "mtime": 1781553493.0405135,
+    "ast_hash": "def7c0d85ee966bf2915a09ad412cda6",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/goal.py": {
+    "mtime": 1781385571.2960231,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/habit.py": {
+    "mtime": 1781385571.298206,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/integration.py": {
+    "mtime": 1781550934.7579858,
+    "ast_hash": "4d530e62d15dfd509174eef7487c81ff",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/nudge.py": {
+    "mtime": 1781385571.3002944,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/user.py": {
+    "mtime": 1781643787.6507068,
+    "ast_hash": "b9ecd75aa0e8a38cfbc55858134ba6ef",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/__init__.py": {
+    "mtime": 1781385571.2713404,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/auth.py": {
+    "mtime": 1781552314.3720121,
+    "ast_hash": "5bb7b70764877e401a97d25de5e00606",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/device.py": {
+    "mtime": 1781552430.8039303,
+    "ast_hash": "e1be191c11eb08556b8a6427ef6d79c8",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/goals.py": {
+    "mtime": 1781552329.1675088,
+    "ast_hash": "fca6253e78d2b42702717947d9b69680",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/habits.py": {
+    "mtime": 1781550326.4845915,
+    "ast_hash": "ad95e70f118475340ecb1031f9b9dd33",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/integrations.py": {
+    "mtime": 1781550974.5533905,
+    "ast_hash": "6c9cc84be54f6f40e13e626bd0471798",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/nudges.py": {
+    "mtime": 1781552445.6208174,
+    "ast_hash": "e1c2f93703d34a2a12c1e38a022d81a9",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/onboarding.py": {
+    "mtime": 1781549629.997626,
+    "ast_hash": "d8f2d0db8431e327370ed2b806469291",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/review.py": {
+    "mtime": 1781551018.0122395,
+    "ast_hash": "9409fe07f58d71edcdacc82ea3226bcc",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/schemas/__init__.py": {
+    "mtime": 1781643929.084411,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/schemas/goal.py": {
+    "mtime": 1781385571.3152955,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/schemas/habit.py": {
+    "mtime": 1781385571.3168924,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/schemas/nudge.py": {
+    "mtime": 1781385571.3184884,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/schemas/user.py": {
+    "mtime": 1781385571.3137305,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/__init__.py": {
+    "mtime": 1781385571.3023803,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/ai_service.py": {
+    "mtime": 1781385571.3045645,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/connection_manager.py": {
+    "mtime": 1781550039.0970032,
+    "ast_hash": "314be4d43c2df25d5afebedd794034cc",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/context_service.py": {
+    "mtime": 1781553476.068129,
+    "ast_hash": "41a0d8dabfbd43c36c19b2661cdfe650",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/layout_service.py": {
+    "mtime": 1781643966.9164426,
+    "ast_hash": "1bc86a0089176ecdaef0766679aa163d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/nudge_service.py": {
+    "mtime": 1781385571.30658,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/pattern_service.py": {
+    "mtime": 1781551060.785785,
+    "ast_hash": "17502dfe051bf5001c852dca85b1cc6b",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/workers/__init__.py": {
+    "mtime": 1781550192.0609183,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/workers/scheduler.py": {
+    "mtime": 1781643987.385192,
+    "ast_hash": "81945015a8408714987153e55186497a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/__init__.py": {
+    "mtime": 1781302782.054342,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/ai_client.py": {
+    "mtime": 1781553392.547819,
+    "ast_hash": "be3e3ff6df96b8685a09ec5ca9db0d2c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/nudge_engine.py": {
+    "mtime": 1781306161.8037271,
+    "ast_hash": "b8da228e33ae6aecd44e8a28e295c5f4",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/onboarding.py": {
+    "mtime": 1781304126.1025991,
+    "ast_hash": "5e665324e2f88843293b3550c5ca085c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/profile.py": {
+    "mtime": 1781303763.3963788,
+    "ast_hash": "8949dc0da343bf266773b9133228af4d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/profiles/michael.json": {
+    "mtime": 1781305407.4055068,
+    "ast_hash": "2c31df09095c865cb8db557ecfa9dd13",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/__init__.py": {
+    "mtime": 1781302782.0814884,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/device_sim.py": {
+    "mtime": 1781384100.0896616,
+    "ast_hash": "d2590f243d086bdcefe92acb7e6ea6c7",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/display/__init__.py": {
+    "mtime": 1781307197.6707957,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/display/gravity_sim.py": {
+    "mtime": 1781384100.0900226,
+    "ast_hash": "58e57688d4712b02c83dbd69659f95ca",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/display/layout_engine.py": {
+    "mtime": 1781384100.0903885,
+    "ast_hash": "4a73aeec42f9ff2c25425de305fb0e32",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/display/primitives.py": {
+    "mtime": 1781384100.0907252,
+    "ast_hash": "a8923d8fe02c29771e2ec5e54e967dd9",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/display/screens.py": {
+    "mtime": 1781384100.0909874,
+    "ast_hash": "9d76501422feb3c0e5c901c6653c5fd8",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/display_renderer.py": {
+    "mtime": 1781384100.0912936,
+    "ast_hash": "a8ea011909ada71bdf8225a69ea4b534",
+    "semantic_hash": ""
+  },
+  "GRAVITY/simulator/nudge_tester.py": {
+    "mtime": 1781384100.0915642,
+    "ast_hash": "8399cae9a179380460de2d7731fa8126",
+    "semantic_hash": ""
+  },
+  "GRAVITY/tests/__init__.py": {
+    "mtime": 1781302782.087933,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/tests/test_nudge_logic.py": {
+    "mtime": 1781384100.0919318,
+    "ast_hash": "c3993a8a3f5824f7d9acbdc9d02004e5",
+    "semantic_hash": ""
+  },
+  "GRAVITY/tests/test_onboarding.py": {
+    "mtime": 1781302782.0891972,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/tests/test_profile_extraction.py": {
+    "mtime": 1781384100.0921366,
+    "ast_hash": "d3438a9ce1237db014e72815467094a0",
+    "semantic_hash": ""
+  },
+  "GravityApp/.claude/settings.json": {
+    "mtime": 1781550362.1977375,
+    "ast_hash": "dc580fca35a0e98ed20777ede5e545a1",
+    "semantic_hash": ""
+  },
+  "GravityApp/App.tsx": {
+    "mtime": 1781550344.65486,
+    "ast_hash": "731f821041b5c3db08788f28bf3c467e",
+    "semantic_hash": ""
+  },
+  "GravityApp/app.json": {
+    "mtime": 1781550390.8877215,
+    "ast_hash": "ce73d4c3dd6b93cf64bee75e4db44668",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/(tabs)/_layout.tsx": {
+    "mtime": 1781552425.0905607,
+    "ast_hash": "ce8ccf1cf910c8b2735cacfec7806dc3",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/(tabs)/health.tsx": {
+    "mtime": 1781551207.3427408,
+    "ast_hash": "1d66cdb75704021b37c63b72c019da0b",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/(tabs)/index.tsx": {
+    "mtime": 1781551157.6888862,
+    "ast_hash": "824bdf8cea52b1bf71b6d5579cd961f0",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/(tabs)/settings.tsx": {
+    "mtime": 1781551238.465079,
+    "ast_hash": "5ea1592b4197a429df2d0467bcaa81a8",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/_layout.tsx": {
+    "mtime": 1781552534.7918794,
+    "ast_hash": "2a8cf5fa161126cf58c9795f584d7b3d",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/index.tsx": {
+    "mtime": 1781551269.7909994,
+    "ast_hash": "323cebf37dda4a042b0dbb75b1e2b2e8",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/login.tsx": {
+    "mtime": 1781550415.5652845,
+    "ast_hash": "26b5133a4de6b3be41b6e674052e6182",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/onboarding.tsx": {
+    "mtime": 1781550433.638344,
+    "ast_hash": "5741c40d3e7a50bd63b02c3b183f2b4f",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/review.tsx": {
+    "mtime": 1781551265.6227992,
+    "ast_hash": "94d223747374947fd0064ca061edb573",
+    "semantic_hash": ""
+  },
+  "GravityApp/constants/api.ts": {
+    "mtime": 1781550398.4500327,
+    "ast_hash": "ad647398556310ba8a773edf4d004dcf",
+    "semantic_hash": ""
+  },
+  "GravityApp/hooks/useGravitySocket.ts": {
+    "mtime": 1781551114.675425,
+    "ast_hash": "14d053f0bd397c74621c09d5013eeabc",
+    "semantic_hash": ""
+  },
+  "GravityApp/index.ts": {
+    "mtime": 1781550344.654712,
+    "ast_hash": "33caa6d28d87fc7e637c033d0d7124b1",
+    "semantic_hash": ""
+  },
+  "GravityApp/package.json": {
+    "mtime": 1781552622.548112,
+    "ast_hash": "8c14b0693433e24a013fb16db87599bd",
+    "semantic_hash": ""
+  },
+  "GravityApp/store/authStore.ts": {
+    "mtime": 1781550402.2372139,
+    "ast_hash": "bd2915f3b159fa4c3d04032363484e0c",
+    "semantic_hash": ""
+  },
+  "GravityApp/tsconfig.json": {
+    "mtime": 1781550344.6492858,
+    "ast_hash": "a5df9ddad82c56de332cbb7d00dd294b",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/app.jsx": {
+    "mtime": 1781549629.6650674,
+    "ast_hash": "3885351736b20ea459aa981c6ad94600",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/cross-section.jsx": {
+    "mtime": 1781549629.665391,
+    "ast_hash": "df8f652b56c5f66242a7fb1632d14922",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/gravity-data.js": {
+    "mtime": 1781549629.6656935,
+    "ast_hash": "632ebb5a71d11ffc7e153e1d042f514f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/hero.jsx": {
+    "mtime": 1781549629.6660473,
+    "ast_hash": "4ed6fac389227e3e69d66cad378db306",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/gravity-build.js": {
+    "mtime": 1781384100.0949855,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/gravity-gallery.js": {
+    "mtime": 1781384100.0951967,
+    "ast_hash": "229d161b39613d8013edd00e148ede81",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/gravity-library.js": {
+    "mtime": 1781384100.0953581,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/uploads/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.0969138,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/uploads/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.0970316,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/uploads/Gravity/gravity-build.js": {
+    "mtime": 1781384100.097926,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/gravity-app.js": {
+    "mtime": 1781384100.1017776,
+    "ast_hash": "06bf0bce7f090008a5eeda4bce920abc",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/gravity-build.js": {
+    "mtime": 1781384100.1019285,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/gravity-disc.js": {
+    "mtime": 1781384100.1021054,
+    "ast_hash": "d4f1e1f751b0ea1ca702224947979823",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/gravity-gallery.js": {
+    "mtime": 1781384100.1022873,
+    "ast_hash": "229d161b39613d8013edd00e148ede81",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/gravity-library.js": {
+    "mtime": 1781384100.1024296,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/uploads/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.1043615,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/uploads/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.104477,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/uploads/Gravity/gravity-build.js": {
+    "mtime": 1781384100.1051962,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/gravity-build.js": {
+    "mtime": 1781384100.1074708,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/gravity-gallery.js": {
+    "mtime": 1781384100.1076374,
+    "ast_hash": "229d161b39613d8013edd00e148ede81",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/gravity-library.js": {
+    "mtime": 1781384100.1077688,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/uploads/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.1089358,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/uploads/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.1092486,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/uploads/Gravity/gravity-build.js": {
+    "mtime": 1781384100.1100702,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy/gravity-build.js": {
+    "mtime": 1781384100.1119716,
+    "ast_hash": "ff3a238f29d926454770a8ee8cb9b950",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy/gravity-library.js": {
+    "mtime": 1781384100.1121242,
+    "ast_hash": "a6d5e4ee3dc91684fcacb5068e42de6f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity/gravity-build.js": {
+    "mtime": 1781384100.1141677,
+    "ast_hash": "b92ca257b5aef66912030282b6457b1a",
+    "semantic_hash": ""
+  },
+  "firmware/als.py": {
+    "mtime": 1781551287.8214557,
+    "ast_hash": "a9328ff4bad0d17e3286a702cf6fe546",
+    "semantic_hash": ""
+  },
+  "firmware/boot.py": {
+    "mtime": 1781550899.9477897,
+    "ast_hash": "e6bda535c469451a94109b50fd6f566e",
+    "semantic_hash": ""
+  },
+  "firmware/cache.py": {
+    "mtime": 1781550978.4785335,
+    "ast_hash": "731d065faeefe6d54322997a0942da62",
+    "semantic_hash": ""
+  },
+  "firmware/config.py": {
+    "mtime": 1781550917.3846765,
+    "ast_hash": "d2817c40fdde87c325c69baf93a7af34",
+    "semantic_hash": ""
+  },
+  "firmware/display/__init__.py": {
+    "mtime": 1781550981.5432022,
+    "ast_hash": "e61becddd713361e65e33ba6d2404d2a",
+    "semantic_hash": ""
+  },
+  "firmware/display/components.py": {
+    "mtime": 1781551156.4548786,
+    "ast_hash": "bc8c3f8a54df28719d31194c5f2f97fe",
+    "semantic_hash": ""
+  },
+  "firmware/display/hal.py": {
+    "mtime": 1781551006.7263918,
+    "ast_hash": "2830082f4bb7fd3a6b9c17315568e4bc",
+    "semantic_hash": ""
+  },
+  "firmware/display/lt7683.py": {
+    "mtime": 1781551091.1854131,
+    "ast_hash": "3c48a801264b00fe05678438a0dfc9d7",
+    "semantic_hash": ""
+  },
+  "firmware/display/renderer.py": {
+    "mtime": 1781551200.7494442,
+    "ast_hash": "5f98950ebf0aeba70402ce32d0a69a0c",
+    "semantic_hash": ""
+  },
+  "firmware/display/st7701s.py": {
+    "mtime": 1781551048.2914646,
+    "ast_hash": "1edafad1a194a786b9f5210f897f5728",
+    "semantic_hash": ""
+  },
+  "firmware/imu.py": {
+    "mtime": 1781551264.8284266,
+    "ast_hash": "e6140d51d0d0f298e26f6d75ad7006f4",
+    "semantic_hash": ""
+  },
+  "firmware/main.py": {
+    "mtime": 1781552578.0850732,
+    "ast_hash": "12ac482c7c39d7c77f66e6a63dda5c24",
+    "semantic_hash": ""
+  },
+  "firmware/ota.py": {
+    "mtime": 1781551334.3140001,
+    "ast_hash": "1b51d85125575bb87a352efaf3eb1c65",
+    "semantic_hash": ""
+  },
+  "firmware/power.py": {
+    "mtime": 1781551311.6617863,
+    "ast_hash": "3100dba1e363625a669a2b5568d9c25f",
+    "semantic_hash": ""
+  },
+  "firmware/touch.py": {
+    "mtime": 1781551236.607501,
+    "ast_hash": "37da21be746b742b0d48e837107c770c",
+    "semantic_hash": ""
+  },
+  "firmware/websocket_client.py": {
+    "mtime": 1781550963.036615,
+    "ast_hash": "d37f894d3b08c23fae8506ac7103f138",
+    "semantic_hash": ""
+  },
+  "firmware/wifi.py": {
+    "mtime": 1781550927.2689412,
+    "ast_hash": "a7e80a5e4abe4b7627c79ec4c0cda908",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1781643687.5165787,
+    "ast_hash": "691d6bad8ba4ec09f923fdbcf9c80048",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/AI_BEHAVIOUR.md": {
+    "mtime": 1781384100.0818944,
+    "ast_hash": "e808a655a07dc3f2f77ea4e8ffc41377",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/CONSTRAINTS.md": {
+    "mtime": 1781384100.0825288,
+    "ast_hash": "9705fcacc2f1519b06ccf188cee1405a",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/FEATURES.md": {
+    "mtime": 1781384100.123654,
+    "ast_hash": "dfc719abca421b9ec82b30df1b13bfca",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/HARDWARE.md": {
+    "mtime": 1781549629.664059,
+    "ast_hash": "9ed7e570c7a687d5fb2da0b6c5a2b2fb",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/OPEN_SOURCE_STACK.md": {
+    "mtime": 1781384848.1192486,
+    "ast_hash": "07afd0639b3602fc3cd10e103521db13",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/PRODUCT.md": {
+    "mtime": 1781384100.1240377,
+    "ast_hash": "33ab4f8624be3648216f15be0e1045c5",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/PROJECT_CONTEXT.md": {
+    "mtime": 1781384100.1242418,
+    "ast_hash": "bdf66bb35f7040ee9a8258fef9a673d4",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/SOFTWARE_ARCH.md": {
+    "mtime": 1781384100.0837276,
+    "ast_hash": "ee97b1bd03a7522bfd4adb5bef6ed231",
+    "semantic_hash": ""
+  },
+  "CLAUDE_DOCS/UI_UX.md": {
+    "mtime": 1781384100.0839844,
+    "ast_hash": "291e9ffd97ab2cb24b897814e9299e03",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/CLAUDE.md": {
+    "mtime": 1781384100.0844424,
+    "ast_hash": "db73b0edd7ffbc61ceac177130730865",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/SKILL.md": {
+    "mtime": 1781384100.08542,
+    "ast_hash": "41f700d6535cc2f2b6b6d0a9eecc7525",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/add-watch.md": {
+    "mtime": 1781384100.0859203,
+    "ast_hash": "0df0589623217ca38a12bdcabfb42f4c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/exports.md": {
+    "mtime": 1781384100.086122,
+    "ast_hash": "7fb1a81aca17a462db70684a324fcfb0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1781384100.086483,
+    "ast_hash": "24808b03abfeaf5f6435bb69c0125b2c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1781384100.0867212,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/hooks.md": {
+    "mtime": 1781384100.086965,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/query.md": {
+    "mtime": 1781384100.0871851,
+    "ast_hash": "8b40ed8c9e9060fc215219a8fc964091",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/transcribe.md": {
+    "mtime": 1781384100.08736,
+    "ast_hash": "70f6aa30d6211f3a2c7e9fc45479f50c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/.claude/skills/graphify/references/update.md": {
+    "mtime": 1781384100.0875812,
+    "ast_hash": "0dad167a95bdb389f02fecffb60b1bc8",
+    "semantic_hash": ""
+  },
+  "GRAVITY/CLAUDE.md": {
+    "mtime": 1781384100.0878518,
+    "ast_hash": "1d9d433fae5ba221fe490355c06ccaf5",
+    "semantic_hash": ""
+  },
+  "GRAVITY/GRAVITY_CLAUDE_CODE_HANDOFF.md": {
+    "mtime": 1781308679.4015367,
+    "ast_hash": "624ed08ab1cfb6136f3b262f9ccd7bfc",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/Gravity Concept Gallery.html": {
+    "mtime": 1781384100.055785,
+    "ast_hash": "d3e97fbdaa0804b9ccb5c386cc01faa0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/uploads/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.0582056,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/uploads/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.0593836,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/Gravity Companion App.html": {
+    "mtime": 1781384100.0602944,
+    "ast_hash": "5ec09632e89828121e9739f4548dbbe2",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/Gravity Concept Gallery.html": {
+    "mtime": 1781384100.0612419,
+    "ast_hash": "d3e97fbdaa0804b9ccb5c386cc01faa0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/uploads/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.0646813,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/uploads/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.065605,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/Gravity Concept Gallery.html": {
+    "mtime": 1781384100.0663373,
+    "ast_hash": "d3e97fbdaa0804b9ccb5c386cc01faa0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/uploads/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.0679846,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/uploads/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.0690956,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.069826,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.0705187,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/README.md": {
+    "mtime": 1781554602.2485569,
+    "ast_hash": "847102c77d56fcf523f23c46b1a13aac",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/extract_profile.txt": {
+    "mtime": 1781304068.2609723,
+    "ast_hash": "9e538f5d072d35af849022fd91a8910b",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/nudge_content.txt": {
+    "mtime": 1781306147.6157558,
+    "ast_hash": "51f708b0f8958af4d1c8abf2492e16f4",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/nudge_decision.txt": {
+    "mtime": 1781306062.4560874,
+    "ast_hash": "e42fdaed8b56ec68f03daa9977b19d77",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/phase1_identity.txt": {
+    "mtime": 1781305770.3656476,
+    "ast_hash": "12e162d51a793b595b80d24c04e6cafa",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/phase2_routine.txt": {
+    "mtime": 1781305779.7846327,
+    "ast_hash": "ea7c9b18a994d40c7a66c7d27e859546",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/phase3_goal.txt": {
+    "mtime": 1781305785.2148044,
+    "ast_hash": "724c8241e2ac3dac033ec64910c28d38",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/phase4_nonneg.txt": {
+    "mtime": 1781305794.729838,
+    "ast_hash": "2ec797aa500e9805f6bd3bf741eb5499",
+    "semantic_hash": ""
+  },
+  "GRAVITY/core/prompts/phase5_feedback.txt": {
+    "mtime": 1781305804.1379554,
+    "ast_hash": "83f7ebedabc3ad648cae8afb0d46eb9a",
+    "semantic_hash": ""
+  },
+  "GRAVITY/docker-compose.yml": {
+    "mtime": 1781643695.3467827,
+    "ast_hash": "4719a6aa1bed4ab44807a64a225aab0d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/requirements.txt": {
+    "mtime": 1781644001.792291,
+    "ast_hash": "cae89ce8dd1c693d9ab7c9768164865b",
+    "semantic_hash": ""
+  },
+  "GravityApp/AGENTS.md": {
+    "mtime": 1781550362.1966558,
+    "ast_hash": "0168b78417bf60f34fd1233c69591023",
+    "semantic_hash": ""
+  },
+  "GravityApp/CLAUDE.md": {
+    "mtime": 1781550362.196824,
+    "ast_hash": "5c27369b226fcf2be8a6cfe52224e767",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/Gravity Hardware Breakdown.html": {
+    "mtime": 1781549629.6647184,
+    "ast_hash": "ba6235b9d2b144553af72ef30786011c",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/uploads/GRAVITY_V1_FULL_BUILD_SPEC.md": {
+    "mtime": 1781549629.6666713,
+    "ast_hash": "1ec387d3b58b4b0742301ed42582961e",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/uploads/GRAVITY_V1_PCB_DESIGN.md": {
+    "mtime": 1781549629.6670372,
+    "ast_hash": "c8da28a7ad9d5d64c889d006c57feb36",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/Gravity Concept Gallery.html": {
+    "mtime": 1781384100.0947893,
+    "ast_hash": "d3e97fbdaa0804b9ccb5c386cc01faa0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/uploads/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.0967658,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/uploads/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.0977938,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/Gravity Companion App.html": {
+    "mtime": 1781384100.1014376,
+    "ast_hash": "5ec09632e89828121e9739f4548dbbe2",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/Gravity Concept Gallery.html": {
+    "mtime": 1781384100.1016278,
+    "ast_hash": "d3e97fbdaa0804b9ccb5c386cc01faa0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/uploads/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.104233,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/uploads/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.105082,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/Gravity Concept Gallery.html": {
+    "mtime": 1781384100.1072943,
+    "ast_hash": "d3e97fbdaa0804b9ccb5c386cc01faa0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/uploads/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.1087978,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/uploads/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.1099524,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy/Gravity Circular UI.html": {
+    "mtime": 1781384100.1118248,
+    "ast_hash": "ed94f02ae483eeb29bf893381fd41b37",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity/Gravity Circular UI.html": {
+    "mtime": 1781384100.1140163,
+    "ast_hash": "cf96e7949b9ba4fc04e5e8623a2e4d6d",
+    "semantic_hash": ""
+  },
+  "firmware/README.md": {
+    "mtime": 1781551434.6606932,
+    "ast_hash": "423915cc7e7fe9dfdacc3ad702b078e5",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/screenshots/01-check-tasks.png": {
+    "mtime": 1781384100.0569255,
+    "ast_hash": "7dd55703869ff3c9bcf34f3fdbd02aa5",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/screenshots/02-check-tasks.png": {
+    "mtime": 1781384100.05732,
+    "ast_hash": "d5179c2b1aa276db0d6d437a4477bef0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/screenshots/03-check-tasks.png": {
+    "mtime": 1781384100.0577998,
+    "ast_hash": "d64861cb944175b539119d88104ef49f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/uploads/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.0590842,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (1)/uploads/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.0597823,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/screenshots/01-app-check.png": {
+    "mtime": 1781384100.0627065,
+    "ast_hash": "ddec7e6150a297a0126b708a38534fe9",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/screenshots/01-check-tasks.png": {
+    "mtime": 1781384100.0630505,
+    "ast_hash": "7dd55703869ff3c9bcf34f3fdbd02aa5",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/screenshots/02-app-check.png": {
+    "mtime": 1781384100.0632699,
+    "ast_hash": "cdfe04e172457d7fe3b267c30d8166e9",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/screenshots/02-check-tasks.png": {
+    "mtime": 1781384100.0634859,
+    "ast_hash": "d5179c2b1aa276db0d6d437a4477bef0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/screenshots/03-app-check.png": {
+    "mtime": 1781384100.0637138,
+    "ast_hash": "a77caa9b2f89837cae17d7adfd0b4493",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/screenshots/03-check-tasks.png": {
+    "mtime": 1781384100.0638783,
+    "ast_hash": "d64861cb944175b539119d88104ef49f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/screenshots/04-app-check.png": {
+    "mtime": 1781384100.0640986,
+    "ast_hash": "6e64d18dd88432ad622a64b715fe0dda",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/uploads/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.0652976,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity (2)/uploads/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.066017,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/screenshots/01-check-tasks.png": {
+    "mtime": 1781384100.0670397,
+    "ast_hash": "7dd55703869ff3c9bcf34f3fdbd02aa5",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/screenshots/02-check-tasks.png": {
+    "mtime": 1781384100.067416,
+    "ast_hash": "d5179c2b1aa276db0d6d437a4477bef0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/screenshots/03-check-tasks.png": {
+    "mtime": 1781384100.067598,
+    "ast_hash": "d64861cb944175b539119d88104ef49f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/uploads/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.068798,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy 2/uploads/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.0695155,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.070305,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.0709298,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/_contact_sheet.png": {
+    "mtime": 1781384100.08916,
+    "ast_hash": "c81d94d1fe7f522d5497552bbf11ed95",
+    "semantic_hash": ""
+  },
+  "GravityApp/assets/android-icon-background.png": {
+    "mtime": 1781550344.6499102,
+    "ast_hash": "2d65569cc0e2afdcea0af9f9902d4173",
+    "semantic_hash": ""
+  },
+  "GravityApp/assets/android-icon-foreground.png": {
+    "mtime": 1781550344.6507056,
+    "ast_hash": "72e71a9c846c6aa4ae32476641a00e18",
+    "semantic_hash": ""
+  },
+  "GravityApp/assets/android-icon-monochrome.png": {
+    "mtime": 1781550344.651002,
+    "ast_hash": "1e097dab989759fc0b69440092ca22cd",
+    "semantic_hash": ""
+  },
+  "GravityApp/assets/favicon.png": {
+    "mtime": 1781550344.6511989,
+    "ast_hash": "d9f444efbdfbe7931aa93beada07318a",
+    "semantic_hash": ""
+  },
+  "GravityApp/assets/icon.png": {
+    "mtime": 1781550344.6539352,
+    "ast_hash": "cb975bba2216ce10a60e6c0ffe9941a2",
+    "semantic_hash": ""
+  },
+  "GravityApp/assets/splash-icon.png": {
+    "mtime": 1781550344.6545105,
+    "ast_hash": "97dae5a0e62ad8551d8a31897b425e63",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/uploads/IMG_1314.jpeg": {
+    "mtime": 1781549629.6679668,
+    "ast_hash": "c3d755d2f8b5a016b65bf17b1f22acda",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/uploads/IMG_1317.jpeg": {
+    "mtime": 1781549629.6686728,
+    "ast_hash": "341e6614c5b9f96d20d36abae7de90cc",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/uploads/pasted-1781514668567-0.png": {
+    "mtime": 1781549629.6775892,
+    "ast_hash": "00d17060028eec2a3db070ce5c0ba058",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/uploads/pasted-1781515015579-0.png": {
+    "mtime": 1781549629.6824005,
+    "ast_hash": "d37abb97372eb65cc2d27cd470bca005",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/uploads/pasted-1781515025918-0.png": {
+    "mtime": 1781549629.685972,
+    "ast_hash": "60aa2e3ee0d5322ec8b3ecec3f626542",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/screenshots/01-check-tasks.png": {
+    "mtime": 1781384100.0956128,
+    "ast_hash": "7dd55703869ff3c9bcf34f3fdbd02aa5",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/screenshots/02-check-tasks.png": {
+    "mtime": 1781384100.095786,
+    "ast_hash": "d5179c2b1aa276db0d6d437a4477bef0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/screenshots/03-check-tasks.png": {
+    "mtime": 1781384100.095953,
+    "ast_hash": "d64861cb944175b539119d88104ef49f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/uploads/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.0972369,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (1)/uploads/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.0981195,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/screenshots/01-app-check.png": {
+    "mtime": 1781384100.1026452,
+    "ast_hash": "ddec7e6150a297a0126b708a38534fe9",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/screenshots/01-check-tasks.png": {
+    "mtime": 1781384100.1028237,
+    "ast_hash": "7dd55703869ff3c9bcf34f3fdbd02aa5",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/screenshots/02-app-check.png": {
+    "mtime": 1781384100.1030004,
+    "ast_hash": "cdfe04e172457d7fe3b267c30d8166e9",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/screenshots/02-check-tasks.png": {
+    "mtime": 1781384100.1032631,
+    "ast_hash": "d5179c2b1aa276db0d6d437a4477bef0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/screenshots/03-app-check.png": {
+    "mtime": 1781384100.1034167,
+    "ast_hash": "a77caa9b2f89837cae17d7adfd0b4493",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/screenshots/03-check-tasks.png": {
+    "mtime": 1781384100.103573,
+    "ast_hash": "d64861cb944175b539119d88104ef49f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/screenshots/04-app-check.png": {
+    "mtime": 1781384100.1037307,
+    "ast_hash": "6e64d18dd88432ad622a64b715fe0dda",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/uploads/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.104689,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity (2)/uploads/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.1055396,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/screenshots/01-check-tasks.png": {
+    "mtime": 1781384100.1080072,
+    "ast_hash": "7dd55703869ff3c9bcf34f3fdbd02aa5",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/screenshots/02-check-tasks.png": {
+    "mtime": 1781384100.1081882,
+    "ast_hash": "d5179c2b1aa276db0d6d437a4477bef0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/screenshots/03-check-tasks.png": {
+    "mtime": 1781384100.1083553,
+    "ast_hash": "d64861cb944175b539119d88104ef49f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/uploads/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.1094885,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy 2/uploads/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.1105533,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity copy/screenshots/dirA.png": {
+    "mtime": 1781384100.1123369,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/Gravity/screenshots/dirA.png": {
+    "mtime": 1781384100.114389,
+    "ast_hash": "1c2505cbd9af226721b2c024858c9cd0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/calendar_event.py": {
+    "mtime": 1781553368.9876144,
+    "ast_hash": "96f9871199c02490f0b237e404c8f7e9",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/file.py": {
+    "mtime": 1781553484.3493235,
+    "ast_hash": "b1f754235e5bd1ba8da1414155ea40d4",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/memory.py": {
+    "mtime": 1781553311.5715814,
+    "ast_hash": "061b0d503b1a4416e1ded537de339209",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/push.py": {
+    "mtime": 1781552378.5967655,
+    "ast_hash": "22246611e095a3fed24957e67c726a4c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/user_location.py": {
+    "mtime": 1781553373.022618,
+    "ast_hash": "e6eca6a153958628eaf2db5ff5e3e17d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/analytics.py": {
+    "mtime": 1781552372.5585961,
+    "ast_hash": "d3e9963e3e1b7b2f6e76a86b6809a454",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/calendar.py": {
+    "mtime": 1781553452.0511625,
+    "ast_hash": "8eecd377a4fe8b07240c6701d431c1ee",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/memory.py": {
+    "mtime": 1781553373.8703566,
+    "ast_hash": "68957edf94592166a5aa5d272e9c8ac4",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/push.py": {
+    "mtime": 1781552414.1541274,
+    "ast_hash": "5cdea8097f3f48a18572c1df4e1fd631",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/research.py": {
+    "mtime": 1781553433.9888625,
+    "ast_hash": "2179efc92d1d15e965f167de64189e9f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/calendar_service.py": {
+    "mtime": 1781553410.1923664,
+    "ast_hash": "4b0f7e3c65a70e892dd2a93e9763c523",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/document_service.py": {
+    "mtime": 1781553418.08286,
+    "ast_hash": "ad8d4bdbcb90618c1d5c8a833172de52",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/fitness_service.py": {
+    "mtime": 1781553418.0777066,
+    "ast_hash": "2ddba98068e99183701970119878c460",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/memory_service.py": {
+    "mtime": 1781553326.1418285,
+    "ast_hash": "22e5051123a780023755b6321385518f",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/pdf_generator.py": {
+    "mtime": 1781553434.7706316,
+    "ast_hash": "9f5305c6c16235f7e2ca99373d484d3c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/push_service.py": {
+    "mtime": 1781552399.5601995,
+    "ast_hash": "eda5aca12905601194dfb9c0c870d46d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/research_service.py": {
+    "mtime": 1781553406.3299448,
+    "ast_hash": "676fa73a10b685527d4828291f36c313",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/weather_service.py": {
+    "mtime": 1781553423.7019086,
+    "ast_hash": "7a4442126a9cec328536051c565dbef0",
+    "semantic_hash": ""
+  },
+  "GRAVITY/deploy/deploy.sh": {
+    "mtime": 1781552320.2662086,
+    "ast_hash": "8e46528259b51e8d87f875e928e8f5bd",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/templates/pdf/cycle_review.html": {
+    "mtime": 1781553458.6290379,
+    "ast_hash": "8cdb1288d7cd963de110b5ea9c04c72e",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/templates/pdf/habit_report.html": {
+    "mtime": 1781553479.6766644,
+    "ast_hash": "c8daa4beed1aab1620b62a55c8df695d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/deploy/README.md": {
+    "mtime": 1781552339.4179788,
+    "ast_hash": "5ea1a406fd6887311c8a85497d17735d",
+    "semantic_hash": ""
+  },
+  "GRAVITY/deploy/docker-compose.prod.yml": {
+    "mtime": 1781552273.3263204,
+    "ast_hash": "029ab5774889e356a19e28e35ba34c98",
+    "semantic_hash": ""
+  },
+  "GRAVITY/searxng/settings.yml": {
+    "mtime": 1781553453.4321265,
+    "ast_hash": "3f409501670330bd8b0a306ba31aa3ef",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/files.py": {
+    "mtime": 1781643764.794636,
+    "ast_hash": "e2ce5e7c260d9bdcfbe0b03705bd2a65",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/(tabs)/analytics.tsx": {
+    "mtime": 1781552419.1325374,
+    "ast_hash": "b69e002d6a07c7ce24abd2867419b46c",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/goal-edit.tsx": {
+    "mtime": 1781552503.6326652,
+    "ast_hash": "961901562ec1b5cfa3f5f08e0ec9ec3a",
+    "semantic_hash": ""
+  },
+  "GravityApp/app/habits-manage.tsx": {
+    "mtime": 1781552530.6462119,
+    "ast_hash": "0597839429896f33dd613f58becc02ef",
+    "semantic_hash": ""
+  },
+  "GravityApp/components/DevicePreview.tsx": {
+    "mtime": 1781552373.752347,
+    "ast_hash": "4273647b36a110deb678c066a3d7f8fb",
+    "semantic_hash": ""
+  },
+  "GravityApp/hooks/usePushNotifications.ts": {
+    "mtime": 1781552467.9657352,
+    "ast_hash": "31756f5c79bd70ff7a3e4d0d6a6bcb13",
+    "semantic_hash": ""
+  },
+  "firmware/boot_animation.py": {
+    "mtime": 1781552555.3561015,
+    "ast_hash": "ab6dec5bc53541de96d7ec49febe5e9b",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1781552347.4878526,
+    "ast_hash": "3b3996d0468b8fa55bd4ebd8820b6917",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/models/ai_log.py": {
+    "mtime": 1781643778.193099,
+    "ast_hash": "722439d928759bd59bf0a88a1559be79",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/ai_log.py": {
+    "mtime": 1781643821.5715373,
+    "ast_hash": "c628b657e13f9a29bd97b0bc4a485387",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/routers/voice.py": {
+    "mtime": 1781643901.6351974,
+    "ast_hash": "0a57f9d103bee3f19304343b04aefcaf",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/schemas/face.py": {
+    "mtime": 1781643924.654069,
+    "ast_hash": "5f851a778bbd9b0d150ff9462f50fe3c",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/ai_log_service.py": {
+    "mtime": 1781643812.1938658,
+    "ast_hash": "3b90e40a17cd9234563c5bec32bf1f88",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/storage_service.py": {
+    "mtime": 1781643725.9070702,
+    "ast_hash": "62980d62b926ea0637027bc41cf19c21",
+    "semantic_hash": ""
+  },
+  "GRAVITY/backend/services/voice_service.py": {
+    "mtime": 1781643885.5310838,
+    "ast_hash": "c41ee36e594f2d5ebc24be813b24928e",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/app.jsx": {
+    "mtime": 1781640320.0,
+    "ast_hash": "e5e74b886dc280db2a72dc8fe1c7ec95",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/cross-section.jsx": {
+    "mtime": 1781640320.0,
+    "ast_hash": "de3f9b27fe54cd2bf3d636541eef0d17",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/draw-lib.jsx": {
+    "mtime": 1781640320.0,
+    "ast_hash": "9f732407b7f25ba9b797f86d26007da4",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/drawings-app.jsx": {
+    "mtime": 1781640320.0,
+    "ast_hash": "2034745729c7cd20eaa59e8b616a92d8",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/gravity-data.js": {
+    "mtime": 1781640320.0,
+    "ast_hash": "3195a9da73b6400579efd29915cef779",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/hero.jsx": {
+    "mtime": 1781640320.0,
+    "ast_hash": "ce674bb3f2f2a6c11000034c8b75a998",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/sheet-assembly.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "77696836a6faeda56f75c1a48f4143b8",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/sheet-backstand.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "6aad531f521b8ee16357da01c7ce1158",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/sheet-explode.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "84c8b8761f09c54a895f489cf5c297b9",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/sheet-ga.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "10a299c18713146b686b69ddd3c09859",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/sheet-iso.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "09fb3391c70b9982e386c87418ca3813",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/sheet-ortho.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "1a57c08532fa15b4fee9256a02f719e6",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/app.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "3885351736b20ea459aa981c6ad94600",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/cross-section.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "df8f652b56c5f66242a7fb1632d14922",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/gravity-data.js": {
+    "mtime": 1781640321.0,
+    "ast_hash": "632ebb5a71d11ffc7e153e1d042f514f",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/hero.jsx": {
+    "mtime": 1781640321.0,
+    "ast_hash": "4ed6fac389227e3e69d66cad378db306",
+    "semantic_hash": ""
+  },
+  "GRAVITY/GRAVITY_BUILD_CONTEXT.md": {
+    "mtime": 1781643672.7188148,
+    "ast_hash": "51b78a9746973d6296879244844f56a2",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/Gravity Hardware Breakdown.html": {
+    "mtime": 1781640320.0,
+    "ast_hash": "1c7f837b3289666954527245b2ae6f36",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/Gravity Hardware Drawings.html": {
+    "mtime": 1781640320.0,
+    "ast_hash": "e97de49495149c4430c19401e67466ac",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/GRAVITY_V1_FULL_BUILD_SPEC.md": {
+    "mtime": 1781640321.0,
+    "ast_hash": "1ec387d3b58b4b0742301ed42582961e",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/GRAVITY_V1_PCB_DESIGN.md": {
+    "mtime": 1781640321.0,
+    "ast_hash": "c8da28a7ad9d5d64c889d006c57feb36",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/Gravity Hardware Breakdown.html": {
+    "mtime": 1781640321.0,
+    "ast_hash": "ba6235b9d2b144553af72ef30786011c",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/breakdown-cross-section.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "74d96f0ba31a30bef923991334b995d5",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/breakdown-overview.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "104c58130751c9473538c9e633fae94e",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/drawing-AS-05-base-seating.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "28a49ff351b20c7ece04ac63a7fda233",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/drawing-EX-04-exploded.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "8ded369e8c1936d8d350d7ec8e11563c",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/drawing-GA-01-general-arrangement.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "749f3cb4d2f08875748e79b8170fa5fb",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/drawing-IS-03-isometric.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "90a2990f09fbdfd6dc42ba4264e8511a",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/drawing-OR-02-orthographic.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "572ccc76914d5ae313b7f92e9081a490",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/screenshots/drawing-ST-06-backstand.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "114410fd345916fef34ebd6e660a1cdc",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/IMG_1314.jpeg": {
+    "mtime": 1781640321.0,
+    "ast_hash": "c3d755d2f8b5a016b65bf17b1f22acda",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/IMG_1317.jpeg": {
+    "mtime": 1781640321.0,
+    "ast_hash": "341e6614c5b9f96d20d36abae7de90cc",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/pasted-1781514668567-0.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "00d17060028eec2a3db070ce5c0ba058",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/pasted-1781515015579-0.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "d37abb97372eb65cc2d27cd470bca005",
+    "semantic_hash": ""
+  },
+  "MOCK-UPS/GRAVITY HARDWARE/GRAVITY HARDWARE/uploads/pasted-1781515025918-0.png": {
+    "mtime": 1781640321.0,
+    "ast_hash": "60aa2e3ee0d5322ec8b3ecec3f626542",
+    "semantic_hash": ""
+  }
+}

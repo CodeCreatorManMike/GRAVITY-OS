@@ -80,3 +80,10 @@ icalendar
 # Weather (Open-Meteo via HTTP — no package needed)
 
 # Fitness (Wger public API via httpx — no package needed)
+
+# Voice pipeline
+faster-whisper          # STT — self-hosted Whisper, CPU-friendly
+edge-tts                # TTS — free Microsoft neural TTS, no API key
+
+# Object storage
+minio                   # MinIO Python SDK for file upload/download
