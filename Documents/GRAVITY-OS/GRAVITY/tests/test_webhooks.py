@@ -24,14 +24,21 @@ class _Result:
     def scalars(self):
         return _Scalars(self._rows)
 
+    def scalar_one_or_none(self):
+        return self._rows[0] if self._rows else None
+
 
 class FakeDB:
     def __init__(self, rows):
         self.rows = rows
+        self.added = []
         self.commits = 0
 
     async def execute(self, _statement):
         return _Result(self.rows)
+
+    def add(self, row):
+        self.added.append(row)
 
     async def commit(self):
         self.commits += 1
@@ -49,6 +56,7 @@ async def allow_destination(_url):
         "https://localhost/hook",
         "https://127.0.0.1/hook",
         "https://10.0.0.8/hook",
+        "https://example.com/hook",
     ],
 )
 def test_validate_webhook_url_rejects_unsafe_destinations(url):
@@ -167,25 +175,24 @@ async def test_dispatch_is_best_effort_and_records_failure():
 
 
 @pytest.mark.asyncio
-async def test_publish_user_event_reaches_websocket_even_when_outbound_fails(monkeypatch):
+async def test_publish_user_event_reaches_websocket_and_queues_outbound(monkeypatch):
     sent = []
 
     class FakeManager:
         async def send_to_user(self, user_id, event_type, data):
             sent.append((user_id, event_type, data))
 
-    async def fail_dispatch(*_args, **_kwargs):
-        raise RuntimeError("unexpected dispatcher failure")
-
     monkeypatch.setattr(webhook_service, "manager", FakeManager())
-    monkeypatch.setattr(webhook_service, "dispatch_outbound_webhooks", fail_dispatch)
+    db = FakeDB([1])
 
-    deliveries = await webhook_service.publish_user_event(
-        FakeDB([]), 7, "HABIT_COMPLETED", {"habit_id": 42}
+    await webhook_service.publish_user_event(
+        db, 7, "HABIT_COMPLETED", {"habit_id": 42}
     )
 
     assert sent == [(7, "HABIT_COMPLETED", {"habit_id": 42})]
-    assert deliveries == []
+    assert len(db.added) == 1
+    assert db.added[0].event_type == "HABIT_COMPLETED"
+    assert db.added[0].data == {"habit_id": 42}
 
 
 @pytest.mark.asyncio
@@ -196,7 +203,7 @@ async def test_destination_validation_rejects_hostname_resolving_to_private_ip(m
     monkeypatch.setattr(webhook_service.socket, "getaddrinfo", private_result)
 
     with pytest.raises(ValueError, match="private or local"):
-        await webhook_service.ensure_public_webhook_destination("https://internal.example/hook")
+        await webhook_service.ensure_public_webhook_destination("https://hooks.zapier.com/hook")
 
 
 def test_validate_webhook_url_rejects_invalid_port():

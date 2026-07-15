@@ -86,6 +86,7 @@ export default function SettingsScreen() {
     Alert.alert('Log out', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Log out', style: 'destructive', onPress: async () => {
+        queryClient.clear();
         await clearAuth();
         router.replace('/login');
       }},

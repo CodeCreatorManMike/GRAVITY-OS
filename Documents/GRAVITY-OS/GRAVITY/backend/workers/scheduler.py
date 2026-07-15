@@ -23,6 +23,17 @@ def _get_redis() -> aioredis.Redis:
     return aioredis.from_url(settings.redis_url, decode_responses=True)
 
 
+@scheduler.scheduled_job('interval', seconds=10, id='webhook_outbox')
+async def scheduled_webhook_delivery():
+    """Drain durable outbound webhook events without blocking API transactions."""
+    from backend.services.webhook_service import process_webhook_outbox
+
+    try:
+        await process_webhook_outbox()
+    except Exception as exc:
+        print(f"[scheduler] webhook outbox failed: {exc}")
+
+
 @scheduler.scheduled_job('interval', minutes=15, id='nudge_evaluation')
 async def scheduled_nudge_evaluation():
     """
@@ -148,6 +159,7 @@ async def _evaluate_for_user(
                 data=nudge_payload,
                 db=db,
             )
+        await db.commit()
 
 
 @scheduler.scheduled_job('cron', hour=1, minute=0, id='nightly_summarisation')

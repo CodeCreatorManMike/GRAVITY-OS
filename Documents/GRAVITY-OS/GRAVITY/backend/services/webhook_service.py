@@ -5,7 +5,7 @@ provider must never prevent a Gravity event from reaching the device or app.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import asyncio
 import hashlib
 import hmac
@@ -18,13 +18,15 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.webhook import Webhook
+from backend.database import AsyncSessionLocal
+from backend.models.webhook import Webhook, WebhookEvent
 from backend.services.connection_manager import manager
 
 logger = logging.getLogger(__name__)
+ALLOWED_WEBHOOK_HOSTS = frozenset({"hooks.zapier.com", "maker.ifttt.com"})
 
 
 @dataclass(frozen=True)
@@ -53,6 +55,8 @@ def validate_webhook_url(url: str) -> str:
     hostname = parsed.hostname.lower().rstrip(".")
     if hostname == "localhost" or hostname.endswith(".localhost"):
         raise ValueError("Webhook URL cannot target localhost")
+    if hostname not in ALLOWED_WEBHOOK_HOSTS:
+        raise ValueError("Webhook URL must use an IFTTT or Zapier endpoint")
 
     try:
         address = ipaddress.ip_address(hostname)
@@ -110,6 +114,7 @@ async def dispatch_outbound_webhooks(
     *,
     client: httpx.AsyncClient | None = None,
     destination_validator: Callable[[str], Awaitable[None]] = ensure_public_webhook_destination,
+    delivery_id: str | None = None,
 ) -> list[WebhookDelivery]:
     """POST an event to matching outbound subscriptions and record outcomes.
 
@@ -141,7 +146,7 @@ async def dispatch_outbound_webhooks(
         return []
 
     payload = {
-        "delivery_id": str(uuid4()),
+        "delivery_id": delivery_id or str(uuid4()),
         "event": event_type,
         "created_at": datetime.now(tz=timezone.utc).isoformat(),
         "data": data,
@@ -188,11 +193,87 @@ async def publish_user_event(
     user_id: int,
     event_type: str,
     data: dict[str, Any],
-) -> list[WebhookDelivery]:
-    """Publish to connected Gravity clients, then to external subscriptions."""
+) -> None:
+    """Publish locally and enqueue external delivery in the caller's transaction."""
     await manager.send_to_user(user_id, event_type, data)
-    try:
-        return await dispatch_outbound_webhooks(db, user_id, event_type, data)
-    except Exception:
-        logger.exception("Unexpected webhook dispatch failure for user %s", user_id)
-        return []
+    result = await db.execute(
+        select(Webhook.id)
+        .where(
+            Webhook.user_id == user_id,
+            Webhook.direction == "outbound",
+            Webhook.enabled.is_(True),
+            Webhook.event_type.in_([event_type, "*"]),
+        )
+        .limit(1)
+    )
+    if result.scalar_one_or_none() is not None:
+        db.add(
+            WebhookEvent(
+                delivery_id=str(uuid4()),
+                user_id=user_id,
+                event_type=event_type,
+                data=data,
+            )
+        )
+
+
+async def process_webhook_outbox(*, batch_size: int = 25) -> int:
+    """Deliver queued events with at-least-once semantics and bounded retries."""
+    processed = 0
+    for _ in range(batch_size):
+        now = datetime.now(tz=timezone.utc)
+        stale_claim = now - timedelta(minutes=5)
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(WebhookEvent)
+                .where(
+                    WebhookEvent.available_at <= now,
+                    or_(
+                        WebhookEvent.status == "pending",
+                        and_(
+                            WebhookEvent.status == "processing",
+                            WebhookEvent.claimed_at < stale_claim,
+                        ),
+                    ),
+                )
+                .order_by(WebhookEvent.id.asc())
+                .with_for_update(skip_locked=True)
+                .limit(1)
+            )
+            event: Any = result.scalar_one_or_none()
+            if event is None:
+                break
+
+            event.status = "processing"
+            event.claimed_at = now
+            await db.commit()
+
+            try:
+                deliveries = await dispatch_outbound_webhooks(
+                    db,
+                    event.user_id,
+                    event.event_type,
+                    event.data,
+                    delivery_id=event.delivery_id,
+                )
+                failed = any(not delivery.succeeded for delivery in deliveries)
+            except Exception as exc:
+                logger.exception("Unexpected webhook outbox failure for event %s", event.id)
+                failed = True
+                error = str(exc)[:500]
+            else:
+                error = ""
+
+            event.attempts += 1
+            if failed and event.attempts < 3:
+                event.status = "pending"
+                event.claimed_at = None
+                event.available_at = now + timedelta(minutes=2 ** (event.attempts - 1))
+                if error:
+                    logger.warning("Webhook event %s will retry: %s", event.id, error)
+            else:
+                await db.delete(event)
+            await db.commit()
+            processed += 1
+
+    return processed
