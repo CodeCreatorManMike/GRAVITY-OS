@@ -118,11 +118,10 @@ async def dispatch_outbound_webhooks(
 ) -> list[WebhookDelivery]:
     """POST an event to matching outbound subscriptions and record outcomes.
 
-    Any caller changes are committed before network I/O. The webhook query
-    transaction is also closed before requests begin, then delivery outcomes are
-    committed separately so scheduled jobs do not silently lose status updates.
+    The webhook query transaction is closed before requests begin, then delivery
+    outcomes are committed separately so no database transaction remains open
+    during network I/O.
     """
-    await db.commit()
     result = await db.execute(
         select(Webhook).where(
             Webhook.user_id == user_id,

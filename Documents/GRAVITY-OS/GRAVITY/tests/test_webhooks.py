@@ -1,6 +1,8 @@
 import hashlib
 import hmac
 import json
+from datetime import datetime, timezone
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -140,7 +142,7 @@ async def test_dispatch_sends_matching_enabled_webhooks_and_records_success():
     assert matching.last_error == ""
     assert matching.last_triggered_at is not None
     assert ignored.last_triggered_at is None
-    assert db.commits == 3
+    assert db.commits == 2
 
 
 @pytest.mark.asyncio
@@ -209,3 +211,56 @@ async def test_destination_validation_rejects_hostname_resolving_to_private_ip(m
 def test_validate_webhook_url_rejects_invalid_port():
     with pytest.raises(ValueError, match="invalid port"):
         webhook_service.validate_webhook_url("https://hooks.zapier.com:not-a-port/hook")
+
+
+@pytest.mark.asyncio
+async def test_outbox_worker_delivers_and_deletes_successful_event(monkeypatch):
+    event = SimpleNamespace(
+        id=5,
+        delivery_id="fixed-delivery-id",
+        user_id=7,
+        event_type="HABIT_COMPLETED",
+        data={"habit_id": 42},
+        status="pending",
+        attempts=0,
+        available_at=datetime.now(tz=timezone.utc),
+        claimed_at=None,
+    )
+
+    class OutboxDB:
+        def __init__(self):
+            self.commits = 0
+            self.deleted = []
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_args):
+            return None
+
+        async def execute(self, _statement):
+            return _Result([event])
+
+        async def commit(self):
+            self.commits += 1
+
+        async def delete(self, row):
+            self.deleted.append(row)
+
+    db = OutboxDB()
+    dispatched = []
+
+    async def dispatch(_db, user_id, event_type, data, **kwargs):
+        dispatched.append((user_id, event_type, data, kwargs["delivery_id"]))
+        return [webhook_service.WebhookDelivery(webhook_id=9, succeeded=True, status_code=202)]
+
+    monkeypatch.setattr(webhook_service, "AsyncSessionLocal", lambda: db)
+    monkeypatch.setattr(webhook_service, "dispatch_outbound_webhooks", dispatch)
+
+    processed = await webhook_service.process_webhook_outbox(batch_size=1)
+
+    assert processed == 1
+    assert dispatched == [(7, "HABIT_COMPLETED", {"habit_id": 42}, "fixed-delivery-id")]
+    assert db.deleted == [event]
+    assert event.attempts == 1
+    assert db.commits == 2
