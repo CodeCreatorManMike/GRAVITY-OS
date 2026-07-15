@@ -12,7 +12,7 @@ Endpoints:
 """
 import asyncio
 from datetime import date
-from typing import Optional
+from typing import Optional, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -26,9 +26,11 @@ from backend.models.integration import CycleReview
 from backend.routers.auth import get_current_user
 from backend.config import get_settings
 from backend.services.context_service import build_user_context
+from backend.services.ai_log_service import log_completion
 
 router = APIRouter(prefix="/review", tags=["review"])
 settings = get_settings()
+REVIEW_MODEL = "claude-haiku-4-5-20251001"
 
 _redis_client = None
 
@@ -186,9 +188,9 @@ async def start_review(
     await db.refresh(review)
 
     # Generate opening AI message
-    def _build_opening_message() -> str:
-        from core.ai_client import get_ai_client
-        client = get_ai_client()
+    def _build_opening_message() -> tuple[str, int, int]:
+        import anthropic
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         pct = int(float(goal.likelihood_score or 0) * 100)
         habit_pct = int(avg_completion * 100)
         goal_text = goal.statement or "your goal"
@@ -207,16 +209,30 @@ one real number. Ask one question to start the reflection. No fluff, no platitud
 Voice-ready format — no symbols, no markdown."""
 
         response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model=REVIEW_MODEL,
             max_tokens=300,
             messages=[{"role": "user", "content": prompt}],
         )
-        return response.content[0].text.strip()
+        return (
+            str(getattr(response.content[0], "text", "")).strip(),
+            response.usage.input_tokens,
+            response.usage.output_tokens,
+        )
 
     try:
-        opening_message = await asyncio.wait_for(
+        opening_message, prompt_tokens, output_tokens = await asyncio.wait_for(
             asyncio.to_thread(_build_opening_message),
             timeout=30.0,
+        )
+        await log_completion(
+            user_id=cast(int, current_user.id),
+            mode="review",
+            completion=opening_message,
+            db=db,
+            provider="anthropic",
+            model=REVIEW_MODEL,
+            prompt_tokens=prompt_tokens,
+            output_tokens=output_tokens,
         )
     except asyncio.TimeoutError:
         raise HTTPException(
@@ -270,9 +286,8 @@ async def review_message(
     history.append({"role": "user", "content": req.message})
 
     def _run_review_turn():
-        from core.ai_client import get_ai_client
-        import json as _json
-        client = get_ai_client()
+        import anthropic
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         name = ctx["profile"]["name"]
         goal_text = ctx["current_cycle"]["goal"]
 
@@ -295,19 +310,29 @@ Rules:
 - Signal completion ONLY when the new goal is confirmed"""
 
         response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model=REVIEW_MODEL,
             max_tokens=400,
             system=system,
             messages=history,
         )
-        text = response.content[0].text.strip()
-        return text
+        text = str(getattr(response.content[0], "text", "")).strip()
+        return text, response.usage.input_tokens, response.usage.output_tokens
 
     try:
         import json
-        ai_response = await asyncio.wait_for(
+        ai_response, prompt_tokens, output_tokens = await asyncio.wait_for(
             asyncio.to_thread(_run_review_turn),
             timeout=30.0,
+        )
+        await log_completion(
+            user_id=cast(int, current_user.id),
+            mode="review",
+            completion=ai_response,
+            db=db,
+            provider="anthropic",
+            model=REVIEW_MODEL,
+            prompt_tokens=prompt_tokens,
+            output_tokens=output_tokens,
         )
     except asyncio.TimeoutError:
         raise HTTPException(

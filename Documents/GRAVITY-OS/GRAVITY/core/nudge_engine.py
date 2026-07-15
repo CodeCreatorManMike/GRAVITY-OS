@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from typing import Callable
 from core.ai_client import AIClient
 from core.profile import UserProfile, load_profile
 
@@ -73,7 +74,10 @@ def build_user_state(
     }
 
 
-def decide_nudge(state: dict) -> dict:
+def decide_nudge(
+    state: dict,
+    on_complete: Callable[[str], None] | None = None,
+) -> dict:
     """
     Call 1 — Decision.
     Cheap, runs frequently. Answers yes or no: should a nudge be sent?
@@ -87,6 +91,8 @@ def decide_nudge(state: dict) -> dict:
     }]
 
     response = client.complete(system_prompt, messages, max_tokens=300)
+    if on_complete is not None:
+        on_complete(response)
 
     try:
         clean = response.strip()
@@ -105,7 +111,11 @@ def decide_nudge(state: dict) -> dict:
         }
 
 
-def generate_nudge_content(state: dict, decision: dict) -> dict:
+def generate_nudge_content(
+    state: dict,
+    decision: dict,
+    on_complete: Callable[[str], None] | None = None,
+) -> dict:
     """
     Call 2 — Content.
     Only runs when decision says yes.
@@ -123,6 +133,8 @@ def generate_nudge_content(state: dict, decision: dict) -> dict:
     }]
 
     response = client.complete(system_prompt, messages, max_tokens=200)
+    if on_complete is not None:
+        on_complete(response)
 
     try:
         clean = response.strip()

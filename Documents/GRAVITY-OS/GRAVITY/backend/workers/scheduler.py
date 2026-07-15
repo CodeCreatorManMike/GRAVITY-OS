@@ -12,6 +12,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from backend.database import AsyncSessionLocal
 from backend.config import get_settings
 from backend.models.user import User, Goal
+from backend.services.ai_log_service import log_completion
 import redis.asyncio as aioredis
 from sqlalchemy import select
 
@@ -88,15 +89,33 @@ async def _evaluate_for_user(
             return
 
         state = build_nudge_state(ctx, now_hhmm, weekday_name)
+        completions: list[str] = []
 
         def _run():
-            decision = decide_nudge(state)
+            decision = decide_nudge(state, on_complete=completions.append)
             if not decision.get("should_nudge"):
                 return None
-            content = generate_nudge_content(state, decision)
+            content = generate_nudge_content(state, decision, on_complete=completions.append)
             return {"decision": decision, "content": content}
 
-        result = await asyncio.wait_for(asyncio.to_thread(_run), timeout=30.0)
+        try:
+            result = await asyncio.wait_for(asyncio.to_thread(_run), timeout=30.0)
+        except Exception:
+            for completion in completions:
+                await log_completion(
+                    user_id=user_id,
+                    mode="nudge",
+                    completion=completion,
+                    db=db,
+                )
+            raise
+        for completion in completions:
+            await log_completion(
+                user_id=user_id,
+                mode="nudge",
+                completion=completion,
+                db=db,
+            )
         if result is None:
             return
 

@@ -19,12 +19,17 @@ import redis.asyncio as aioredis
 
 from backend.config import get_settings
 from backend.services.context_service import build_user_context
+from backend.services.ai_log_service import log_completion
 from backend.schemas.face import (
     GoalArcFace, TaskListFace, HabitHeatmapFace, TimerFace, StudyProgressFace,
     FaceCard, FACE_TYPES,
 )
 
 settings = get_settings()
+
+
+class LayoutRankingError(RuntimeError):
+    """The AI call or face payload failed and may use the safe fallback."""
 
 # ── Public entry point ────────────────────────────────────────────────────────
 
@@ -41,8 +46,13 @@ async def generate_layout(
     pinned: list[str] | None = json.loads(prefs_raw) if prefs_raw else None
 
     try:
-        faces = await _ai_ranked_faces(ctx, pinned_types=pinned)
-    except Exception as e:
+        faces = await _ai_ranked_faces(
+            ctx,
+            user_id=user_id,
+            db=db,
+            pinned_types=pinned,
+        )
+    except LayoutRankingError as e:
         print(f"[layout] AI ranking failed, using rule-based fallback: {e}")
         faces = _rule_based_faces(ctx)
 
@@ -67,7 +77,12 @@ Return ONLY the JSON array, no other text.
 """
 
 
-async def _ai_ranked_faces(ctx: dict, pinned_types: list[str] | None = None) -> list[FaceCard]:
+async def _ai_ranked_faces(
+    ctx: dict,
+    user_id: int,
+    db: AsyncSession,
+    pinned_types: list[str] | None = None,
+) -> list[FaceCard]:
     import anthropic
 
     profile = ctx.get("profile", {})
@@ -109,17 +124,30 @@ async def _ai_ranked_faces(ctx: dict, pinned_types: list[str] | None = None) -> 
 
     user_msg = f"User context:\n{json.dumps(context_summary, indent=2)}\n\nReturn the face array."
 
-    client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-    response = await asyncio.to_thread(
-        lambda: client.messages.create(
-            model=settings.anthropic_model,
-            max_tokens=1024,
-            system=system,
-            messages=[{"role": "user", "content": user_msg}],
+    try:
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+        response = await asyncio.to_thread(
+            lambda: client.messages.create(
+                model=settings.anthropic_model,
+                max_tokens=1024,
+                system=system,
+                messages=[{"role": "user", "content": user_msg}],
+            )
         )
-    )
+    except Exception as exc:
+        raise LayoutRankingError(str(exc)) from exc
 
     raw = response.content[0].text.strip()
+    await log_completion(
+        user_id=user_id,
+        mode="layout",
+        completion=raw,
+        db=db,
+        provider="anthropic",
+        model=settings.anthropic_model,
+        prompt_tokens=response.usage.input_tokens,
+        output_tokens=response.usage.output_tokens,
+    )
     # Strip markdown code fences if present
     if raw.startswith("```"):
         raw = raw.split("```")[1]
@@ -127,7 +155,10 @@ async def _ai_ranked_faces(ctx: dict, pinned_types: list[str] | None = None) -> 
             raw = raw[4:]
     raw = raw.strip()
 
-    face_dicts: list[dict] = json.loads(raw)
+    try:
+        face_dicts: list[dict] = json.loads(raw)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise LayoutRankingError("AI returned invalid face JSON") from exc
     return _validate_faces(face_dicts, ctx)[:5]
 
 

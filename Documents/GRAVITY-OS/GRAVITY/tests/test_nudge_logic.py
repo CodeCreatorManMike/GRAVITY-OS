@@ -112,6 +112,15 @@ def test_decide_nudge_yes(monkeypatch):
     assert result["intensity"] == "medium"
 
 
+def test_decide_nudge_reports_raw_completion_for_logging(monkeypatch):
+    completions = []
+    monkeypatch.setattr("core.nudge_engine.client.complete", lambda *a, **kw: _DECISION_YES)
+
+    decide_nudge(build_user_state(_profile(), [], []), on_complete=completions.append)
+
+    assert completions == [_DECISION_YES]
+
+
 def test_decide_nudge_no(monkeypatch):
     monkeypatch.setattr("core.nudge_engine.client.complete", lambda *a, **kw: _DECISION_NO)
     state = build_user_state(_profile(), [], [])
@@ -137,6 +146,18 @@ def test_generate_content_extracts_message(monkeypatch):
     content = generate_nudge_content(state, decision)
     assert content["message"] == "You haven't touched your music today."
     assert content["sub_message"] == "Even 20 minutes counts."
+
+
+def test_generate_content_reports_raw_completion_for_logging(monkeypatch):
+    completions = []
+    monkeypatch.setattr("core.nudge_engine.client.complete", lambda *a, **kw: _CONTENT)
+    state = build_user_state(_profile(), [], [])
+    decision = {"should_nudge": True, "category": "test", "intensity": "low",
+                "reason": "x", "data_points": []}
+
+    generate_nudge_content(state, decision, on_complete=completions.append)
+
+    assert completions == [_CONTENT]
 
 
 def test_generate_content_fallback_on_bad_json(monkeypatch):

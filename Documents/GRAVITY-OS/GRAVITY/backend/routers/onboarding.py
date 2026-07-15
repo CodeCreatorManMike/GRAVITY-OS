@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 from datetime import date, timedelta
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -13,6 +14,7 @@ from backend.database import get_db
 from backend.models.user import User, Goal, Habit
 from backend.routers.auth import get_current_user
 from backend.config import get_settings
+from backend.services.ai_log_service import log_completion
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 settings = get_settings()
@@ -90,14 +92,27 @@ def load_prompt(filename: str) -> str:
         return f.read()
 
 
-async def ai_complete(system_prompt: str, messages: list, max_tokens: int = 200) -> str:
-    """Run the blocking AIClient.complete() in a thread pool with a 30 s hard timeout."""
+async def ai_complete(
+    system_prompt: str,
+    messages: list,
+    user_id: int,
+    db: AsyncSession,
+    max_tokens: int = 200,
+) -> str:
+    """Run one onboarding AI call and persist its interaction metadata."""
     client = get_ai_client()
     try:
-        return await asyncio.wait_for(
+        completion = await asyncio.wait_for(
             asyncio.to_thread(client.complete, system_prompt, messages, max_tokens),
             timeout=30.0,
         )
+        await log_completion(
+            user_id=user_id,
+            mode="onboarding",
+            completion=completion,
+            db=db,
+        )
+        return completion
     except asyncio.TimeoutError:
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
@@ -156,7 +171,13 @@ def build_system_prompt(phase_file: str, profile_data: dict, name: str) -> str:
     return prompt
 
 
-async def extract_profile_data(full_transcript: list, name: str, profile_data: dict) -> dict:
+async def extract_profile_data(
+    full_transcript: list,
+    name: str,
+    profile_data: dict,
+    user_id: int,
+    db: AsyncSession,
+) -> dict:
     """
     Silent extraction: send the full transcript to the AI with the extraction
     prompt and merge the returned JSON into profile_data. Never visible to user.
@@ -179,6 +200,17 @@ async def extract_profile_data(full_transcript: list, name: str, profile_data: d
             asyncio.to_thread(get_ai_client().complete, system_prompt, messages, 1000),
             timeout=30.0,
         )
+    except Exception:
+        return profile_data
+
+    await log_completion(
+        user_id=user_id,
+        mode="onboarding",
+        completion=response,
+        db=db,
+    )
+
+    try:
         clean = response.strip()
         if clean.startswith("```"):
             parts = clean.split("```")
@@ -189,7 +221,7 @@ async def extract_profile_data(full_transcript: list, name: str, profile_data: d
         for key, value in extracted.items():
             if value is not None:
                 profile_data[key] = value
-    except Exception:
+    except (json.JSONDecodeError, TypeError, ValueError):
         pass  # silent — keep whatever profile_data we already have
 
     return profile_data
@@ -265,6 +297,8 @@ async def start_onboarding(
     opening = await ai_complete(
         system_prompt,
         [{"role": "user", "content": "[start]"}],
+        cast(int, current_user.id),
+        db,
         max_tokens=150,
     )
     opening_clean = opening.replace("PHASE_COMPLETE", "").strip()
@@ -330,7 +364,13 @@ async def send_message(
     # Call AI for current phase
     _, phase_file = PHASES[phase - 1]
     system_prompt = build_system_prompt(phase_file, profile_data, current_user.name)
-    response = await ai_complete(system_prompt, phase_messages, max_tokens=200)
+    response = await ai_complete(
+        system_prompt,
+        phase_messages,
+        cast(int, current_user.id),
+        db,
+        max_tokens=200,
+    )
 
     phase_complete = "PHASE_COMPLETE" in response
     response_clean = response.replace("PHASE_COMPLETE", "").strip()
@@ -351,7 +391,13 @@ async def send_message(
         )
 
     # ── Phase completed — silent extraction ──────────────────────────────────
-    profile_data = await extract_profile_data(full_transcript, current_user.name, profile_data)
+    profile_data = await extract_profile_data(
+        full_transcript,
+        cast(str, current_user.name),
+        profile_data,
+        cast(int, current_user.id),
+        db,
+    )
 
     if phase < 5:
         # Advance to next phase and get its opening message
@@ -362,6 +408,8 @@ async def send_message(
         next_opening = await ai_complete(
             next_system_prompt,
             [{"role": "user", "content": "[start]"}],
+            cast(int, current_user.id),
+            db,
             max_tokens=150,
         )
         next_opening_clean = next_opening.replace("PHASE_COMPLETE", "").strip()

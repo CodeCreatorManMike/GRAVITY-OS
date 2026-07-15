@@ -38,6 +38,45 @@ async def log_interaction(
     return row.id
 
 
+async def log_completion(
+    user_id: int,
+    mode: str,
+    completion: str,
+    db: AsyncSession,
+    *,
+    provider: str | None = None,
+    model: str | None = None,
+    prompt_tokens: int | None = None,
+    output_tokens: int | None = None,
+    tool_used: str | None = None,
+) -> int:
+    """Persist a string-like AI completion, including attached usage metadata."""
+    resolved_provider = provider or getattr(completion, "provider", None)
+    resolved_model = model or getattr(completion, "model", None)
+    if not resolved_provider or not resolved_model:
+        raise ValueError("AI completion logging requires provider and model metadata")
+
+    return await log_interaction(
+        user_id=user_id,
+        mode=mode,
+        provider=resolved_provider,
+        model=resolved_model,
+        message=str(completion),
+        db=db,
+        tool_used=tool_used,
+        prompt_tokens=(
+            prompt_tokens
+            if prompt_tokens is not None
+            else int(getattr(completion, "prompt_tokens", 0))
+        ),
+        output_tokens=(
+            output_tokens
+            if output_tokens is not None
+            else int(getattr(completion, "output_tokens", 0))
+        ),
+    )
+
+
 async def record_outcome(
     interaction_id: int,
     acted: bool,
