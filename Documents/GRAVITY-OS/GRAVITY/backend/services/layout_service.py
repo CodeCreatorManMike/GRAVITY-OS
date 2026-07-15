@@ -156,9 +156,11 @@ async def _ai_ranked_faces(
     raw = raw.strip()
 
     try:
-        face_dicts: list[dict] = json.loads(raw)
+        face_dicts = json.loads(raw)
     except (json.JSONDecodeError, TypeError) as exc:
         raise LayoutRankingError("AI returned invalid face JSON") from exc
+    if not isinstance(face_dicts, list) or not all(isinstance(face, dict) for face in face_dicts):
+        raise LayoutRankingError("AI returned an invalid face array")
     return _validate_faces(face_dicts, ctx)[:5]
 
 

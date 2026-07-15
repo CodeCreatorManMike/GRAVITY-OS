@@ -160,6 +160,28 @@ async def test_layout_ranking_logs_before_parsing(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_layout_ranking_rejects_non_array_payload_after_logging(monkeypatch):
+    raw = json.dumps({"type": "goal_arc"})
+    response = SimpleNamespace(
+        content=[SimpleNamespace(text=raw)],
+        usage=SimpleNamespace(input_tokens=5, output_tokens=3),
+    )
+    client = SimpleNamespace(messages=SimpleNamespace(create=lambda **kwargs: response))
+    logger = AsyncMock()
+    monkeypatch.setattr("anthropic.Anthropic", lambda **kwargs: client)
+    monkeypatch.setattr(layout_service, "log_completion", logger)
+
+    with pytest.raises(layout_service.LayoutRankingError, match="invalid face array"):
+        await layout_service._ai_ranked_faces(
+            {"profile": {}, "current_cycle": {}, "today": {}, "recent_behaviour": {}},
+            user_id=9,
+            db=MagicMock(),
+        )
+
+    logger.assert_awaited_once()
+
+
+@pytest.mark.asyncio
 async def test_cycle_review_opening_logs_the_call(monkeypatch):
     goal = SimpleNamespace(
         id=4,
