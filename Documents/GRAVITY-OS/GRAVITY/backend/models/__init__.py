@@ -5,3 +5,5 @@ from backend.models.memory import Memory
 from backend.models.calendar_event import CalendarEvent
 from backend.models.user_location import UserLocation
 from backend.models.file import UserFile
+from backend.models.webhook import Webhook
+from backend.models.ai_log import AIInteraction, AIOutcome

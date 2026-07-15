@@ -38,6 +38,7 @@ class User(Base):
     location           = relationship("UserLocation",     back_populates="user", uselist=False, cascade="all, delete-orphan")
     files              = relationship("UserFile",          back_populates="user", cascade="all, delete-orphan")
     ai_interactions    = relationship("AIInteraction",     back_populates="user", cascade="all, delete-orphan")
+    webhooks           = relationship("Webhook",           back_populates="user", cascade="all, delete-orphan")
 
 class Goal(Base):
     __tablename__ = "goals"

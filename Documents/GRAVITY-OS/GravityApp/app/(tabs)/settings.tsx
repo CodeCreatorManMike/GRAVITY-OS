@@ -116,6 +116,10 @@ export default function SettingsScreen() {
       </Section>
 
       {/* Integrations */}
+      <Section title="AUTOMATIONS">
+        <Row label="IFTTT & Zapier webhooks" onPress={() => router.push('/webhooks' as any)} arrow />
+      </Section>
+
       {(integrations?.length ?? 0) > 0 && (
         <Section title="INTEGRATIONS">
           {(integrations ?? []).map(i => (

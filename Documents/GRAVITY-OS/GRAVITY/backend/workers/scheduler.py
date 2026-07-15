@@ -62,6 +62,7 @@ async def _evaluate_for_user(
     """Run the full nudge evaluation for one user. Same logic as the REST endpoint."""
     from backend.services.context_service import build_user_context, build_nudge_state, invalidate_user_context
     from backend.services.connection_manager import manager
+    from backend.services.webhook_service import publish_user_event
     from core.nudge_engine import decide_nudge, generate_nudge_content
     from backend.models.user import Nudge, NudgeSettings
     from backend.routers.nudges import _in_quiet_hours
@@ -136,7 +137,7 @@ async def _evaluate_for_user(
             "action_label": nudge_row.action_label,
             "sent_at": nudge_row.sent_at.isoformat(),
         }
-        await manager.send_to_user(user_id, "NUDGE", nudge_payload)
+        await publish_user_event(db, user_id, "NUDGE", nudge_payload)
 
         if not manager.is_connected(user_id):
             from backend.services.push_service import send_push_if_offline
@@ -284,7 +285,7 @@ async def daily_cycle_trigger():
     09:00 daily: check if any active goal cycle has ended and notify user.
     Sends a CYCLE_REVIEW_READY WebSocket event if cycle_end <= today.
     """
-    from backend.services.connection_manager import manager
+    from backend.services.webhook_service import publish_user_event
     today_str = str(date.today())
 
     async with AsyncSessionLocal() as db:
@@ -298,7 +299,9 @@ async def daily_cycle_trigger():
 
     for user_id, goal_id, cycle_end in ending_cycles:
         print(f"[scheduler] cycle ended for user {user_id} (goal {goal_id}, end {cycle_end})")
-        await manager.send_to_user(user_id, "CYCLE_REVIEW_READY", {
-            "goal_id": goal_id,
-            "cycle_end": cycle_end,
-        })
+        async with AsyncSessionLocal() as db:
+            await publish_user_event(db, user_id, "CYCLE_REVIEW_READY", {
+                "goal_id": goal_id,
+                "cycle_end": cycle_end,
+            })
+            await db.commit()

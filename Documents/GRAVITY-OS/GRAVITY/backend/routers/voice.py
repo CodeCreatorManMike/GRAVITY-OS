@@ -16,7 +16,7 @@ from backend.database import get_db
 from backend.models.user import User
 from backend.routers.auth import get_current_user
 from backend.services import voice_service
-from backend.services.connection_manager import manager
+from backend.services.webhook_service import publish_user_event
 from backend.config import get_settings
 
 router = APIRouter(prefix="/voice", tags=["voice"])
@@ -63,8 +63,8 @@ async def process_voice(
         redis=_get_redis(),
     )
 
-    # Push action to device + app via WebSocket
-    await manager.send_to_user(current_user.id, result["action_type"], result["payload"])
+    # Push action to device + app and any matching outbound webhooks.
+    await publish_user_event(db, current_user.id, result["action_type"], result["payload"])
 
     # Return TTS audio as base64 in a header so JSON body stays clean
     import base64

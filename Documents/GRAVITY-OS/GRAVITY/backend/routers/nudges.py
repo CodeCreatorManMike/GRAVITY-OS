@@ -17,6 +17,7 @@ from backend.services.context_service import (
     build_nudge_state,
     invalidate_user_context,
 )
+from backend.services.webhook_service import publish_user_event
 
 router = APIRouter(prefix="/nudges", tags=["nudges"])
 settings = get_settings()
@@ -281,7 +282,7 @@ async def evaluate(
         "action_label": nudge_row.action_label,
         "sent_at": nudge_row.sent_at.isoformat(),
     }
-    await manager.send_to_user(current_user.id, "NUDGE", nudge_payload)
+    await publish_user_event(db, current_user.id, "NUDGE", nudge_payload)
 
     if not manager.is_connected(current_user.id):
         from backend.services.push_service import send_push_if_offline
