@@ -63,6 +63,7 @@ async function apiRequest<T>(path: string, token: string | null, init?: RequestI
 
 export default function WebhooksScreen() {
   const token = useAuthStore(state => state.token);
+  const userId = useAuthStore(state => state.userId);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [direction, setDirection] = useState<Direction>('inbound');
@@ -70,7 +71,7 @@ export default function WebhooksScreen() {
   const [eventType, setEventType] = useState(INBOUND_EVENTS[0]);
   const [targetUrl, setTargetUrl] = useState('');
   const [signingSecret, setSigningSecret] = useState('');
-  const webhooksQueryKey = ['webhooks', token] as const;
+  const webhooksQueryKey = ['webhooks', userId] as const;
 
   const webhooks = useQuery<WebhookConfig[]>({
     queryKey: webhooksQueryKey,
