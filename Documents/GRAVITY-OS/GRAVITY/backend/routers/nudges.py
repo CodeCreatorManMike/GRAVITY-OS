@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -17,6 +17,7 @@ from backend.services.context_service import (
     build_nudge_state,
     invalidate_user_context,
 )
+from backend.services.ai_log_service import log_completion
 
 router = APIRouter(prefix="/nudges", tags=["nudges"])
 settings = get_settings()
@@ -203,12 +204,13 @@ async def evaluate(
 
     # ── 4. Run two-call AI pipeline in thread ─────────────────────────────────
     from core.nudge_engine import decide_nudge, generate_nudge_content
+    completions: list[str] = []
 
     def _run_pipeline() -> dict:
-        decision = decide_nudge(state)
+        decision = decide_nudge(state, on_complete=completions.append)
         if not decision.get("should_nudge"):
             return {"nudge": False, "reason": decision.get("reason", "")}
-        content = generate_nudge_content(state, decision)
+        content = generate_nudge_content(state, decision, on_complete=completions.append)
         return {
             "nudge": True,
             "category": decision.get("category"),
@@ -228,14 +230,36 @@ async def evaluate(
             timeout=30.0,
         )
     except asyncio.TimeoutError:
+        for completion in completions:
+            await log_completion(
+                user_id=cast(int, current_user.id),
+                mode="nudge",
+                completion=completion,
+                db=db,
+            )
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
             detail="AI response timed out — please try again",
         )
     except Exception as exc:
+        for completion in completions:
+            await log_completion(
+                user_id=cast(int, current_user.id),
+                mode="nudge",
+                completion=completion,
+                db=db,
+            )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"AI call failed: {exc}",
+        )
+
+    for completion in completions:
+        await log_completion(
+            user_id=cast(int, current_user.id),
+            mode="nudge",
+            completion=completion,
+            db=db,
         )
 
     # ── 5. AI declined ────────────────────────────────────────────────────────
