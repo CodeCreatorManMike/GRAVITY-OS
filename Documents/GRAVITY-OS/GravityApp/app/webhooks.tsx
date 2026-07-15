@@ -70,11 +70,13 @@ export default function WebhooksScreen() {
   const [eventType, setEventType] = useState(INBOUND_EVENTS[0]);
   const [targetUrl, setTargetUrl] = useState('');
   const [signingSecret, setSigningSecret] = useState('');
+  const webhooksQueryKey = ['webhooks', token] as const;
 
   const webhooks = useQuery<WebhookConfig[]>({
-    queryKey: ['webhooks'],
+    queryKey: webhooksQueryKey,
     queryFn: () => apiRequest('/integrations/webhooks', token),
     enabled: !!token,
+    gcTime: 0,
   });
 
   const create = useMutation({
@@ -87,7 +89,7 @@ export default function WebhooksScreen() {
       setName('');
       setTargetUrl('');
       setSigningSecret('');
-      queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+      queryClient.invalidateQueries({ queryKey: webhooksQueryKey });
     },
     onError: (error: Error) => Alert.alert('Could not create webhook', error.message),
   });
@@ -98,13 +100,13 @@ export default function WebhooksScreen() {
       token,
       { method: 'PUT', body: JSON.stringify(patch) },
     ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['webhooks'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: webhooksQueryKey }),
     onError: (error: Error) => Alert.alert('Could not update webhook', error.message),
   });
 
   const remove = useMutation({
     mutationFn: (id: number) => apiRequest<void>(`/integrations/webhooks/${id}`, token, { method: 'DELETE' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['webhooks'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: webhooksQueryKey }),
     onError: (error: Error) => Alert.alert('Could not delete webhook', error.message),
   });
 

@@ -28,9 +28,17 @@ class _Result:
 class FakeDB:
     def __init__(self, rows):
         self.rows = rows
+        self.commits = 0
 
     async def execute(self, _statement):
         return _Result(self.rows)
+
+    async def commit(self):
+        self.commits += 1
+
+
+async def allow_destination(_url):
+    return None
 
 
 @pytest.mark.parametrize(
@@ -102,12 +110,14 @@ async def test_dispatch_sends_matching_enabled_webhooks_and_records_success():
         return httpx.Response(202)
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        db = FakeDB([matching, wildcard, ignored])
         deliveries = await webhook_service.dispatch_outbound_webhooks(
-            FakeDB([matching, wildcard, ignored]),
+            db,
             user_id=7,
             event_type="HABIT_COMPLETED",
             data={"habit_id": 42, "habit_name": "Read"},
             client=client,
+            destination_validator=allow_destination,
         )
 
     assert len(requests) == 2
@@ -122,6 +132,7 @@ async def test_dispatch_sends_matching_enabled_webhooks_and_records_success():
     assert matching.last_error == ""
     assert matching.last_triggered_at is not None
     assert ignored.last_triggered_at is None
+    assert db.commits == 3
 
 
 @pytest.mark.asyncio
@@ -141,7 +152,12 @@ async def test_dispatch_is_best_effort_and_records_failure():
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         deliveries = await webhook_service.dispatch_outbound_webhooks(
-            FakeDB([hook]), 7, "NUDGE", {"message": "Stand up"}, client=client
+            FakeDB([hook]),
+            7,
+            "NUDGE",
+            {"message": "Stand up"},
+            client=client,
+            destination_validator=allow_destination,
         )
 
     assert deliveries[0].succeeded is False
@@ -170,3 +186,19 @@ async def test_publish_user_event_reaches_websocket_even_when_outbound_fails(mon
 
     assert sent == [(7, "HABIT_COMPLETED", {"habit_id": 42})]
     assert deliveries == []
+
+
+@pytest.mark.asyncio
+async def test_destination_validation_rejects_hostname_resolving_to_private_ip(monkeypatch):
+    def private_result(*_args, **_kwargs):
+        return [(None, None, None, None, ("127.0.0.1", 443))]
+
+    monkeypatch.setattr(webhook_service.socket, "getaddrinfo", private_result)
+
+    with pytest.raises(ValueError, match="private or local"):
+        await webhook_service.ensure_public_webhook_destination("https://internal.example/hook")
+
+
+def test_validate_webhook_url_rejects_invalid_port():
+    with pytest.raises(ValueError, match="invalid port"):
+        webhook_service.validate_webhook_url("https://hooks.zapier.com:not-a-port/hook")

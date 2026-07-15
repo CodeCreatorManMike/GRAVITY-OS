@@ -6,12 +6,14 @@ provider must never prevent a Gravity event from reaching the device or app.
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import asyncio
 import hashlib
 import hmac
 import ipaddress
 import json
 import logging
-from typing import Any
+import socket
+from typing import Any, Awaitable, Callable, cast
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -43,6 +45,10 @@ def validate_webhook_url(url: str) -> str:
     parsed = urlparse(normalized)
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
         raise ValueError("Webhook URL must be a public HTTPS URL")
+    try:
+        parsed.port
+    except ValueError as exc:
+        raise ValueError("Webhook URL has an invalid port") from exc
 
     hostname = parsed.hostname.lower().rstrip(".")
     if hostname == "localhost" or hostname.endswith(".localhost"):
@@ -56,6 +62,33 @@ def validate_webhook_url(url: str) -> str:
         raise ValueError("Webhook URL cannot target a private or local address")
 
     return normalized
+
+
+async def ensure_public_webhook_destination(url: str) -> None:
+    """Resolve a webhook hostname and reject non-public destinations before delivery."""
+    normalized = validate_webhook_url(url)
+    parsed = urlparse(normalized)
+    hostname = parsed.hostname
+    if hostname is None:  # Kept defensive for callers outside the router.
+        raise ValueError("Webhook URL must include a hostname")
+
+    loop = asyncio.get_running_loop()
+    try:
+        addresses = await loop.run_in_executor(
+            None,
+            lambda: socket.getaddrinfo(
+                hostname,
+                parsed.port or 443,
+                type=socket.SOCK_STREAM,
+            ),
+        )
+    except socket.gaierror as exc:
+        raise ValueError("Webhook hostname could not be resolved") from exc
+
+    if not addresses:
+        raise ValueError("Webhook hostname could not be resolved")
+    if any(not ipaddress.ip_address(address[4][0]).is_global for address in addresses):
+        raise ValueError("Webhook hostname resolves to a private or local address")
 
 
 def signed_headers(body: bytes, secret: str | None) -> dict[str, str]:
@@ -76,8 +109,15 @@ async def dispatch_outbound_webhooks(
     data: dict[str, Any],
     *,
     client: httpx.AsyncClient | None = None,
+    destination_validator: Callable[[str], Awaitable[None]] = ensure_public_webhook_destination,
 ) -> list[WebhookDelivery]:
-    """POST an event to matching outbound subscriptions and record outcomes."""
+    """POST an event to matching outbound subscriptions and record outcomes.
+
+    Any caller changes are committed before network I/O. The webhook query
+    transaction is also closed before requests begin, then delivery outcomes are
+    committed separately so scheduled jobs do not silently lose status updates.
+    """
+    await db.commit()
     result = await db.execute(
         select(Webhook).where(
             Webhook.user_id == user_id,
@@ -96,6 +136,7 @@ async def dispatch_outbound_webhooks(
         and hook.enabled
         and hook.event_type in (event_type, "*")
     ]
+    await db.commit()
     if not hooks:
         return []
 
@@ -111,33 +152,34 @@ async def dispatch_outbound_webhooks(
     if client is None:
         client = httpx.AsyncClient(timeout=httpx.Timeout(10.0), follow_redirects=False)
 
-    deliveries: list[WebhookDelivery] = []
+    async def deliver(hook: Webhook) -> WebhookDelivery:
+        hook.last_triggered_at = datetime.now(tz=timezone.utc)
+        try:
+            target_url = cast(str, hook.target_url)
+            await destination_validator(target_url)
+            response = await client.post(
+                target_url,
+                content=body,
+                headers=signed_headers(body, hook.signing_secret),
+            )
+            hook.last_status = response.status_code
+            if response.is_success:
+                hook.last_error = ""
+                return WebhookDelivery(hook.id, True, response.status_code)
+            hook.last_error = f"HTTP {response.status_code}"
+            return WebhookDelivery(hook.id, False, response.status_code, hook.last_error)
+        except Exception as exc:
+            hook.last_status = None
+            hook.last_error = str(exc)[:500]
+            return WebhookDelivery(hook.id, False, error=hook.last_error)
+
     try:
-        for hook in hooks:
-            hook.last_triggered_at = datetime.now(tz=timezone.utc)
-            try:
-                response = await client.post(
-                    hook.target_url,
-                    content=body,
-                    headers=signed_headers(body, hook.signing_secret),
-                )
-                hook.last_status = response.status_code
-                if response.is_success:
-                    hook.last_error = ""
-                    deliveries.append(WebhookDelivery(hook.id, True, response.status_code))
-                else:
-                    hook.last_error = f"HTTP {response.status_code}"
-                    deliveries.append(
-                        WebhookDelivery(hook.id, False, response.status_code, hook.last_error)
-                    )
-            except Exception as exc:
-                hook.last_status = None
-                hook.last_error = str(exc)[:500]
-                deliveries.append(WebhookDelivery(hook.id, False, error=hook.last_error))
+        deliveries = list(await asyncio.gather(*(deliver(hook) for hook in hooks)))
     finally:
         if owns_client:
             await client.aclose()
 
+    await db.commit()
     return deliveries
 
 
