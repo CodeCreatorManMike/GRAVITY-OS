@@ -11,6 +11,7 @@ from backend.routers.auth import get_current_user
 from backend.config import get_settings
 import redis.asyncio as aioredis
 from backend.services.context_service import invalidate_user_context
+from backend.services.webhook_service import publish_user_event
 
 _settings = get_settings()
 _redis_client = None
@@ -223,8 +224,8 @@ async def complete_habit(
         await db.flush()
         # Invalidate context cache — today.habits_completed is now stale
         await invalidate_user_context(current_user.id, _get_redis())
-        from backend.services.connection_manager import manager
-        await manager.send_to_user(
+        await publish_user_event(
+            db,
             current_user.id,
             "HABIT_COMPLETED",
             {

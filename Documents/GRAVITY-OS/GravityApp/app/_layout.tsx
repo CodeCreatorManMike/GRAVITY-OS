@@ -26,6 +26,7 @@ function AppInner() {
         <Stack.Screen name="habits-manage" />
         <Stack.Screen name="faces" />
         <Stack.Screen name="files" />
+        <Stack.Screen name="webhooks" />
       </Stack>
     </>
   );
