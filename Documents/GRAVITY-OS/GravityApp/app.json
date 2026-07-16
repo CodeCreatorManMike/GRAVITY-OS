@@ -8,7 +8,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.codecreatormanmike.gravityapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +25,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "react-native-health",
+        {
+          "healthSharePermission": "Gravity reads your health data to support your goals.",
+          "healthUpdatePermission": "Gravity does not write health data."
+        }
+      ]
     ]
   }
 }
